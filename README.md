@@ -1,73 +1,28 @@
-# React + TypeScript + Vite
+# TON 618
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Experiencia espacial interactiva e informativa sobre el agujero negro TON 618. SPA separado en varias secciones (no features), cada una con un contenido específico, incluyen animaciones avanzadas, transiciones dinámicas y una cohesión del diseño artístico. La navegación entre las secciones se hará mediante scroll, debe adaptarse a dispositivos desktop y móviles.
 
-Currently, two official plugins are available:
+## Tecnologías
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React** con **TypeScript**
+- **Vite** como bundler
+- **Bootstrap** para el diseño/estilos
 
-## React Compiler
+## Scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Los comandos disponibles están en [package.json](package.json).
 
-## Expanding the ESLint configuration
+## Estilos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Reglas de estilos en [docs/styles-rules.md](docs/styles-rules.md).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Paleta de colores
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Cosmic Blue: #111C35
+- Nebula purple: #35204D
+- Solar amber: #B96F37
+- Starlight: #E5E8EF
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+## Arquitectura
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+La estructura del file system y la ubicación de los datos de proyectos están en [docs/architecture.md](docs/architecture.md).
