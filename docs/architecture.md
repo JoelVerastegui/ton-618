@@ -35,3 +35,13 @@ ton-618/
 - La información de las secciones vive en un JSON dentro de `src/data/` (p. ej. `hero.json`).
 - La estructura del JSON será distinta por cada sección, según se requiera.
 - Las imágenes necesarias de cada sección van en `src/assets/images/` y el JSON las referencia.
+
+## Navegación
+
+Para lograr un scroll suave desde el navbar, actualización silenciosa de la URL y carga dinámica bajo demanda, se usará:
+
+- scrollIntoView para la navegación
+- window.history.replaceState para evitar re-renders innecesarios en React
+- React.lazy junto con IntersectionObserver para ahorrar memoria
+
+No se usará librería de terceros para la navegación.
