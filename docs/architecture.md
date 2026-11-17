@@ -38,6 +38,7 @@ ton-618/
 
 ## Navegación
 
+Cada sección (a excepción del Hero, que sería "/"), tendrá su ruta propia, y al hacer scroll cambiará de manera dinámica por cada sección.
 Para lograr un scroll suave desde el navbar, actualización silenciosa de la URL y carga dinámica bajo demanda, se usará:
 
 - scrollIntoView para la navegación
