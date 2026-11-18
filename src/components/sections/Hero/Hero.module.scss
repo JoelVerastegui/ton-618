@@ -100,6 +100,69 @@
   }
 }
 
+// Overlay de transición (z 7): se funde al color de la escena siguiente para
+// que no haya costura entre el final del hero y la sección 2.
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  background-color: $scene2Bg;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// Transición por scroll (p de 0 a 1 sobre los primeros 100svh de scroll).
+// Las animaciones van dentro de @supports: sin soporte de animation-timeline
+// correrían por tiempo y dejarían el hero ya desvanecido.
+@supports (animation-timeline: scroll()) {
+  .content {
+    animation: scrollText ease-in both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 35svh;
+  }
+
+  .overlay {
+    animation: scrollOverlay ease-in-out both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+}
+
+// Fallback: useScrollProgress escribe --progress (0–1) en la sección
+@supports not (animation-timeline: scroll()) {
+  .content {
+    opacity: calc(1 - clamp(0, var(--progress, 0) / 0.35, 1));
+    translate: 0 calc(-8vh * clamp(0, var(--progress, 0) / 0.35, 1));
+  }
+
+  .overlay {
+    opacity: clamp(0, (var(--progress, 0) - 0.55) / 0.45, 1);
+  }
+}
+
+@keyframes scrollText {
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  to {
+    opacity: 0;
+    translate: 0 -8vh;
+  }
+}
+
+@keyframes scrollOverlay {
+  0%,
+  55% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;

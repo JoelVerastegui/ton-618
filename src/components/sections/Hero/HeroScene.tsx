@@ -12,32 +12,38 @@ export function HeroScene() {
       <div className={styles.background} />
 
       <div className={clsx(styles.layer, styles.layerFar)}>
-        <div className={styles.layerBody}>
-          <div className={styles.farStars} />
+        <div className={styles.layerScroll}>
+          <div className={styles.layerBody}>
+            <div className={styles.farStars} />
+          </div>
         </div>
       </div>
 
       <div className={clsx(styles.layer, styles.layerMid)}>
-        <div className={styles.layerBody}>
-          <div className={styles.nebula} />
-          <div className={styles.particles}>
-            {Array.from({ length: PARTICLE_COUNT }, (_, i) => (
-              <span key={i} className={styles.particle} />
-            ))}
+        <div className={styles.layerScroll}>
+          <div className={styles.layerBody}>
+            <div className={styles.nebula} />
+            <div className={styles.particles}>
+              {Array.from({ length: PARTICLE_COUNT }, (_, i) => (
+                <span key={i} className={styles.particle} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       <div className={clsx(styles.layer, styles.layerNear)}>
-        <div className={styles.layerBody}>
-          <div className={styles.nearStars} />
-          <div className={styles.twinkleA} />
-          <div className={styles.twinkleB} />
-          <div className={styles.twinkleC} />
-          <div className={styles.sparkles}>
-            {Array.from({ length: SPARKLE_COUNT }, (_, i) => (
-              <span key={i} className={styles.sparkle} />
-            ))}
+        <div className={styles.layerScroll}>
+          <div className={styles.layerBody}>
+            <div className={styles.nearStars} />
+            <div className={styles.twinkleA} />
+            <div className={styles.twinkleB} />
+            <div className={styles.twinkleC} />
+            <div className={styles.sparkles}>
+              {Array.from({ length: SPARKLE_COUNT }, (_, i) => (
+                <span key={i} className={styles.sparkle} />
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { HeroScene } from '@/components/sections/Hero/HeroScene';
 import { Button } from '@/components/ui/Button/Button';
 import heroJson from '@/data/hero.json';
 import { useParallaxPointer } from '@/hooks/useParallaxPointer';
+import { useScrollProgress } from '@/hooks/useScrollProgress';
 import type { HeroData } from '@/interfaces/hero';
 import styles from '@/components/sections/Hero/Hero.module.scss';
 
@@ -12,6 +13,7 @@ const hero = heroJson as HeroData;
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   useParallaxPointer(heroRef);
+  useScrollProgress(heroRef);
 
   return (
     <section ref={heroRef} id='hero' aria-labelledby='heroTitle'>
@@ -35,6 +37,7 @@ export function Hero() {
             </Button>
           </div>
           <p className={styles.caption}>{hero.artwork.caption}</p>
+          <div className={styles.overlay} aria-hidden='true' />
         </div>
       </div>
     </section>

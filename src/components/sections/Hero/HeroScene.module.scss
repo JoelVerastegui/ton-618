@@ -114,6 +114,13 @@
   }
 }
 
+// Nivel intermedio: transición por scroll (zoom y fundido). Va separado del
+// parallax (.layer) y de la entrada (.layerBody) para que no se pisen.
+.layerScroll {
+  position: absolute;
+  inset: 0;
+}
+
 .layerBody {
   position: absolute;
   inset: 0;
@@ -365,6 +372,109 @@
 
   to {
     opacity: 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Transición por scroll: zoom hacia el agujero negro (progreso p de 0 a 1
+// sobre los primeros 100svh de scroll del documento).
+// ---------------------------------------------------------------------------
+@supports (animation-timeline: scroll()) {
+  // Las animaciones van dentro de @supports: sin soporte de animation-timeline
+  // correrían por tiempo y dejarían la escena ya ampliada.
+  .layerFar .layerScroll {
+    animation: scrollFar linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+
+  .layerMid .layerScroll {
+    animation: scrollMid ease-in both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+
+  .layerNear .layerScroll {
+    animation: scrollNear linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+
+  .core {
+    animation: scrollCore $easeCinematic both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+}
+
+// Fallback sin animation-timeline: useScrollProgress escribe --progress (0–1)
+// en la sección. Se conserva el efecto pero con easing lineal.
+@supports not (animation-timeline: scroll()) {
+  .layerFar .layerScroll {
+    scale: calc(1 + 0.12 * var(--progress, 0));
+  }
+
+  .layerMid .layerScroll {
+    scale: calc(1 + 0.5 * var(--progress, 0));
+    opacity: calc(1 - 0.6 * var(--progress, 0));
+  }
+
+  .layerNear .layerScroll {
+    scale: calc(1 + 1.2 * var(--progress, 0));
+    opacity: calc(1 - clamp(0, (var(--progress, 0) - 0.7) / 0.3, 1));
+  }
+
+  .core {
+    scale: calc(1 + 1.2 * var(--progress, 0));
+  }
+}
+
+@keyframes scrollFar {
+  from {
+    scale: 1;
+  }
+
+  to {
+    scale: 1.12;
+  }
+}
+
+@keyframes scrollMid {
+  from {
+    scale: 1;
+    opacity: 1;
+  }
+
+  to {
+    scale: 1.5;
+    opacity: 0.4;
+  }
+}
+
+// La escala avanza de 0 a 100 %; el fundido solo entre el 70 y el 100 %
+@keyframes scrollNear {
+  0% {
+    scale: 1;
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    scale: 2.2;
+    opacity: 0;
+  }
+}
+
+@keyframes scrollCore {
+  from {
+    scale: 1;
+  }
+
+  to {
+    scale: 2.2;
   }
 }
 
