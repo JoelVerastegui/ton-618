@@ -1,15 +1,20 @@
 import clsx from 'clsx';
+import { useRef } from 'react';
 import { HeroScene } from '@/components/sections/Hero/HeroScene';
 import { Button } from '@/components/ui/Button/Button';
 import heroJson from '@/data/hero.json';
+import { useParallaxPointer } from '@/hooks/useParallaxPointer';
 import type { HeroData } from '@/interfaces/hero';
 import styles from '@/components/sections/Hero/Hero.module.scss';
 
 const hero = heroJson as HeroData;
 
 export function Hero() {
+  const heroRef = useRef<HTMLElement>(null);
+  useParallaxPointer(heroRef);
+
   return (
-    <section id='hero' aria-labelledby='heroTitle'>
+    <section ref={heroRef} id='hero' aria-labelledby='heroTitle'>
       <div className={styles.track}>
         <div className={styles.stage}>
           <HeroScene />

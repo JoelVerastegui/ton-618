@@ -46,6 +46,10 @@
   @include media-breakpoint-up(md) {
     --bhSize: #{$bhSize};
   }
+
+  @include media-breakpoint-between(md, xl) {
+    --parallaxScale: 0.7;
+  }
 }
 
 // z 0 — Fondo
@@ -67,16 +71,25 @@
   inset: -6%;
 }
 
+// Parallax con mouse: --px y --py (en [-1, 1]) los escribe useParallaxPointer.
+// El desplazamiento es opuesto al cursor; en Y la amplitud es el 60 %.
+// --parallaxScale reduce la amplitud en tablets (768–1199 px).
 .layerFar {
   z-index: 1;
+  translate: calc(var(--px, 0) * #{-$parallaxFar} * var(--parallaxScale, 1))
+    calc(var(--py, 0) * #{-$parallaxFar * 0.6} * var(--parallaxScale, 1));
 }
 
 .layerMid {
   z-index: 2;
+  translate: calc(var(--px, 0) * #{-$parallaxMid} * var(--parallaxScale, 1))
+    calc(var(--py, 0) * #{-$parallaxMid * 0.6} * var(--parallaxScale, 1));
 }
 
 .layerNear {
   z-index: 3;
+  translate: calc(var(--px, 0) * #{-$parallaxNear} * var(--parallaxScale, 1))
+    calc(var(--py, 0) * #{-$parallaxNear * 0.6} * var(--parallaxScale, 1));
 }
 
 .layerBody {
