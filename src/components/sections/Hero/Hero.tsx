@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { HeroScene } from '@/components/sections/Hero/HeroScene';
 import { Button } from '@/components/ui/Button/Button';
 import heroJson from '@/data/hero.json';
+import { useInView } from '@/hooks/useInView';
 import { useParallaxPointer } from '@/hooks/useParallaxPointer';
 import { useScrollProgress } from '@/hooks/useScrollProgress';
 import type { HeroData } from '@/interfaces/hero';
@@ -12,6 +13,7 @@ const hero = heroJson as HeroData;
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
+  useInView(heroRef);
   useParallaxPointer(heroRef);
   useScrollProgress(heroRef);
 

@@ -83,7 +83,7 @@
   translate: calc(var(--px, 0) * #{-$parallaxFar} * var(--parallaxScale, 1))
     calc(var(--py, 0) * #{-$parallaxFar * 0.6} * var(--parallaxScale, 1));
 
-  @media (hover: none), (pointer: coarse) {
+  @media ((hover: none) or (pointer: coarse)) and (prefers-reduced-motion: no-preference) {
     --driftAmp: #{$driftFar};
 
     animation: layerDrift $driftFarDuration ease-in-out infinite;
@@ -95,7 +95,7 @@
   translate: calc(var(--px, 0) * #{-$parallaxMid} * var(--parallaxScale, 1))
     calc(var(--py, 0) * #{-$parallaxMid * 0.6} * var(--parallaxScale, 1));
 
-  @media (hover: none), (pointer: coarse) {
+  @media ((hover: none) or (pointer: coarse)) and (prefers-reduced-motion: no-preference) {
     --driftAmp: #{$driftMid};
 
     animation: layerDrift $driftMidDuration ease-in-out -13s infinite;
@@ -107,7 +107,7 @@
   translate: calc(var(--px, 0) * #{-$parallaxNear} * var(--parallaxScale, 1))
     calc(var(--py, 0) * #{-$parallaxNear * 0.6} * var(--parallaxScale, 1));
 
-  @media (hover: none), (pointer: coarse) {
+  @media ((hover: none) or (pointer: coarse)) and (prefers-reduced-motion: no-preference) {
     --driftAmp: #{$driftNear};
 
     animation: layerDrift $driftNearDuration ease-in-out -7s infinite;
@@ -560,5 +560,73 @@
   100% {
     opacity: 0;
     translate: var(--dx) var(--dy);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pausa fuera de vista: useInView marca la sección con data-inview="false"
+// cuando sale del viewport. Se pausan todas las animaciones de la escena.
+// ---------------------------------------------------------------------------
+:global([data-inview='false']) {
+  .layerFar,
+  .layerMid,
+  .layerNear,
+  .layerFar .layerScroll,
+  .layerMid .layerScroll,
+  .layerNear .layerScroll,
+  .core,
+  .halo,
+  .particle,
+  .twinkleA,
+  .twinkleB,
+  .twinkleC,
+  .sparkle {
+    animation-play-state: paused;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// prefers-reduced-motion: sin parallax (el hook no se adjunta), sin deriva
+// (ver arriba), sin pulso, centelleo ni zoom por scroll. Partículas y
+// destellos quedan estáticos y no hay animación de entrada.
+// ---------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  .layerBody,
+  .coreBody {
+    animation: none;
+  }
+
+  .halo {
+    animation: none;
+  }
+
+  .particle {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .sparkle {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .layerFar .layerScroll,
+  .layerMid .layerScroll,
+  .layerNear .layerScroll {
+    animation: none;
+    scale: none;
+    opacity: 1;
+  }
+
+  .core {
+    animation: none;
+    scale: none;
   }
 }

@@ -184,3 +184,43 @@
     opacity: 1;
   }
 }
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) {
+  .content,
+  .overlay {
+    animation-play-state: paused;
+  }
+}
+
+// prefers-reduced-motion: el hero deja de ser una escena de scroll. El track
+// colapsa a 100svh sin sticky, no hay zoom ni fundido y tampoco animación de
+// entrada (el contenido aparece directamente).
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    height: 100svh;
+  }
+
+  .stage {
+    position: relative;
+  }
+
+  .content {
+    animation: none;
+    opacity: 1;
+    translate: none;
+  }
+
+  .overlay {
+    animation: none;
+    opacity: 0;
+  }
+
+  .kicker,
+  .title,
+  .subtitle,
+  .cta,
+  .caption {
+    animation: none;
+  }
+}
