@@ -1,0 +1,23 @@
+// Importación selectiva de Bootstrap. Respetar estrictamente el orden de carga.
+
+// 1. Funciones de Bootstrap (obligatorio primero)
+@import 'bootstrap/scss/functions';
+
+// 2. Variables personalizadas del proyecto
+@import './variables';
+
+// 3. Core de Bootstrap (variables, mapas, mixins y utilidades base)
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+
+// 4. Componentes específicos utilizados en el proyecto
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/grid';
+
+// 5. Generación de la API de utilidades (obligatorio al final)
+@import 'bootstrap/scss/utilities/api';

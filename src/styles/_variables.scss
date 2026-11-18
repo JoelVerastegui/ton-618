@@ -1,0 +1,64 @@
+// Tokens del proyecto y sobrescrituras de Bootstrap.
+// Se importa ANTES de las variables de Bootstrap (ver _bootstrap-custom.scss).
+
+// ---------------------------------------------------------------------------
+// Paleta (referencia, no definitiva)
+// ---------------------------------------------------------------------------
+$cosmicBlue: #111c35;
+$nebulaPurple: #35204d;
+$solarAmber: #b96f37;
+$starlight: #e5e8ef;
+
+// Vacío espacial: color base del fondo y de los bordes de la escena
+$spaceVoid: #070b16;
+
+// ---------------------------------------------------------------------------
+// Tipografía
+// ---------------------------------------------------------------------------
+$fontFamilySans:
+  'Space Grotesk',
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  Roboto,
+  'Helvetica Neue',
+  Arial,
+  sans-serif;
+
+// ---------------------------------------------------------------------------
+// Motion
+// ---------------------------------------------------------------------------
+$motionFast: 200ms;
+$motionBase: 700ms;
+$motionSlow: 1600ms;
+$easeOutExpo: cubic-bezier(0.16, 1, 0.3, 1);
+$easeCinematic: cubic-bezier(0.5, 0, 0.75, 0);
+
+// ---------------------------------------------------------------------------
+// Escena del hero
+// ---------------------------------------------------------------------------
+// Color final de la transición por scroll. Provisional: debe coincidir con el
+// fondo de la sección 2 cuando exista.
+$scene2Bg: $spaceVoid;
+
+// Amplitud máxima del parallax con mouse (esquina del viewport, desktop ≥ 1200 px)
+$parallaxFar: 6px;
+$parallaxMid: 16px;
+$parallaxNear: 28px;
+
+// Tamaño del agujero negro (caja cuadrada)
+$bhSize: clamp(300px, 62vmin, 880px);
+$bhSizeMobile: min(92vw, 70svh);
+
+// ---------------------------------------------------------------------------
+// Sobrescrituras de Bootstrap (redefinición de variables !default)
+// ---------------------------------------------------------------------------
+$enable-dark-mode: false;
+$enable-smooth-scroll: false; // el scroll suave lo gestiona el código (respeta reduced-motion)
+
+$body-bg: $spaceVoid;
+$body-color: $starlight;
+$font-family-sans-serif: $fontFamilySans;
+$headings-font-weight: 300;
+$link-color: $starlight;
+$link-hover-color: $solarAmber;
