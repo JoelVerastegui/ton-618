@@ -1,6 +1,6 @@
 # SPEC 01 — Hero / Introducción
 
-**Estado:** Draft
+**Estado:** Approved
 **Depende de:** ninguna
 **Fecha:** 2026-11-18
 **Objetivo:** Implementar la sección Hero de TON 618 como primera escena de la web: escena espacial a pantalla completa con parallax de mouse en tres capas, TON 618 inmóvil, CTA, y una transición por scroll con zoom hacia el agujero negro.
@@ -141,30 +141,30 @@ Cada paso deja el proyecto compilando y funcional.
 
 ### Capas (de atrás hacia delante)
 
-| z | Capa | Parallax |
-|---|------|----------|
-| 0 | Fondo: radial Nebula Purple (#35204D) ~18 % sobre Cosmic Blue (#111C35), cayendo a `$spaceVoid` #070B16 | ninguno |
-| 1 | Estrellas lejanas | 6 px |
-| 2 | Nebulosa y partículas | 16 px |
-| 3 | Estrellas cercanas | 28 px |
-| 4 | TON 618 + halo ámbar (#B96F37) | inmóvil |
-| 5 | Scrim inferior para contraste | ninguno |
-| 6 | Contenido (texto, CTA, indicador) | ninguno |
-| 7 | Overlay de transición (`$scene2Bg`) | ninguno |
+| z   | Capa                                                                                                    | Parallax |
+| --- | ------------------------------------------------------------------------------------------------------- | -------- |
+| 0   | Fondo: radial Nebula Purple (#35204D) ~18 % sobre Cosmic Blue (#111C35), cayendo a `$spaceVoid` #070B16 | ninguno  |
+| 1   | Estrellas lejanas                                                                                       | 6 px     |
+| 2   | Nebulosa y partículas                                                                                   | 16 px    |
+| 3   | Estrellas cercanas                                                                                      | 28 px    |
+| 4   | TON 618 + halo ámbar (#B96F37)                                                                          | inmóvil  |
+| 5   | Scrim inferior para contraste                                                                           | ninguno  |
+| 6   | Contenido (texto, CTA, indicador)                                                                       | ninguno  |
+| 7   | Overlay de transición (`$scene2Bg`)                                                                     | ninguno  |
 
 Cada capa de parallax se extiende `inset: -6%` para evitar bordes vacíos. `--bhSize`: `clamp(300px, 62vmin, 880px)` en desktop y `min(92vw, 70svh)` en móvil; centrado horizontalmente y al ~44 % de la altura.
 
 ### Transición por scroll (progreso p de 0 a 1 sobre 100svh)
 
-| Elemento | Efecto | Rango |
-|----------|--------|-------|
-| Texto | opacity 1→0, translate 0→-8vh | p 0–0.35 |
-| Indicador de scroll | opacity 1→0 | p 0–0.10 |
-| Estrellas lejanas | scale 1→1.12 | 0–1 |
-| Nebulosa | scale 1→1.5, opacity 1→.4 | 0–1 |
-| Estrellas cercanas | scale 1→2.2, opacity 1→0 | scale 0–1, opacity 0.7–1 |
-| TON 618 + halo | scale 1→2.2 (`$easeCinematic`) | 0–1 |
-| Overlay | opacity 0 hasta 0.55, luego →1 | 0.55–1 |
+| Elemento            | Efecto                         | Rango                    |
+| ------------------- | ------------------------------ | ------------------------ |
+| Texto               | opacity 1→0, translate 0→-8vh  | p 0–0.35                 |
+| Indicador de scroll | opacity 1→0                    | p 0–0.10                 |
+| Estrellas lejanas   | scale 1→1.12                   | 0–1                      |
+| Nebulosa            | scale 1→1.5, opacity 1→.4      | 0–1                      |
+| Estrellas cercanas  | scale 1→2.2, opacity 1→0       | scale 0–1, opacity 0.7–1 |
+| TON 618 + halo      | scale 1→2.2 (`$easeCinematic`) | 0–1                      |
+| Overlay             | opacity 0 hasta 0.55, luego →1 | 0.55–1                   |
 
 Solo se animan `transform` (propiedades `translate` y `scale`) y `opacity`. Sin `filter` animado ni `mix-blend-mode`.
 
@@ -175,9 +175,12 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 ### Assets definitivos (contrato; no se generan en este spec)
 
 - **Agujero negro:** `src/assets/images/hero/ton618-blackhole-2048.{avif,webp}` y `-1024.{avif,webp}`. Cuadrado 1:1, alpha, sombra del horizonte en negro opaco. AVIF ≤ 250 KB (2048) y ≤ 90 KB (1024). `fetchpriority="high"` y preload.
-  Prompt: *Photorealistic astronomical visualization of a supermassive black hole with a thin, luminous accretion disc, viewed at about 75 degrees inclination, centered in a square frame. Strong gravitational lensing: the far side of the disc arches over the top and under the black shadow, a thin bright photon ring around a perfectly black circular event horizon. Disc color: glowing solar amber #B96F37 in the body, pale gold-white at the inner edge, faint nebula purple #35204D wisps in the outer falloff. Doppler beaming: one side noticeably brighter. Isolated on a pure black background, no stars, no text, no watermark, no vignette. 4096x4096, 1:1.*
+  Prompt: _Photorealistic astronomical visualization of a supermassive black hole with a thin, luminous accretion disc, viewed at about 75 degrees inclination, centered in a square frame. Strong gravitational lensing: the far side of the disc arches over the top and under the black shadow, a thin bright photon ring around a perfectly black circular event horizon. Disc color: glowing solar amber #B96F37 in the body, pale gold-white at the inner edge, faint nebula purple #35204D wisps in the outer falloff. Doppler beaming: one side noticeably brighter. Isolated on a pure black background, no stars, no text, no watermark, no vignette. 4096x4096, 1:1._
+  Restricciones (prompt negativo): estrellas, nebulosas de fondo, texto, logotipos, marcas de agua, bordes, viñeteado, planetas o naves, lens flare artificial, disco totalmente de frente o de canto, estética de cartoon.
   Para el alpha: generar sobre negro y convertir luminancia a alpha, pintando el centro opaco.
-- **Nebulosa:** `nebula-2400.webp` (≤ 140 KB) y `nebula-1280.webp` (≤ 60 KB), 16:9, alpha suave, centro despejado, bajo contraste.
+- **Nebulosa:** `src/assets/images/hero/nebula-2400.webp` (≤ 140 KB) y `nebula-1280.webp` (≤ 60 KB). 16:9, alpha suave, centro despejado (ahí va el agujero negro), bajo contraste, no tileable. Se usa en la capa 2 de `HeroScene` con `opacity` ~0.55 y parallax intermedio. Mientras no exista, la capa se resuelve con 3–4 `radial-gradient` superpuestos (púrpura, azul y ámbar a baja opacidad).
+  Prompt: _Subtle deep-space nebula haze, very low contrast, wispy diffuse clouds of nebula purple #35204D and deep cosmic blue #111C35 with a faint solar amber #B96F37 glow along the lower-left edge. The center of the frame is dark and mostly empty. Soft, smooth gradients, no sharp structures, no bright stars, no dominant focal point. Isolated on a pure black #000000 background, no text, no watermark, no border, no vignette. 16:9, 2400x1350._
+  Restricciones (prompt negativo): estrellas brillantes, planetas, galaxias definidas, texto, marcas de agua, saturación alta, bordes duros, patrón repetitivo. Para el alpha, mismo flujo de luminancia a alpha que el agujero negro.
 - **No usar** la imagen ni el enlace de OpenAI y lacienciaespacial.com presentes en `docs/ideas/01-introduction.md` (licencia desconocida).
 
 ---
@@ -185,6 +188,7 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 ## Criterios de aceptación
 
 **Contenido y estructura**
+
 - [ ] El hero ocupa `100svh` en la escena y no hay scroll horizontal entre 320 y 2560 px de ancho.
 - [ ] Todos los textos visibles salen de `hero.json`; ninguno está escrito directamente en el TSX.
 - [ ] El título muestra «Más allá de los límites» (con tilde) y el subtítulo muestra «más de 60 mil millones de masas solares».
@@ -194,6 +198,7 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 - [ ] `npm run build` termina sin errores de TypeScript ni de lint.
 
 **Parallax**
+
 - [ ] Con el cursor en una esquina del viewport (desktop ≥ 1200 px), las capas se desplazan 6 / 16 / 28 px (±1 px) en sentido opuesto al cursor.
 - [ ] `getBoundingClientRect()` de TON 618 es idéntico antes y después de mover el mouse.
 - [ ] Con el mouse quieto ~1 s no se ejecutan frames de JS del parallax (Performance profiler).
@@ -201,12 +206,14 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 - [ ] En emulación táctil hay deriva automática y no hay listeners de puntero del parallax.
 
 **Scroll y transición**
+
 - [ ] En `scrollY = 0` la escena está en su estado inicial; a 100svh el overlay tiene `opacity = 1`.
 - [ ] No hay costura de color entre el final del hero y el color `$scene2Bg`.
 - [ ] En un navegador sin `animation-timeline` el efecto funciona vía `--progress` y la consola no muestra errores.
 - [ ] Pulsar el CTA hace scroll hasta el elemento con el id de `cta.targetSectionId` si existe; si no existe, no lanza errores.
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
+
 - [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0.
 - [ ] Peso inicial del hero ≤ 450 KB en móvil y ≤ 700 KB en desktop (incluye la fuente).
 - [ ] ≥ 95 % de los frames por debajo de 20 ms durante el scroll y el movimiento del mouse.
@@ -214,6 +221,7 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 - [ ] React Profiler muestra 0 renders durante el movimiento del mouse.
 
 **Accesibilidad**
+
 - [ ] axe/Lighthouse: 0 violaciones de contraste; todo texto ≥ 4.5:1, incluido el CTA en hover y focus.
 - [ ] El CTA se alcanza con Tab, muestra `:focus-visible` y se activa con Enter; su área táctil es ≥ 48 px.
 - [ ] Con `prefers-reduced-motion: reduce` emulado: `document.getAnimations()` del hero devuelve 0, `.track` mide `100svh` sin sticky y no hay zoom.
@@ -224,6 +232,7 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 ## Decisiones tomadas y descartadas
 
 **Tomadas**
+
 - **Subtítulo «más de 60 mil millones».** El usuario decidió conservar el texto original, aunque el investigador señaló que la cifra se apoya solo en la medición alta (~66 mil M☉, Shemmer 2004) y que otra remedición da ~41 mil M☉. Mitigaciones incluidas: el dato `mass` se almacena con rango 40–66 mil M☉, `certainty: "estimate"` y fuentes, de modo que las secciones posteriores y cualquier detalle expandible muestren el rango real. Queda como cambio de una línea en `hero.json` si se decide suavizarlo («hasta 66 mil millones» es la alternativa exacta).
 - **Placeholders CSS para agujero negro y nebulosa.** Permite implementar ya; los assets definitivos se sustituyen sin tocar lógica.
 - **Solo hero, CTA con ancla.** La utilidad de navegación, rutas y carga bajo demanda se definen en otro spec.
@@ -236,6 +245,7 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 - **Corrección «Más allá».** La idea original decía «alla».
 
 **Descartadas**
+
 - Hotlinking de la imagen de OpenAI/lacienciaespacial.com: licencia desconocida.
 - `conic-gradient` con `@property` rotando sobre el disco: repinta cada frame y contradice la perspectiva inclinada.
 - View Transitions y `scroll-snap`: no encajan con una transición continua guiada por scroll.
