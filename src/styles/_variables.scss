@@ -46,6 +46,14 @@ $parallaxFar: 6px;
 $parallaxMid: 16px;
 $parallaxNear: 28px;
 
+// Deriva automática en dispositivos táctiles: amplitud (en X) y duración del ciclo
+$driftFar: 4px;
+$driftMid: 9px;
+$driftNear: 16px;
+$driftFarDuration: 60s;
+$driftMidDuration: 40s;
+$driftNearDuration: 28s;
+
 // Tamaño del agujero negro (caja cuadrada)
 $bhSize: clamp(300px, 62vmin, 880px);
 $bhSizeMobile: min(92vw, 70svh);

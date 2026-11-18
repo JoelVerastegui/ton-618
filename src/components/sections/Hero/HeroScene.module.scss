@@ -74,22 +74,44 @@
 // Parallax con mouse: --px y --py (en [-1, 1]) los escribe useParallaxPointer.
 // El desplazamiento es opuesto al cursor; en Y la amplitud es el 60 %.
 // --parallaxScale reduce la amplitud en tablets (768–1199 px).
+//
+// En dispositivos sin mouse (el hook no se adjunta) cada capa deriva sola con
+// una animación CSS sobre `translate`: sin JavaScript ni listeners de puntero.
+// La condición es el complemento exacto de la que activa el hook.
 .layerFar {
   z-index: 1;
   translate: calc(var(--px, 0) * #{-$parallaxFar} * var(--parallaxScale, 1))
     calc(var(--py, 0) * #{-$parallaxFar * 0.6} * var(--parallaxScale, 1));
+
+  @media (hover: none), (pointer: coarse) {
+    --driftAmp: #{$driftFar};
+
+    animation: layerDrift $driftFarDuration ease-in-out infinite;
+  }
 }
 
 .layerMid {
   z-index: 2;
   translate: calc(var(--px, 0) * #{-$parallaxMid} * var(--parallaxScale, 1))
     calc(var(--py, 0) * #{-$parallaxMid * 0.6} * var(--parallaxScale, 1));
+
+  @media (hover: none), (pointer: coarse) {
+    --driftAmp: #{$driftMid};
+
+    animation: layerDrift $driftMidDuration ease-in-out -13s infinite;
+  }
 }
 
 .layerNear {
   z-index: 3;
   translate: calc(var(--px, 0) * #{-$parallaxNear} * var(--parallaxScale, 1))
     calc(var(--py, 0) * #{-$parallaxNear * 0.6} * var(--parallaxScale, 1));
+
+  @media (hover: none), (pointer: coarse) {
+    --driftAmp: #{$driftNear};
+
+    animation: layerDrift $driftNearDuration ease-in-out -7s infinite;
+  }
 }
 
 .layerBody {
@@ -389,6 +411,28 @@
 
   50% {
     opacity: 1;
+  }
+}
+
+// Ciclo cerrado de deriva de una capa. La amplitud llega en --driftAmp; los
+// puntos X e Y no están en fase, para que el movimiento no parezca una
+// oscilación simple. En Y la amplitud máxima es el 60 %.
+@keyframes layerDrift {
+  0%,
+  100% {
+    translate: calc(var(--driftAmp) * -1) calc(var(--driftAmp) * -0.3);
+  }
+
+  25% {
+    translate: calc(var(--driftAmp) * 0.4) calc(var(--driftAmp) * 0.6);
+  }
+
+  50% {
+    translate: var(--driftAmp) calc(var(--driftAmp) * 0.2);
+  }
+
+  75% {
+    translate: calc(var(--driftAmp) * -0.3) calc(var(--driftAmp) * -0.6);
   }
 }
 
