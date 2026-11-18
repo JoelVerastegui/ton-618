@@ -28,13 +28,14 @@
   padding-bottom: 4.5rem;
 
   @include media-breakpoint-up(md) {
-    padding-bottom: 5.5rem;
+    padding-bottom: 4rem;
   }
 }
 
 .kicker {
   margin: 0;
-  color: color-mix(in oklch, $solarAmber 55%, $starlight);
+  animation: fadeUp $motionBase $easeOutExpo 300ms both;
+  color: color-mix(in oklab, $solarAmber 55%, $starlight);
   font-size: 0.8125rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -42,6 +43,7 @@
 }
 
 .title {
+  animation: fadeUp $motionBase $easeOutExpo 500ms both;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,6 +68,7 @@
 }
 
 .subtitle {
+  animation: fadeUp $motionBase $easeOutExpo 700ms both;
   max-width: 36ch;
   margin: 0 0 0.5rem;
   color: rgba($starlight, 0.8);
@@ -73,7 +76,12 @@
   text-wrap: balance;
 }
 
+.cta {
+  animation: fadeUp $motionBase $easeOutExpo 900ms both;
+}
+
 .caption {
+  animation: fadeIn $motionBase ease 1200ms both;
   position: absolute;
   right: 1rem;
   bottom: 0.75rem;
@@ -89,5 +97,27 @@
     left: auto;
     max-width: 28rem;
     text-align: right;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

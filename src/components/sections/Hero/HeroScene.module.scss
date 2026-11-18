@@ -1,0 +1,397 @@
+@use 'sass:list';
+@use 'sass:math';
+
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// ---------------------------------------------------------------------------
+// Generación de estrellas en compilación: una lista de box-shadow sobre un
+// elemento de 1×1 px. Las posiciones cubren la capa completa (112 % del stage,
+// porque cada capa se extiende inset: -6 %).
+// ---------------------------------------------------------------------------
+@function starField($count, $spreadMax: 0, $alphaMin: 40, $alphaMax: 70) {
+  $shadows: ();
+
+  @for $i from 1 through $count {
+    $x: math.div(math.random(1120), 10) * 1vw;
+    $y: math.div(math.random(1120), 10) * 1svh;
+    $alpha: math.div($alphaMin + math.random($alphaMax - $alphaMin + 1) - 1, 100);
+    $spread: math.div(math.random(10), 10) * $spreadMax;
+    $tint: $starlight;
+
+    // ~1 de cada 4 estrellas con tinte azulado
+    @if math.random(4) == 1 {
+      $tint: #bcd0ff;
+    }
+
+    $shadows: list.append($shadows, $x $y 0 $spread rgba($tint, $alpha), comma);
+  }
+
+  @return $shadows;
+}
+
+// ---------------------------------------------------------------------------
+// Escena
+// ---------------------------------------------------------------------------
+.scene {
+  --bhSize: #{$bhSizeMobile};
+
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+
+  @include media-breakpoint-up(md) {
+    --bhSize: #{$bhSize};
+  }
+}
+
+// z 0 — Fondo
+.background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 35%,
+    color-mix(in srgb, #{$nebulaPurple} 18%, #{$cosmicBlue}) 0%,
+    #{$cosmicBlue} 45%,
+    #{$spaceVoid} 100%
+  );
+}
+
+// Capas de profundidad. El contenedor externo queda libre para el parallax
+// y la transición por scroll; la entrada va en .layerBody.
+.layer {
+  position: absolute;
+  inset: -6%;
+}
+
+.layerFar {
+  z-index: 1;
+}
+
+.layerMid {
+  z-index: 2;
+}
+
+.layerNear {
+  z-index: 3;
+}
+
+.layerBody {
+  position: absolute;
+  inset: 0;
+  animation: fadeIn 1200ms ease both;
+}
+
+// z 1 — Estrellas lejanas
+.farStars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  box-shadow: starField(160, 0, 40, 70);
+}
+
+// z 2 — Nebulosa (placeholder CSS) y partículas
+.nebula {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background:
+    radial-gradient(ellipse 45% 35% at 22% 28%, rgba($nebulaPurple, 0.7), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 38%, rgba(#2a3f7a, 0.45), transparent 70%),
+    radial-gradient(ellipse 50% 28% at 15% 86%, rgba($solarAmber, 0.22), transparent 70%);
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba($starlight, 0.8);
+  opacity: 0;
+  animation: drift linear infinite;
+
+  @for $i from 1 through 18 {
+    &:nth-child(#{$i}) {
+      $size: math.div(9 + math.random(21), 10) * 1px;
+
+      top: math.random(100) * 1%;
+      left: math.random(100) * 1%;
+      width: $size;
+      height: $size;
+      --dx: #{math.random(21) - 11}vw;
+      --dy: #{math.random(21) - 11}vh;
+      animation-duration: #{17 + math.random(24)}s;
+      animation-delay: #{-1 * math.random(40)}s;
+    }
+  }
+
+  // En móvil solo se muestran 10 partículas
+  @include media-breakpoint-down(md) {
+    &:nth-child(n + 11) {
+      display: none;
+    }
+  }
+}
+
+// z 3 — Estrellas cercanas, centelleo y destellos
+.nearStars,
+.twinkleA,
+.twinkleB,
+.twinkleC {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+}
+
+.nearStars {
+  box-shadow: starField(50, 0.75, 60, 95);
+}
+
+// 12 estrellas con centelleo lento, repartidas en 3 grupos desfasados
+.twinkleA {
+  box-shadow: starField(4, 0.75, 70, 100);
+  animation: twinkle 5s ease-in-out infinite;
+}
+
+.twinkleB {
+  box-shadow: starField(4, 0.75, 70, 100);
+  animation: twinkle 6.5s ease-in-out -2s infinite;
+}
+
+.twinkleC {
+  box-shadow: starField(4, 0.75, 70, 100);
+  animation: twinkle 4.2s ease-in-out -1s infinite;
+}
+
+.sparkles {
+  position: absolute;
+  inset: 0;
+}
+
+// Destellos en cruz: desfasados 2 s entre sí para no superar 1 evento cada ~2 s
+.sparkle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  opacity: 0.15;
+  animation: sparkle 8s ease-in-out infinite;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+  }
+
+  &::before {
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $starlight, transparent);
+  }
+
+  &::after {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, $starlight, transparent);
+  }
+
+  &:nth-child(1) {
+    top: 22%;
+    left: 18%;
+    animation-delay: 0s;
+  }
+
+  &:nth-child(2) {
+    top: 16%;
+    left: 78%;
+    animation-delay: -2s;
+  }
+
+  &:nth-child(3) {
+    top: 62%;
+    left: 88%;
+    animation-delay: -4s;
+  }
+
+  &:nth-child(4) {
+    top: 70%;
+    left: 10%;
+    animation-delay: -6s;
+  }
+}
+
+// z 4 — TON 618 (placeholder CSS) con halo del disco de acreción.
+// .core queda libre para el zoom por scroll; la entrada va en .coreBody.
+.core {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  z-index: 4;
+  width: var(--bhSize);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+}
+
+.coreBody {
+  position: absolute;
+  inset: 0;
+  animation: coreEnter $motionSlow $easeOutExpo both;
+}
+
+.halo {
+  position: absolute;
+  inset: -45%;
+  background:
+    radial-gradient(
+      circle,
+      rgba($solarAmber, 0.55) 0%,
+      rgba($solarAmber, 0.18) 28%,
+      transparent 58%
+    ),
+    radial-gradient(circle, rgba($nebulaPurple, 0.45) 0%, transparent 72%);
+  animation: glowPulse 7s ease-in-out infinite alternate;
+}
+
+// Anillo de fotones y arco por lente gravitacional alrededor de la sombra
+.lens {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle,
+    transparent 0 19%,
+    rgba(#ffe2aa, 0.95) 20.5%,
+    rgba($solarAmber, 0.75) 24%,
+    rgba($solarAmber, 0.25) 30%,
+    transparent 38%
+  );
+}
+
+// Sombra del horizonte: negro opaco (~40 % del ancho de la caja)
+.shadow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, #000 0 19.5%, transparent 20%);
+}
+
+// Disco de acreción visto casi de canto. La máscara lo oculta dentro del
+// horizonte para que la sombra siga siendo negro opaco.
+.disc {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: radial-gradient(circle, transparent 0 19.5%, #000 20%);
+  mask-image: radial-gradient(circle, transparent 0 19.5%, #000 20%);
+  background: radial-gradient(
+    ellipse 50% 9% at 50% 50%,
+    rgba(#fff1d0, 0.95) 0%,
+    rgba(#ffc27a, 0.85) 25%,
+    rgba($solarAmber, 0.55) 55%,
+    transparent 100%
+  );
+}
+
+// z 5 — Scrim inferior para garantizar el contraste del texto
+.scrim {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  height: 55%;
+  background: linear-gradient(
+    to top,
+    rgba($cosmicBlue, 0.92) 0%,
+    rgba($cosmicBlue, 0.55) 45%,
+    transparent 100%
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Animaciones (solo transform/opacity)
+// ---------------------------------------------------------------------------
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes coreEnter {
+  from {
+    opacity: 0;
+    scale: 1.06;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes glowPulse {
+  from {
+    opacity: 0.75;
+    scale: 1;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1.05;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes drift {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+
+  20%,
+  80% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    translate: var(--dx) var(--dy);
+  }
+}

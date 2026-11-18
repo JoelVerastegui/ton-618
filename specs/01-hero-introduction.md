@@ -152,7 +152,7 @@ Cada paso deja el proyecto compilando y funcional.
 | 6   | Contenido (texto, CTA, indicador)                                                                       | ninguno  |
 | 7   | Overlay de transición (`$scene2Bg`)                                                                     | ninguno  |
 
-Cada capa de parallax se extiende `inset: -6%` para evitar bordes vacíos. `--bhSize`: `clamp(300px, 62vmin, 880px)` en desktop y `min(92vw, 70svh)` en móvil; centrado horizontalmente y al ~44 % de la altura.
+Cada capa de parallax se extiende `inset: -6%` para evitar bordes vacíos. `--bhSize`: `clamp(300px, 62vmin, 880px)` en desktop y `min(92vw, 70svh)` en móvil; centrado horizontalmente y al **38 %** de la altura (la propuesta inicial del diseñador era ~44 %; ver Decisiones tomadas).
 
 ### Transición por scroll (progreso p de 0 a 1 sobre 100svh)
 
@@ -243,6 +243,7 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 - **Estrellas y partículas generadas en SCSS en compilación.** Sin assets, sin `Math.random` en ejecución, sin estilos inline.
 - **`svh` en lugar de `dvh`.** Evita saltos de layout con la barra del navegador móvil.
 - **Corrección «Más allá».** La idea original decía «alla».
+- **Agujero negro al 38 % de la altura, no al ~44 %.** Al implementar el Paso 4 y revisar la captura a 1440×900, con el 44 % el kicker («Cuásar hiperluminoso · z = 2,219») quedaba solapado con la sombra del horizonte, lo que incumple el criterio de aceptación «el texto no tapa la sombra». Se subió el centro del agujero negro al 38 % y se redujo el padding inferior del contenido en desktop (5.5rem → 4rem). Con 500×844 y 1440×900 el texto queda despejado. En alturas muy bajas (p. ej. 640×360 horizontal) sigue pendiente de comprobar en el Paso 10.
 
 **Descartadas**
 

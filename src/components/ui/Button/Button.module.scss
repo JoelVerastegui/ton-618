@@ -21,7 +21,7 @@
 
   &:hover,
   &:focus-visible {
-    background-color: color-mix(in oklch, $solarAmber 70%, $starlight);
+    background-color: color-mix(in oklab, $solarAmber 70%, $starlight);
     box-shadow: 0 0 32px rgba($solarAmber, 0.45);
     color: $cosmicBlue;
   }
