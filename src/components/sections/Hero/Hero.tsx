@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useRef } from 'react';
+import { useRef, type MouseEvent } from 'react';
 import { HeroScene } from '@/components/sections/Hero/HeroScene';
 import { Button } from '@/components/ui/Button/Button';
 import heroJson from '@/data/hero.json';
@@ -16,6 +16,18 @@ export function Hero() {
   useInView(heroRef);
   useParallaxPointer(heroRef);
   useScrollProgress(heroRef);
+
+  // Scroll hasta la sección destino. Es suave salvo con prefers-reduced-motion.
+  // Si el destino aún no existe (la sección 2 es de otro spec), no hace nada.
+  const handleCtaClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    const target = document.getElementById(hero.cta.targetSectionId);
+    if (!target) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+  };
 
   return (
     <section ref={heroRef} id='hero' aria-labelledby='heroTitle'>
@@ -34,7 +46,11 @@ export function Hero() {
               <span className={styles.titleTagline}>{hero.title.tagline}</span>
             </h1>
             <p className={styles.subtitle}>{hero.subtitle}</p>
-            <Button className={styles.cta} href={`#${hero.cta.targetSectionId}`}>
+            <Button
+              className={styles.cta}
+              href={`#${hero.cta.targetSectionId}`}
+              onClick={handleCtaClick}
+            >
               {hero.cta.label}
             </Button>
           </div>

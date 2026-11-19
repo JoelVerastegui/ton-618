@@ -13,7 +13,7 @@ Origen del contenido: `docs/ideas/01-introduction.md`. Datos verificados por el 
 
 ### Incluido
 
-- Componente de sección `Hero` con su escena decorativa (`HeroScene`), contenido (kicker, título, subtítulo, CTA, indicador de scroll) y leyenda «Representación artística».
+- Componente de sección `Hero` con su escena decorativa (`HeroScene`), contenido (kicker, título, subtítulo, CTA) y leyenda «Representación artística».
 - Datos en `src/data/hero.json` con interfaces TypeScript, y fuentes citadas.
 - Parallax con mouse en 3 capas (estrellas lejanas, nebulosa y partículas, estrellas cercanas), con TON 618 inmóvil.
 - Deriva automática en CSS puro para dispositivos táctiles (sin mouse).
@@ -86,7 +86,6 @@ export interface HeroData {
   subtitle: string;
   summary: string; // descripción de la escena para lectores de pantalla
   cta: { label: string; targetSectionId: string };
-  scrollHint: { label: string };
   artwork: ImageRef;
   layers: HeroParallaxLayer[];
   facts: HeroFact[];
@@ -132,7 +131,7 @@ Cada paso deja el proyecto compilando y funcional.
 6. **Deriva táctil.** En `@media (hover: none), (pointer: coarse)`, keyframes sobre `translate` por capa (±4 / ±9 / ±16 px, 60 / 40 / 28 s), sin listeners de puntero.
 7. **Transición por scroll.** Animaciones guiadas con `animation-timeline: scroll(root block)` y `animation-range: 0 100svh`, según la tabla de la sección «Referencia de diseño». Fallback `useScrollProgress.ts` (escribe `--progress`) dentro de `@supports not (animation-timeline: scroll())`, registrado solo si `CSS.supports` es falso.
 8. **Pausa fuera de vista y reduced-motion.** `useInView.ts` (IntersectionObserver sobre `.track`) que pone `data-inview` y pausa todas las animaciones fuera de vista. Con `prefers-reduced-motion: reduce`: sin parallax, deriva, pulso ni zoom; `.track` colapsa a 100svh sin sticky; partículas estáticas; CTA con `scrollIntoView({ behavior: 'auto' })`.
-9. **CTA e indicador.** CTA como `<a href="#{targetSectionId}">` con `onClick` que hace `preventDefault` y `scrollIntoView` (suave salvo reduced-motion). Indicador de scroll con texto real, oculto en alturas < 520 px.
+9. **CTA.** CTA como `<a href="#{targetSectionId}">` con `onClick` que hace `preventDefault` y `scrollIntoView` (suave salvo reduced-motion).
 10. **Contrato de assets definitivos.** Documentar en el propio spec (sección «Referencia de diseño») ruta, formato, peso y prompt de las imágenes. No se añaden archivos de imagen. Verificar el hero completo (ver criterios de aceptación).
 
 ---
@@ -149,22 +148,21 @@ Cada paso deja el proyecto compilando y funcional.
 | 3   | Estrellas cercanas                                                                                      | 28 px    |
 | 4   | TON 618 + halo ámbar (#B96F37)                                                                          | inmóvil  |
 | 5   | Scrim inferior para contraste                                                                           | ninguno  |
-| 6   | Contenido (texto, CTA, indicador)                                                                       | ninguno  |
+| 6   | Contenido (texto, CTA)                                                                                  | ninguno  |
 | 7   | Overlay de transición (`$scene2Bg`)                                                                     | ninguno  |
 
 Cada capa de parallax se extiende `inset: -6%` para evitar bordes vacíos. `--bhSize`: `clamp(300px, 62vmin, 880px)` en desktop y `min(92vw, 70svh)` en móvil; centrado horizontalmente y al **38 %** de la altura (la propuesta inicial del diseñador era ~44 %; ver Decisiones tomadas).
 
 ### Transición por scroll (progreso p de 0 a 1 sobre 100svh)
 
-| Elemento            | Efecto                         | Rango                    |
-| ------------------- | ------------------------------ | ------------------------ |
-| Texto               | opacity 1→0, translate 0→-8vh  | p 0–0.35                 |
-| Indicador de scroll | opacity 1→0                    | p 0–0.10                 |
-| Estrellas lejanas   | scale 1→1.12                   | 0–1                      |
-| Nebulosa            | scale 1→1.5, opacity 1→.4      | 0–1                      |
-| Estrellas cercanas  | scale 1→2.2, opacity 1→0       | scale 0–1, opacity 0.7–1 |
-| TON 618 + halo      | scale 1→2.2 (`$easeCinematic`) | 0–1                      |
-| Overlay             | opacity 0 hasta 0.55, luego →1 | 0.55–1                   |
+| Elemento           | Efecto                         | Rango                    |
+| ------------------ | ------------------------------ | ------------------------ |
+| Texto              | opacity 1→0, translate 0→-8vh  | p 0–0.35                 |
+| Estrellas lejanas  | scale 1→1.12                   | 0–1                      |
+| Nebulosa           | scale 1→1.5, opacity 1→.4      | 0–1                      |
+| Estrellas cercanas | scale 1→2.2, opacity 1→0       | scale 0–1, opacity 0.7–1 |
+| TON 618 + halo     | scale 1→2.2 (`$easeCinematic`) | 0–1                      |
+| Overlay            | opacity 0 hasta 0.55, luego →1 | 0.55–1                   |
 
 Solo se animan `transform` (propiedades `translate` y `scale`) y `opacity`. Sin `filter` animado ni `mix-blend-mode`.
 
@@ -243,6 +241,7 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 - **Estrellas y partículas generadas en SCSS en compilación.** Sin assets, sin `Math.random` en ejecución, sin estilos inline.
 - **`svh` en lugar de `dvh`.** Evita saltos de layout con la barra del navegador móvil.
 - **Corrección «Más allá».** La idea original decía «alla».
+- **Sin indicador de scroll.** La idea original incluía «un indicador inferior que invite a explorar». Se descartó tras implementarlo (Paso 9): un usuario con experiencia en este tipo de páginas sabe que debe hacer scroll, y quien no lo sepa puede pulsar el botón «Iniciar exploración». Se retiraron el componente, sus estilos, el dato `scrollHint` de `hero.json`/`HeroData` y su fila en la tabla de transición por scroll.
 - **Agujero negro al 38 % de la altura, no al ~44 %.** Al implementar el Paso 4 y revisar la captura a 1440×900, con el 44 % el kicker («Cuásar hiperluminoso · z = 2,219») quedaba solapado con la sombra del horizonte, lo que incumple el criterio de aceptación «el texto no tapa la sombra». Se subió el centro del agujero negro al 38 % y se redujo el padding inferior del contenido en desktop (5.5rem → 4rem). Con 500×844 y 1440×900 el texto queda despejado. En alturas muy bajas (p. ej. 640×360 horizontal) sigue pendiente de comprobar en el Paso 10.
 
 **Descartadas**

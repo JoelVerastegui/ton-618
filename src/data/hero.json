@@ -10,9 +10,6 @@
     "label": "Iniciar exploración",
     "targetSectionId": "section-2"
   },
-  "scrollHint": {
-    "label": "Desplázate para explorar"
-  },
   "artwork": {
     "src": "ton618-blackhole",
     "alt": "Representación artística de un agujero negro con disco de acreción incandescente rodeado de estrellas.",

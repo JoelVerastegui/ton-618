@@ -6,7 +6,6 @@ export interface HeroData {
   subtitle: string;
   summary: string; // descripción de la escena para lectores de pantalla
   cta: { label: string; targetSectionId: string };
-  scrollHint: { label: string };
   artwork: ImageRef;
   layers: HeroParallaxLayer[];
   facts: HeroFact[];
