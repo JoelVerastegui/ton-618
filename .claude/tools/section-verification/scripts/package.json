@@ -1,0 +1,10 @@
+{
+  "name": "verify-section-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Dependencias propias de la caja de herramientas section-verification. Se instalan con npm install dentro de esta carpeta; no tocan el package.json del proyecto.",
+  "dependencies": {
+    "axe-core": "^4.10.0",
+    "pngjs": "^7.0.0"
+  }
+}

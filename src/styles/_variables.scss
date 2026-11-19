@@ -17,6 +17,7 @@ $spaceVoid: #070b16;
 // ---------------------------------------------------------------------------
 $fontFamilySans:
   'Space Grotesk',
+  'Space Grotesk Fallback',
   system-ui,
   -apple-system,
   'Segoe UI',
@@ -57,6 +58,12 @@ $driftNearDuration: 28s;
 // Tamaño del agujero negro (caja cuadrada)
 $bhSize: clamp(300px, 62vmin, 880px);
 $bhSizeMobile: min(92vw, 70svh);
+
+// Altura de viewport por debajo de la cual el hero se compacta (p. ej. móvil
+// en horizontal) para que el texto no tape la sombra del agujero negro.
+$shortHeight: 600px;
+// Segundo nivel de compactación (móvil en horizontal)
+$tinyHeight: 420px;
 
 // ---------------------------------------------------------------------------
 // Sobrescrituras de Bootstrap (redefinición de variables !default)

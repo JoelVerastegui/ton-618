@@ -1,7 +1,11 @@
 import { Hero } from '@/components/sections/Hero/Hero';
 
 function App() {
-  return <Hero />;
+  return (
+    <main>
+      <Hero />
+    </main>
+  );
 }
 
 export default App;

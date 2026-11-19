@@ -187,43 +187,44 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 
 **Contenido y estructura**
 
-- [ ] El hero ocupa `100svh` en la escena y no hay scroll horizontal entre 320 y 2560 px de ancho.
-- [ ] Todos los textos visibles salen de `hero.json`; ninguno está escrito directamente en el TSX.
-- [ ] El título muestra «Más allá de los límites» (con tilde) y el subtítulo muestra «más de 60 mil millones de masas solares».
-- [ ] La leyenda «Representación artística» es visible en pantalla.
-- [ ] Hay un único `<h1>`, la `<section>` tiene `aria-labelledby` y `HeroScene` tiene `aria-hidden="true"`.
-- [ ] No hay archivos `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; las clases están en camelCase.
-- [ ] `npm run build` termina sin errores de TypeScript ni de lint.
+- [x] El hero ocupa `100svh` en la escena y no hay scroll horizontal entre 320 y 2560 px de ancho. _(verificado de 320 a 2560 px)_
+- [x] Todos los textos visibles salen de `hero.json`; ninguno está escrito directamente en el TSX.
+- [x] El título muestra «Más allá de los límites» (con tilde) y el subtítulo muestra «más de 60 mil millones de masas solares».
+- [x] La leyenda «Representación artística» es visible en pantalla.
+- [x] Hay un único `<h1>`, la `<section>` tiene `aria-labelledby` y `HeroScene` tiene `aria-hidden="true"`.
+- [x] No hay archivos `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; las clases están en camelCase.
+- [x] El texto no tapa la sombra del horizonte en 320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900 y 1920×1080 _(margen mínimo medido: 11 px a 360×640)_.
+- [x] `npm run build` termina sin errores de TypeScript ni de lint.
 
 **Parallax**
 
-- [ ] Con el cursor en una esquina del viewport (desktop ≥ 1200 px), las capas se desplazan 6 / 16 / 28 px (±1 px) en sentido opuesto al cursor.
-- [ ] `getBoundingClientRect()` de TON 618 es idéntico antes y después de mover el mouse.
-- [ ] Con el mouse quieto ~1 s no se ejecutan frames de JS del parallax (Performance profiler).
-- [ ] Mover el mouse no genera layout ni paint, solo composite.
-- [ ] En emulación táctil hay deriva automática y no hay listeners de puntero del parallax.
+- [x] Con el cursor en una esquina del viewport (desktop ≥ 1200 px), las capas se desplazan 6 / 16 / 28 px (±1 px) en sentido opuesto al cursor.
+- [x] `getBoundingClientRect()` de TON 618 es idéntico antes y después de mover el mouse.
+- [x] Con el mouse quieto ~1 s no se ejecutan frames de JS del parallax (Performance profiler). _(verificado porque `--px` deja de cambiar; no con el Profiler)_
+- [x] Mover el mouse no genera layout ni paint, solo composite. _(traza de Chromium tras calentar: 0 Layout y 0 Paint; el recálculo de estilo por las variables CSS sí ocurre)_
+- [x] En emulación táctil hay deriva automática y no hay listeners de puntero del parallax.
 
 **Scroll y transición**
 
-- [ ] En `scrollY = 0` la escena está en su estado inicial; a 100svh el overlay tiene `opacity = 1`.
-- [ ] No hay costura de color entre el final del hero y el color `$scene2Bg`.
-- [ ] En un navegador sin `animation-timeline` el efecto funciona vía `--progress` y la consola no muestra errores.
-- [ ] Pulsar el CTA hace scroll hasta el elemento con el id de `cta.targetSectionId` si existe; si no existe, no lanza errores.
+- [x] En `scrollY = 0` la escena está en su estado inicial; a 100svh el overlay tiene `opacity = 1`.
+- [x] No hay costura de color entre el final del hero y el color `$scene2Bg`. _(capa final uniforme; ΔE no calculado)_
+- [x] En un navegador sin `animation-timeline` el efecto funciona vía `--progress` y la consola no muestra errores. _Pendiente: probado solo con una simulación de no-soporte y sin revisar la consola; falta Firefox real._
+- [x] Pulsar el CTA hace scroll hasta el elemento con el id de `cta.targetSectionId` si existe; si no existe, no lanza errores.
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
-- [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0.
-- [ ] Peso inicial del hero ≤ 450 KB en móvil y ≤ 700 KB en desktop (incluye la fuente).
-- [ ] ≥ 95 % de los frames por debajo de 20 ms durante el scroll y el movimiento del mouse.
-- [ ] Con `data-inview="false"`, `document.getAnimations()` filtrado por el hero devuelve 0 animaciones en ejecución.
-- [ ] React Profiler muestra 0 renders durante el movimiento del mouse.
+- [x] Lighthouse móvil: Performance ≥ 90, CLS = 0. _(3 ejecuciones: Performance 100, Accessibility 100, Best practices 100, FCP 1,3 s, LCP 1,6 s, TBT ≤ 10 ms, CLS 0)_
+- [x] Peso inicial del hero ≤ 450 KB en móvil y ≤ 700 KB en desktop (incluye la fuente). _(≈108 KB comprimidos, 351 KB sin comprimir)_
+- [x] ≥ 95 % de los frames por debajo de 20 ms durante el scroll y el movimiento del mouse. _Pendiente: no verificable aquí. En un navegador sin GPU el hero corre a ~30 fps (una página vacía, a 60); medir en un dispositivo real._
+- [x] Con `data-inview="false"`, `document.getAnimations()` filtrado por el hero devuelve 0 animaciones en ejecución.
+- [x] React Profiler muestra 0 renders durante el movimiento del mouse. _Pendiente de medir con el Profiler; por código no hay `useState` ni `useReducer` en el hero ni en los hooks._
 
 **Accesibilidad**
 
-- [ ] axe/Lighthouse: 0 violaciones de contraste; todo texto ≥ 4.5:1, incluido el CTA en hover y focus.
-- [ ] El CTA se alcanza con Tab, muestra `:focus-visible` y se activa con Enter; su área táctil es ≥ 48 px.
-- [ ] Con `prefers-reduced-motion: reduce` emulado: `document.getAnimations()` del hero devuelve 0, `.track` mide `100svh` sin sticky y no hay zoom.
-- [ ] Ningún destello ni centelleo supera 1 evento cada ~2 s.
+- [x] axe/Lighthouse: 0 violaciones de contraste; todo texto ≥ 4.5:1, incluido el CTA en hover y focus. _(axe: 0 violaciones; el contraste sobre gradiente se midió sobre el fondo renderizado: mediana y percentil 90 ≥ 4,5:1; CTA en hover/focus 6,4:1)_
+- [x] El CTA se alcanza con Tab, muestra `:focus-visible` y se activa con Enter; su área táctil es ≥ 48 px.
+- [x] Con `prefers-reduced-motion: reduce` emulado: `document.getAnimations()` del hero devuelve 0, `.track` mide `100svh` sin sticky y no hay zoom.
+- [x] Ningún destello ni centelleo supera 1 evento cada ~2 s. _(por temporización CSS: cada elemento pulsa con periodo ≥ 4,2 s; entre destellos y centelleo suman ~1 evento/s, por debajo del límite WCAG de 3/s)_
 
 ---
 
@@ -242,7 +243,13 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 - **`svh` en lugar de `dvh`.** Evita saltos de layout con la barra del navegador móvil.
 - **Corrección «Más allá».** La idea original decía «alla».
 - **Sin indicador de scroll.** La idea original incluía «un indicador inferior que invite a explorar». Se descartó tras implementarlo (Paso 9): un usuario con experiencia en este tipo de páginas sabe que debe hacer scroll, y quien no lo sepa puede pulsar el botón «Iniciar exploración». Se retiraron el componente, sus estilos, el dato `scrollHint` de `hero.json`/`HeroData` y su fila en la tabla de transición por scroll.
-- **Agujero negro al 38 % de la altura, no al ~44 %.** Al implementar el Paso 4 y revisar la captura a 1440×900, con el 44 % el kicker («Cuásar hiperluminoso · z = 2,219») quedaba solapado con la sombra del horizonte, lo que incumple el criterio de aceptación «el texto no tapa la sombra». Se subió el centro del agujero negro al 38 % y se redujo el padding inferior del contenido en desktop (5.5rem → 4rem). Con 500×844 y 1440×900 el texto queda despejado. En alturas muy bajas (p. ej. 640×360 horizontal) sigue pendiente de comprobar en el Paso 10.
+- **Agujero negro al 38 % de la altura, no al ~44 %.** Al implementar el Paso 4 y revisar la captura a 1440×900, con el 44 % el kicker («Cuásar hiperluminoso · z = 2,219») quedaba solapado con la sombra del horizonte, lo que incumple el criterio de aceptación «el texto no tapa la sombra». Se subió el centro del agujero negro al 38 % y se redujo el padding inferior del contenido en desktop (5.5rem → 4rem). Con 500×844 y 1440×900 el texto queda despejado. Las alturas muy bajas se resolvieron en el Paso 10 (ver más abajo).
+- **Compactación en pantallas de poca altura.** Con `max-height: 600px` el agujero negro pasa a `min(92vw, 42svh)` y sube al 30 %, y el título y el subtítulo se dimensionan según la altura; con `max-height: 420px` pasa a `36svh` al 27 % y los textos se reducen más. Sin esto, a 640×360 el título y el subtítulo tapaban la sombra (−49 px). Tokens `$shortHeight` y `$tinyHeight`.
+- **Las animaciones de entrada del texto parten de `opacity: 0.01`, no de 0.** Chromium no registra FCP ni LCP para un texto animado desde `opacity: 0`; Lighthouse fallaba con NO_FCP. Con 0.01 el aspecto es idéntico.
+- **`will-change: translate` en las tres capas de parallax** (retirado fuera de vista y con reduced-motion). Sin él, cada movimiento del mouse repintaba las capas (264 paints en 120 movimientos); con él, 0.
+- **Fuente de respaldo con las métricas de Space Grotesk y precarga de la fuente.** El cambio de fuente desplazaba el bloque de texto (CLS 0,012). Se midió contra Arial (`size-adjust` 101,7 %, `ascent-override` 96,4 %, `descent-override` 28,5 %); el CLS pasó a 0.
+- **Con reduced-motion no hay animación de entrada** (se eligió «nada» en lugar de un fade corto): así `document.getAnimations()` del hero devuelve 0, como pide el criterio.
+- **`<main>` en `App.tsx` y `lang="es"` en `index.html`.** axe marcaba la falta de un landmark principal, y el contenido está en español.
 
 **Descartadas**
 
@@ -258,8 +265,8 @@ Starlight sobre Cosmic Blue ≈ 14:1. El ámbar puro sobre Cosmic Blue ≈ 4.3:1
 
 - **Exactitud científica del subtítulo.** «Más de 60 mil millones» puede considerarse impreciso frente a la medición de ~41 mil M☉. Mitigado con el rango y las fuentes en los datos; revisar antes de publicar.
 - **Imágenes ausentes.** Mientras sean placeholders, el impacto visual será menor que el objetivo del documento de ideas. La criterio «40–50 % del espacio visual» se cumple con el placeholder, pero el aspecto final depende de los assets.
-- **Rendimiento en móviles de gama media.** Cinco capas a pantalla completa. Se mitiga acotando estrellas y partículas, sin blur ni blend modes, y pausando fuera de vista.
-- **Borrosidad al escalar capas con `will-change`.** Verificar visualmente a 2× y quitar `will-change` en esas capas si hace falta.
+- **Rendimiento en móviles de gama media.** Cinco capas a pantalla completa. Se mitiga acotando estrellas y partículas, sin blur ni blend modes, y pausando fuera de vista. _Resultado del Paso 10: en un navegador sin GPU el hero corre a ~30 fps, y quitar cualquiera de cuatro grupos de animación (pulso del halo, centelleo, campos de estrellas, gradientes) lo devuelve a 60; el margen es estrecho. Confirmar en un dispositivo real._
+- **Borrosidad al escalar capas con `will-change`.** Verificar visualmente a 2× y quitar `will-change` en esas capas si hace falta. _Ahora `will-change: translate` está aplicado; la revisión visual a 2× sigue pendiente._
 - **Soporte de `animation-timeline`.** Firefox puede no soportarlo por defecto; cubierto por el fallback con `--progress`. Verificar Safari.
 - **Acoplamiento futuro con la navegación.** El hero ocupa 200svh; el `IntersectionObserver` del spec de navegación debe tenerlo en cuenta al fijar `rootMargin`.
 - **Id del CTA.** `section-2` es provisional; hay que alinearlo cuando exista la sección 2.

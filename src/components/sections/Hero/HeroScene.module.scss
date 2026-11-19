@@ -50,6 +50,15 @@
   @include media-breakpoint-between(md, xl) {
     --parallaxScale: 0.7;
   }
+
+  // Poca altura: agujero negro más pequeño (y más alto, ver .core)
+  @media (max-height: $shortHeight) {
+    --bhSize: min(92vw, 42svh);
+  }
+
+  @media (max-height: $tinyHeight) {
+    --bhSize: min(92vw, 36svh);
+  }
 }
 
 // z 0 — Fondo
@@ -69,6 +78,9 @@
 .layer {
   position: absolute;
   inset: -6%;
+  // Promueve la capa al compositor: el parallax solo la desplaza, sin repintar.
+  // Se retira fuera de vista y con reduced-motion (ver más abajo).
+  will-change: translate;
 }
 
 // Parallax con mouse: --px y --py (en [-1, 1]) los escribe useParallaxPointer.
@@ -135,18 +147,31 @@
   width: 1px;
   height: 1px;
   border-radius: 50%;
-  box-shadow: starField(160, 0, 40, 70);
+  box-shadow: starField(1040, 0, 95, 100);
 }
 
-// z 2 — Nebulosa (placeholder CSS) y partículas
+// z 2 — Nebulosa y partículas
+// La imagen va sobre los degradados, que quedan como fallback mientras carga.
+// `screen` hace desaparecer el negro de fondo de la imagen. Versión vertical
+// en móvil y horizontal desde md.
 .nebula {
   position: absolute;
   inset: 0;
   opacity: 0.55;
   background:
+    url('../../../assets/images/hero/nebula-mobile.webp') center / cover no-repeat,
     radial-gradient(ellipse 45% 35% at 22% 28%, rgba($nebulaPurple, 0.7), transparent 70%),
     radial-gradient(ellipse 40% 30% at 80% 38%, rgba(#2a3f7a, 0.45), transparent 70%),
     radial-gradient(ellipse 50% 28% at 15% 86%, rgba($solarAmber, 0.22), transparent 70%);
+  background-blend-mode: screen, normal, normal, normal;
+
+  @include media-breakpoint-up(md) {
+    background-image:
+      url('../../../assets/images/hero/nebula.webp'),
+      radial-gradient(ellipse 45% 35% at 22% 28%, rgba($nebulaPurple, 0.7), transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 38%, rgba(#2a3f7a, 0.45), transparent 70%),
+      radial-gradient(ellipse 50% 28% at 15% 86%, rgba($solarAmber, 0.22), transparent 70%);
+  }
 }
 
 .particles {
@@ -198,22 +223,22 @@
 }
 
 .nearStars {
-  box-shadow: starField(50, 0.75, 60, 95);
+  box-shadow: starField(260, 0.75, 95, 100);
 }
 
 // 12 estrellas con centelleo lento, repartidas en 3 grupos desfasados
 .twinkleA {
-  box-shadow: starField(4, 0.75, 70, 100);
+  box-shadow: starField(8, 0.75, 70, 100);
   animation: twinkle 5s ease-in-out infinite;
 }
 
 .twinkleB {
-  box-shadow: starField(4, 0.75, 70, 100);
+  box-shadow: starField(8, 0.75, 70, 100);
   animation: twinkle 6.5s ease-in-out -2s infinite;
 }
 
 .twinkleC {
-  box-shadow: starField(4, 0.75, 70, 100);
+  box-shadow: starField(8, 0.75, 70, 100);
   animation: twinkle 4.2s ease-in-out -1s infinite;
 }
 
@@ -287,6 +312,14 @@
   width: var(--bhSize);
   aspect-ratio: 1;
   translate: -50% -50%;
+
+  @media (max-height: $shortHeight) {
+    top: 30%;
+  }
+
+  @media (max-height: $tinyHeight) {
+    top: 27%;
+  }
 }
 
 .coreBody {
@@ -309,41 +342,27 @@
   animation: glowPulse 7s ease-in-out infinite alternate;
 }
 
-// Anillo de fotones y arco por lente gravitacional alrededor de la sombra
-.lens {
+// Imagen del agujero negro con fondo transparente. Se amplía (inset negativo)
+// porque el agujero ocupa solo ~40 % del ancho de la imagen y el disco se
+// extiende a los lados.
+.blackHole {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle,
-    transparent 0 19%,
-    rgba(#ffe2aa, 0.95) 20.5%,
-    rgba($solarAmber, 0.75) 24%,
-    rgba($solarAmber, 0.25) 30%,
-    transparent 38%
-  );
-}
+  inset: -30%;
+  width: 160%;
+  height: 160%;
+  max-width: none;
+  user-select: none;
 
-// Sombra del horizonte: negro opaco (~40 % del ancho de la caja)
-.shadow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, #000 0 19.5%, transparent 20%);
-}
-
-// Disco de acreción visto casi de canto. La máscara lo oculta dentro del
-// horizonte para que la sombra siga siendo negro opaco.
-.disc {
-  position: absolute;
-  inset: 0;
-  -webkit-mask-image: radial-gradient(circle, transparent 0 19.5%, #000 20%);
-  mask-image: radial-gradient(circle, transparent 0 19.5%, #000 20%);
-  background: radial-gradient(
-    ellipse 50% 9% at 50% 50%,
-    rgba(#fff1d0, 0.95) 0%,
-    rgba(#ffc27a, 0.85) 25%,
-    rgba($solarAmber, 0.55) 55%,
-    transparent 100%
-  );
+  // Móvil: la imagen es un recorte 2:1 centrado en el agujero. Al 112 % del
+  // núcleo (92vw) el disco mide ~96vw y no se sale de la pantalla.
+  @include media-breakpoint-down(md) {
+    inset: auto;
+    top: 50%;
+    left: 50%;
+    width: 112%;
+    height: auto;
+    translate: -50% -50%;
+  }
 }
 
 // z 5 — Scrim inferior para garantizar el contraste del texto
@@ -583,6 +602,10 @@
   .sparkle {
     animation-play-state: paused;
   }
+
+  .layer {
+    will-change: auto;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -591,6 +614,10 @@
 // destellos quedan estáticos y no hay animación de entrada.
 // ---------------------------------------------------------------------------
 @media (prefers-reduced-motion: reduce) {
+  .layer {
+    will-change: auto;
+  }
+
   .layerBody,
   .coreBody {
     animation: none;

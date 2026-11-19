@@ -40,7 +40,6 @@ export function Hero() {
               'container d-flex flex-column align-items-center text-center'
             )}
           >
-            <p className={styles.kicker}>{hero.kicker}</p>
             <h1 id='heroTitle' className={styles.title}>
               <span className={styles.titleMain}>{hero.title.main}</span>
               <span className={styles.titleTagline}>{hero.title.tagline}</span>

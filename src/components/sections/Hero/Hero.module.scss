@@ -58,6 +58,10 @@
   font-weight: 300;
   letter-spacing: 0.12em;
   line-height: 1;
+
+  @include media-breakpoint-down(md) {
+    font-size: clamp(3rem, 18vw, 8rem);
+  }
 }
 
 .titleTagline {
@@ -78,6 +82,44 @@
 
 .cta {
   animation: fadeUp $motionBase $easeOutExpo 900ms both;
+}
+
+// Poca altura (p. ej. móvil en horizontal): el texto se compacta en función de
+// la altura para que no tape la sombra del agujero negro. El CTA conserva sus
+// 48 px de alto.
+@media (max-height: $shortHeight) {
+  .content {
+    gap: 0.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .titleMain {
+    font-size: min(clamp(3rem, 9vw, 8rem), 12svh);
+  }
+
+  .titleTagline {
+    font-size: min(clamp(1.125rem, 2.4vw, 2rem), 4.5svh);
+  }
+
+  .subtitle {
+    max-width: 60ch;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-height: $tinyHeight) {
+  .content {
+    gap: 0.25rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .titleMain {
+    font-size: min(clamp(3rem, 9vw, 8rem), 10svh);
+  }
+
+  .titleTagline {
+    font-size: min(clamp(1.125rem, 2.4vw, 2rem), 4svh);
+  }
 }
 
 .caption {
@@ -163,9 +205,12 @@
   }
 }
 
+// Las entradas parten de opacity: 0.01 y no de 0 a propósito: Chromium no
+// registra como contenido pintado (FCP/LCP) un texto que se anima desde
+// opacity 0, y Lighthouse falla con NO_FCP. Con 0.01 el aspecto es idéntico.
 @keyframes fadeUp {
   from {
-    opacity: 0;
+    opacity: 0.01;
     translate: 0 12px;
   }
 
@@ -177,7 +222,7 @@
 
 @keyframes fadeIn {
   from {
-    opacity: 0;
+    opacity: 0.01;
   }
 
   to {
