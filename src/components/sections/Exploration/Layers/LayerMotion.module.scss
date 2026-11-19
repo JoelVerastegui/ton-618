@@ -136,3 +136,44 @@
       #{exploRangeOf(nth($explApproach, 1), nth($explApproach, 2))};
   }
 }
+
+// --- Fallback con `--progress` ------------------------------------------------
+// Mismas curvas que los keyframes (lineales por tramos) en función de `--x`
+// (svh de recorrido, ver `.section`). Los tramos de entrada y salida de una capa
+// no se solapan, así que `opacity` y `scale` de ambos se combinan por producto;
+// la aproximación del nivel 4 multiplica a `zoomIn` (como `animation-composition: add`
+// sobre `scale`).
+@supports not (animation-timeline: view()) {
+  $l1l2: map-get($explZoom, 'l1l2');
+  $l2l3: map-get($explZoom, 'l2l3');
+  $l3l4: map-get($explZoom, 'l3l4');
+
+  .universe {
+    --tOut: #{explProgress(nth($l1l2, 1), nth($l1l2, 2))};
+    opacity: explFadeOut(--tOut);
+    scale: explZoomExpr(1, $zoomOut, --tOut);
+  }
+
+  .neighborhood {
+    --tIn: #{explProgress(nth($l1l2, 1), nth($l1l2, 2))};
+    --tOut: #{explProgress(nth($l2l3, 1), nth($l2l3, 2))};
+    opacity: calc(#{explFadeIn(--tIn)} * #{explFadeOut(--tOut)});
+    scale: calc(#{explZoomExpr($zoomIn, 1, --tIn)} * #{explZoomExpr(1, $zoomOut, --tOut)});
+  }
+
+  .sky {
+    --tIn: #{explProgress(nth($l2l3, 1), nth($l2l3, 2))};
+    --tOut: #{explProgress(nth($l3l4, 1), nth($l3l4, 2))};
+    opacity: calc(#{explFadeIn(--tIn)} * #{explFadeOut(--tOut)});
+    scale: calc(#{explZoomExpr($zoomIn, 1, --tIn)} * #{explZoomExpr(1, $zoomOut, --tOut)});
+  }
+
+  .ton {
+    --tIn: #{explProgress(nth($l3l4, 1), nth($l3l4, 2))};
+    --tApproach: #{explProgress(nth($explApproach, 1), nth($explApproach, 2))};
+    opacity: explFadeIn(--tIn);
+    scale: calc(
+      #{explZoomExpr($zoomIn, 1, --tIn)} * (1 + #{$zoomApproach - 1} * var(--tApproach))
+    );
+  }
+}

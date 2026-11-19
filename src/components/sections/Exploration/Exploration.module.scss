@@ -263,10 +263,35 @@
   }
 }
 
-// Sin `animation-timeline`: estado estático legible (nivel 1 + tarjeta 1).
-// Paso 6: el fallback JS (`--progress`) recalcula zoom y tarjetas aquí.
+// Sin `animation-timeline`: `useTrackProgress` escribe `--progress` (0–1 sobre el
+// recorrido) y `--enterProgress` (0–1 mientras el stage entra) en `.section`.
+// `--x` los une en una sola posición en svh de recorrido (-100 → 560), sin salto
+// entre la entrada y el sticky. Zoom y estrellas lo consumen en sus módulos.
 @supports not (animation-timeline: view()) {
-  .card:nth-of-type(1) {
-    opacity: 1;
+  .section {
+    --x: calc(
+      var(--progress, 0) * #{$explorationTravel} + (var(--enterProgress, 0) - 1) * 100
+    );
+  }
+
+  // `cardLife` (tarjetas 1-4a) y `cardStay` (4b) en función del avance `--t`.
+  .card {
+    @for $n from 1 through 4 {
+      &:nth-of-type(#{$n}) {
+        $range: map-get($explCards, $n);
+        --t: #{explProgress(nth($range, 1), nth($range, 2))};
+        --tIn: clamp(0, calc(var(--t) / #{$cardFadeStop}), 1);
+        --tOut: clamp(0, calc((var(--t) - #{1 - $cardFadeStop}) / #{$cardFadeStop}), 1);
+        opacity: calc(var(--tIn) - var(--tOut));
+        translate: 0 calc(#{$cardShift} * (1 - var(--tIn) - var(--tOut)));
+      }
+    }
+
+    &:nth-of-type(5) {
+      $range: map-get($explCards, 5);
+      --t: #{explProgress(nth($range, 1), nth($range, 2))};
+      opacity: var(--t);
+      translate: 0 calc(#{$cardShift} * (1 - var(--t)));
+    }
   }
 }

@@ -1,3 +1,6 @@
+import { useRef } from 'react';
+import { useInView } from '@/hooks/useInView';
+import { useTrackProgress } from '@/hooks/useTrackProgress';
 import explorationJson from '@/data/exploration.json';
 import type { ExplorationData } from '@/interfaces/exploration';
 import { MapLayers } from '@/components/sections/Exploration/MapLayers';
@@ -10,16 +13,26 @@ const TIMELINE_ID = 'explorationTimeline';
 const TITLE_ID = 'explorationTitle';
 
 export function Exploration() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  useInView(sectionRef);
+  useTrackProgress(sectionRef, trackRef);
+
   const levels = [...exploration.levels].sort((a, b) => a.order - b.order);
   const cards = [...exploration.cards].sort((a, b) => a.order - b.order);
 
   return (
-    <section id='exploration' aria-labelledby={TITLE_ID} className={styles.section}>
+    <section
+      ref={sectionRef}
+      id='exploration'
+      aria-labelledby={TITLE_ID}
+      className={styles.section}
+    >
       <h2 id={TITLE_ID} className={styles.srOnly}>
         {exploration.title}
       </h2>
 
-      <div className={styles.track}>
+      <div ref={trackRef} className={styles.track}>
         <div className={styles.stage}>
           <a className={styles.skipLink} href={`#${TIMELINE_ID}`}>
             {exploration.skipLinkLabel}

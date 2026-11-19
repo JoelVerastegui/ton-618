@@ -153,6 +153,67 @@ $starGrow: 1.15;
   @return math.div(math.round($from * math.pow(math.div($to, $from), math.div($i, 4)) * 100), 100);
 }
 
+// Fallback con `--progress` (sin `animation-timeline`). Todas las expresiones
+// parten de `--x`: posición en svh de recorrido (-100 → 560), que define
+// `.section` en Exploration.module.scss. Solo generan cadenas CSS (sin salida).
+// Tarjetas: tramo (svh) de cada una y fracción de entrada/salida de `cardLife`.
+$explCards: (
+  1: (
+    -32,
+    110,
+  ),
+  2: (
+    110,
+    240,
+  ),
+  3: (
+    240,
+    370,
+  ),
+  4: (
+    370,
+    500,
+  ),
+  5: (
+    490,
+    520,
+  ),
+);
+$cardFadeStop: 0.23;
+// Cruce de niveles: la entrante sube de opacidad entre el 20 % y el 60 % del
+// tramo; la saliente baja entre el 60 % y el 100 %.
+$crossInStart: 0.2;
+$crossInEnd: 0.6;
+
+// Avance 0–1 de `--x` entre `$from` y `$to`.
+@function explProgress($from, $to) {
+  @return unquote('clamp(0, calc((var(--x) - #{$from}) / #{$to - $from}), 1)');
+}
+
+// Zoom geométrico `$from` → `$to` como lineal por tramos (4 tramos, mismas
+// paradas que `zoomStop`), en función del avance `$tVar` (0–1).
+@function explZoomExpr($from, $to, $tVar) {
+  $expr: '#{zoomStop($from, $to, 0)}';
+  @for $i from 1 through 4 {
+    $delta: zoomStop($from, $to, $i) - zoomStop($from, $to, $i - 1);
+    $expr: '#{$expr} + #{$delta} * clamp(0, calc(4 * var(#{$tVar}) - #{$i - 1}), 1)';
+  }
+  @return unquote('calc(#{$expr})');
+}
+
+// Opacidad de la capa entrante / saliente en función del avance `$tVar`.
+@function explFadeIn($tVar) {
+  @return unquote(
+    'clamp(0, calc((var(#{$tVar}) - #{$crossInStart}) / #{$crossInEnd - $crossInStart}), 1)'
+  );
+}
+
+@function explFadeOut($tVar) {
+  @return unquote(
+    'calc(1 - clamp(0, calc((var(#{$tVar}) - #{$crossInEnd}) / #{1 - $crossInEnd}), 1))'
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Sobrescrituras de Bootstrap (redefinición de variables !default)
 // ---------------------------------------------------------------------------
