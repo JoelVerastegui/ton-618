@@ -1,3 +1,4 @@
+@use 'sass:list';
 @use 'sass:math';
 
 // Tokens del proyecto y sobrescrituras de Bootstrap.
@@ -128,6 +129,12 @@ $sideBySide: '(min-width: 992px), (max-height: #{$shortHeight}) and (orientation
   animation-range: exploRangeOf($from, $to);
 }
 
+// Anclas de `goTo` de LevelNav (x en svh de recorrido, un punto cómodo dentro de
+// cada nivel) y línea de observación del nivel activo (50svh: centro del viewport).
+// Una ancla está en la posición `x` del track; un centinela empieza en `x + línea`.
+$explAnchors: (40, 175, 305, 435);
+$explLevelLine: 50;
+
 // Tramos de zoom entre niveles (x en svh de recorrido) y aproximación final
 $explZoom: (
   'l1l2': (
@@ -226,3 +233,36 @@ $font-family-sans-serif: $fontFamilySans;
 $headings-font-weight: 300;
 $link-color: $starlight;
 $link-hover-color: $solarAmber;
+
+// Indicador de progreso de LevelNav: lineal por tramos entre las paradas de nivel.
+// Cada nivel ocupa un cuarto de la barra, así el relleno llega al borde del segmento
+// activo justo cuando cambia el nivel. Paradas en svh de recorrido.
+$explNavStops: (0, 110, 240, 375, $explorationTravel);
+
+// Fallback con `--x`: suma de los tramos recorridos (cadena CSS, sin salida).
+@function explNavFillExpr() {
+  $expr: '0';
+  @for $i from 1 through 4 {
+    $from: list.nth($explNavStops, $i);
+    $to: list.nth($explNavStops, $i + 1);
+    $expr: '#{$expr} + #{math.div(1, 4)} * #{explProgress($from, $to)}';
+  }
+  @return unquote('calc(#{$expr})');
+}
+
+// Keyframes del relleno (0 → 1) en la propiedad `scale`; `$axis`: 'x' | 'y'.
+@mixin explNavFillKeyframes($name, $axis) {
+  @keyframes #{$name} {
+    @for $i from 1 through 5 {
+      $at: list.nth($explNavStops, $i);
+      $pct: math.div(math.round(math.div($at, $explorationTravel) * 10000), 100) * 1%;
+      #{$pct} {
+        @if $axis == 'x' {
+          scale: math.div($i - 1, 4) 1;
+        } @else {
+          scale: 1 math.div($i - 1, 4);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,143 @@
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+$touch: 2.75rem; // 44 px: área táctil mínima
+$barSize: 2px;
+
+// Móvil y tablet: fila horizontal arriba con 4 segmentos de 44 px de alto.
+// Side-by-side: rail vertical en el borde izquierdo.
+.nav {
+  position: absolute;
+  top: max(0.5rem, env(safe-area-inset-top));
+  right: 0;
+  left: 0;
+  z-index: 4;
+  width: min(22rem, calc(100% - 2rem));
+  margin-inline: auto;
+  overflow: hidden;
+  background-color: rgba($cosmicBlue, 0.82);
+  border: 1px solid rgba($starlight, 0.14);
+  border-radius: 0.75rem;
+
+  @media #{$sideBySide} {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: max(0.5rem, env(safe-area-inset-left));
+    width: calc(#{$touch} + #{$barSize});
+    height: fit-content;
+    margin: auto 0;
+  }
+}
+
+.list {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media #{$sideBySide} {
+    flex-direction: column;
+    padding-left: $barSize;
+  }
+}
+
+.item {
+  flex: 1;
+}
+
+.button {
+  display: block;
+  width: 100%;
+  min-width: $touch;
+  min-height: $touch;
+  padding: 0;
+  color: rgba($starlight, 0.72);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  transition: color $motionFast, background-color $motionFast;
+
+  &:hover {
+    color: $starlight;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: -2px;
+  }
+}
+
+// El nivel activo no depende solo del color: fondo, peso y relleno de la barra.
+.active {
+  color: $starlight;
+  font-weight: 700;
+  background-color: rgba($starlight, 0.12);
+}
+
+// --- Indicador continuo de progreso ------------------------------------------
+// Barra de $barSize: abajo en la fila, a la izquierda en el rail. El relleno solo
+// usa `scale` (compuesto en GPU) y llega al borde del segmento activo cuando
+// cambia el nivel (paradas `$explNavStops`).
+.bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  height: $barSize;
+  pointer-events: none;
+  background-color: rgba($starlight, 0.14);
+
+  @media #{$sideBySide} {
+    top: 0;
+    right: auto;
+    width: $barSize;
+    height: auto;
+  }
+}
+
+.fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: $solarAmber;
+  transform-origin: 0 0;
+  scale: var(--navProgress, 0) 1;
+
+  @media #{$sideBySide} {
+    scale: 1 var(--navProgress, 0);
+  }
+}
+
+@include explNavFillKeyframes(navFillX, 'x');
+@include explNavFillKeyframes(navFillY, 'y');
+
+@supports (animation-timeline: view()) {
+  .fill {
+    scale: 0 1;
+    animation-name: navFillX;
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    animation-range: #{exploRangeOf(0, $explorationTravel)};
+
+    @media #{$sideBySide} {
+      scale: 1 0;
+      animation-name: navFillY;
+    }
+  }
+}
+
+// Sin `animation-timeline`: `--x` lo define `.section` (Exploration.module.scss).
+@supports not (animation-timeline: view()) {
+  .nav {
+    --navProgress: #{explNavFillExpr()};
+  }
+}

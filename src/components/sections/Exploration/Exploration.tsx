@@ -1,9 +1,12 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { useExplorationLevel } from '@/hooks/useExplorationLevel';
 import { useTrackProgress } from '@/hooks/useTrackProgress';
 import explorationJson from '@/data/exploration.json';
 import type { ExplorationData } from '@/interfaces/exploration';
+import { LevelNav } from '@/components/sections/Exploration/LevelNav';
 import { MapLayers } from '@/components/sections/Exploration/MapLayers';
+import { levelLabel } from '@/utils/levelLabel';
 import styles from '@/components/sections/Exploration/Exploration.module.scss';
 
 const exploration = explorationJson as ExplorationData;
@@ -11,15 +14,35 @@ const exploration = explorationJson as ExplorationData;
 // Id de ancla de la línea temporal (la implementa el paso 9 del spec).
 const TIMELINE_ID = 'explorationTimeline';
 const TITLE_ID = 'explorationTitle';
+// Retardo antes de anunciar el cambio de nivel (evita ruido durante el scroll rápido).
+const ANNOUNCE_DELAY_MS = 400;
+
+const levels = [...exploration.levels].sort((a, b) => a.order - b.order);
+const levelIds = levels.map((level) => level.id);
+const cards = [...exploration.cards].sort((a, b) => a.order - b.order);
 
 export function Exploration() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const sentinelsRef = useRef<HTMLDivElement>(null);
+  const anchorsRef = useRef<HTMLDivElement>(null);
+  const liveRef = useRef<HTMLParagraphElement>(null);
+  const announcedLevel = useRef(1);
   useInView(sectionRef);
   useTrackProgress(sectionRef, trackRef);
+  const { level, goTo } = useExplorationLevel(sectionRef, sentinelsRef, anchorsRef, levelIds);
 
-  const levels = [...exploration.levels].sort((a, b) => a.order - b.order);
-  const cards = [...exploration.cards].sort((a, b) => a.order - b.order);
+  // Región aria-live: se escribe en el DOM (sin estado) 400 ms después del cambio.
+  useEffect(() => {
+    if (level === announcedLevel.current) return;
+    const timer = window.setTimeout(() => {
+      announcedLevel.current = level;
+      if (liveRef.current) {
+        liveRef.current.textContent = levelLabel(level, levels.length, levels[level - 1].title);
+      }
+    }, ANNOUNCE_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [level]);
 
   return (
     <section
@@ -31,12 +54,15 @@ export function Exploration() {
       <h2 id={TITLE_ID} className={styles.srOnly}>
         {exploration.title}
       </h2>
+      <p ref={liveRef} className={styles.srOnly} role='status' aria-live='polite' />
 
       <div ref={trackRef} className={styles.track}>
         <div className={styles.stage}>
           <a className={styles.skipLink} href={`#${TIMELINE_ID}`}>
             {exploration.skipLinkLabel}
           </a>
+
+          <LevelNav levels={levels} level={level} onSelect={goTo} />
 
           {/* Equivalente textual del mapa (el SVG será aria-hidden) */}
           <div className={styles.srOnly}>
@@ -64,6 +90,18 @@ export function Exploration() {
           ))}
 
           <div className={styles.scrim} aria-hidden='true' />
+        </div>
+
+        {/* Posiciones del track para el nivel activo (IntersectionObserver) y para goTo */}
+        <div ref={sentinelsRef} className={styles.sentinels} aria-hidden='true'>
+          {levels.map((item) => (
+            <span key={item.id} className={styles.sentinel} />
+          ))}
+        </div>
+        <div ref={anchorsRef} className={styles.anchors} aria-hidden='true'>
+          {levels.map((item) => (
+            <span key={item.id} className={styles.anchor} />
+          ))}
         </div>
       </div>
 

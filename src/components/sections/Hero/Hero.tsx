@@ -7,6 +7,7 @@ import { useInView } from '@/hooks/useInView';
 import { useParallaxPointer } from '@/hooks/useParallaxPointer';
 import { useScrollProgress } from '@/hooks/useScrollProgress';
 import type { HeroData } from '@/interfaces/hero';
+import { scrollToElement } from '@/utils/scrollTo';
 import styles from '@/components/sections/Hero/Hero.module.scss';
 
 const hero = heroJson as HeroData;
@@ -25,8 +26,7 @@ export function Hero() {
     const target = document.getElementById(hero.cta.targetSectionId);
     if (!target) return;
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    scrollToElement(target);
   };
 
   return (
