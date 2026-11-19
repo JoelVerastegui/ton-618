@@ -1,0 +1,110 @@
+@import '@/styles/variables';
+@import '@/styles/mapLabels';
+
+// Estilos comunes a las capas del mapa: SVG, galaxias, marcadores, etiquetas y
+// líneas. Lo específico de cada capa vive en su propio módulo.
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// --- SVG compartido -----------------------------------------------------------
+.web {
+  fill: none;
+  stroke: rgba($starlight, 0.1);
+  stroke-linecap: round;
+  stroke-width: 5;
+}
+
+.galaxies {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.galaxiesDim {
+  stroke: rgba($starlight, 0.45);
+  stroke-width: 3.5;
+}
+
+.galaxiesMid {
+  stroke: rgba($starlight, 0.7);
+  stroke-width: 5.5;
+}
+
+.galaxiesBright {
+  stroke: rgba(mix($starlight, $solarAmber, 80%), 0.9);
+  stroke-width: 8;
+}
+
+// --- Marcadores y etiquetas (HTML, tamaño en rem) -----------------------------
+// Posición con left/top en % (inline, en el TSX); desplazamiento con `translate`
+// individual para dejar `transform` libre al zoom.
+.dot {
+  position: absolute;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+.dotSelf {
+  background-color: $solarAmber;
+  box-shadow: 0 0 0 0.3125rem rgba($solarAmber, 0.28);
+}
+
+.dotReference {
+  background-color: $starlight;
+  box-shadow: 0 0 0 0.25rem rgba($starlight, 0.2);
+}
+
+.label {
+  position: absolute;
+  color: $labelColor;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow:
+    0 0 0.375rem $spaceVoid,
+    0 0 0.125rem $spaceVoid;
+  translate: -50% -50%;
+}
+
+.labelBelow {
+  translate: -50% 0.9rem;
+}
+
+.labelRight {
+  translate: 1rem -50%;
+}
+
+.labelLeft {
+  translate: calc(-100% - 1rem) -50%;
+}
+
+.labelSelf {
+  color: $starlight;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+// Rótulo «ilustrativo» / «esquemático» / «representación artística»
+.labelNote {
+  color: $noteColor;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+// Líneas HTML: largo = --len (unidades del viewBox, 1 u = 0,1 % del ancho),
+// ángulo = --angle. Nacen en su extremo (`transform-origin`) para poder dibujarlas
+// con `scale`.
+.line {
+  position: absolute;
+  width: calc(var(--len) * 0.1%);
+  height: 1px;
+  rotate: var(--angle);
+  transform-origin: 0 50%;
+  background-color: rgba($starlight, 0.5);
+}

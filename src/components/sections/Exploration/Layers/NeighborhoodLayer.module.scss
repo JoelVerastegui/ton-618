@@ -1,0 +1,37 @@
+@import '@/styles/variables';
+
+.clusterCore {
+  stop-color: $starlight;
+  stop-opacity: 0.55;
+}
+
+.clusterMid {
+  stop-color: mix($starlight, $solarAmber, 40%);
+  stop-opacity: 0.2;
+}
+
+.clusterEdge {
+  stop-color: $nebulaPurple;
+  stop-opacity: 0;
+}
+
+.halo {
+  fill: none;
+  stroke: rgba($solarAmber, 0.7);
+  stroke-width: 2.5;
+}
+
+// Indicador al borde: «↙ Vía Láctea». La flecha (esquina) es decorativa.
+.labelEdge {
+  translate: 0 -50%;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.5rem;
+    border-bottom: 1.5px solid currentcolor;
+    border-left: 1.5px solid currentcolor;
+  }
+}

@@ -1,0 +1,44 @@
+@import '@/styles/variables';
+
+.haloCore {
+  stop-color: $solarAmber;
+  stop-opacity: 0.5;
+}
+
+.haloMid {
+  stop-color: $solarAmber;
+  stop-opacity: 0.14;
+}
+
+.haloEdge {
+  stop-color: $nebulaPurple;
+  stop-opacity: 0;
+}
+
+.discEdge {
+  stop-color: $solarAmber;
+  stop-opacity: 0;
+}
+
+.discHot {
+  stop-color: mix($starlight, $solarAmber, 40%);
+  stop-opacity: 1;
+}
+
+.hole {
+  fill: $spaceVoid;
+}
+
+.photonRing {
+  fill: none;
+  stroke: mix($starlight, $solarAmber, 55%);
+  stroke-width: 3;
+}
+
+.discFront {
+  opacity: 0.95;
+}
+
+.lineGuide {
+  background-color: rgba($starlight, 0.6);
+}

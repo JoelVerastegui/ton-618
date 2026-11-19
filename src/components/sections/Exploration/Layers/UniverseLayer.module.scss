@@ -1,0 +1,31 @@
+@import '@/styles/variables';
+@import '@/styles/mapLabels';
+
+// El universo observable es un disco: recorta (solo el SVG, no las etiquetas) las
+// cuerdas y anillos que salen del cuadrado.
+.disc {
+  clip-path: circle(50%);
+}
+
+.ring {
+  fill: none;
+  stroke: rgba($starlight, 0.24);
+  stroke-dasharray: 7 11;
+  stroke-width: 2;
+}
+
+.lineEarth {
+  background-color: transparent;
+  background-image: linear-gradient(to right, rgba($starlight, 0.7), rgba($solarAmber, 0.85));
+}
+
+// Leyenda de los anillos: bloque centrado que puede partirse en 2 líneas en móvil
+// (el ancho explícito evita que el `left: 50 %` lo comprima a media capa).
+.labelRings {
+  width: 80%;
+  color: $noteColor;
+  font-size: 0.75rem;
+  text-align: center;
+  white-space: normal;
+  text-wrap: balance;
+}

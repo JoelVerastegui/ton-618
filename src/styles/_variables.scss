@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 // Tokens del proyecto y sobrescrituras de Bootstrap.
 // Se importa ANTES de las variables de Bootstrap (ver _bootstrap-custom.scss).
 
@@ -103,6 +105,11 @@ $mapSizeMobile: min(100vw, 60svh);
 // Ancho de las tarjetas de contexto
 $cardWidth: clamp(22rem, 28vw, 27rem);
 
+// Media query del layout «lado a lado» (mapa a la izquierda, tarjeta a la
+// derecha). Se usa solo en la sección Exploración (Exploration.module.scss y
+// MapLayers.module.scss): desktop ≥ 992 px o móvil apaisado de poca altura.
+$sideBySide: '(min-width: 992px), (max-height: #{$shortHeight}) and (orientation: landscape)';
+
 // Posición dentro del track (para `animation-range: cover …`) de un punto a
 // `$x` svh de recorrido desde el inicio del sticky. El sticky arranca en
 // `cover 100svh`, por eso x = 0 → 100svh y x = -100 → 0.
@@ -110,9 +117,40 @@ $cardWidth: clamp(22rem, 28vw, 27rem);
   @return ($x + 100) * 1svh;
 }
 
+// Valor de `animation-range` entre dos puntos de recorrido (svh desde el
+// sticky). Útil para listas (una entrada por animación): `#{exploRangeOf(a, b)}, …`.
+@function exploRangeOf($from, $to) {
+  @return cover svhAt($from) cover svhAt($to);
+}
+
 // Rango de animación entre dos puntos de recorrido (en svh desde el sticky).
 @mixin exploRange($from, $to) {
-  animation-range: cover svhAt($from) cover svhAt($to);
+  animation-range: exploRangeOf($from, $to);
+}
+
+// Tramos de zoom entre niveles (x en svh de recorrido) y aproximación final
+$explZoom: (
+  'l1l2': (
+    80,
+    140,
+  ),
+  'l2l3': (
+    210,
+    270,
+  ),
+  'l3l4': (
+    340,
+    410,
+  ),
+);
+$explApproach: (400, 560);
+$zoomApproach: 1.25;
+$starGrow: 1.15;
+
+// Parada `$i` (0-4) de un zoom geométrico $from → $to en 4 tramos, a 2 decimales.
+// Los keyframes lineales por tramos aproximan la curva exponencial.
+@function zoomStop($from, $to, $i) {
+  @return math.div(math.round($from * math.pow(math.div($to, $from), math.div($i, 4)) * 100), 100);
 }
 
 // ---------------------------------------------------------------------------

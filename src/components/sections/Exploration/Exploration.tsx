@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import explorationJson from '@/data/exploration.json';
 import type { ExplorationData } from '@/interfaces/exploration';
 import { MapLayers } from '@/components/sections/Exploration/MapLayers';
@@ -37,10 +36,10 @@ export function Exploration() {
 
           <p className={styles.legend}>{exploration.mapLegend}</p>
 
-          {cards.map((card, index) => (
+          {cards.map((card) => (
             <article
               key={card.id}
-              className={clsx(styles.card, index === 0 && styles.cardActive)}
+              className={styles.card}
               aria-labelledby={`explorationCard-${card.id}`}
             >
               <p className={styles.cardKicker}>{card.kicker}</p>

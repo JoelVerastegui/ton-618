@@ -7,6 +7,7 @@ export interface ExplorationScale {
   label: string; // «~93 mil millones de años luz (universo observable)»
   quantity?: Quantity;
   scaleNote?: string; // «ilustrativo, no a escala»
+  ringLegend?: string; // «Cada anillo: +4 mil millones de años de viaje de la luz»
 }
 
 export interface ExplorationMarker {

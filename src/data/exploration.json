@@ -10,7 +10,8 @@
       "title": "Universo observable",
       "scale": {
         "label": "~93 mil millones de años luz (universo observable)",
-        "scaleNote": "ilustrativo, no a escala"
+        "scaleNote": "ilustrativo, no a escala",
+        "ringLegend": "Cada anillo: +4 mil millones de años de viaje de la luz"
       },
       "markers": [
         {
@@ -78,6 +79,27 @@
           "kind": "self",
           "description": "TON 618 en el centro de la carta.",
           "illustrative": false
+        },
+        {
+          "id": "earth-view",
+          "label": "Observas desde la Tierra",
+          "kind": "foreground",
+          "description": "Esta carta muestra el cielo tal como se ve desde la Tierra: TON 618 se proyecta en esa dirección, pero está a miles de millones de años luz, mucho más allá de las estrellas de la carta.",
+          "illustrative": false
+        },
+        {
+          "id": "cor-caroli",
+          "label": "Cor Caroli",
+          "kind": "foreground",
+          "description": "Cor Caroli, estrella brillante de Canes Venatici; posición esquemática.",
+          "illustrative": true
+        },
+        {
+          "id": "chara",
+          "label": "Chara",
+          "kind": "foreground",
+          "description": "Chara, la otra estrella brillante de Canes Venatici; posición esquemática.",
+          "illustrative": true
         }
       ],
       "mapSummary": "Carta celeste esquemática con retícula de coordenadas y unas pocas estrellas. TON 618 se proyecta en Canes Venatici, cerca del límite con Coma Berenices."
