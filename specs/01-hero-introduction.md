@@ -1,6 +1,6 @@
 # SPEC 01 — Hero / Introducción
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** ninguna
 **Fecha:** 2026-11-18
 **Objetivo:** Implementar la sección Hero de TON 618 como primera escena de la web: escena espacial a pantalla completa con parallax de mouse en tres capas, TON 618 inmóvil, CTA, y una transición por scroll con zoom hacia el agujero negro.
