@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import explorationJson from '@/data/exploration.json';
 import type { ExplorationData } from '@/interfaces/exploration';
+import { MapLayers } from '@/components/sections/Exploration/MapLayers';
 import styles from '@/components/sections/Exploration/Exploration.module.scss';
 
 const exploration = explorationJson as ExplorationData;
@@ -32,11 +33,7 @@ export function Exploration() {
             ))}
           </div>
 
-          <div className={styles.map} aria-hidden='true'>
-            {/* Provisional (paso 3): marcador central para validar el layout.
-                Las capas SVG del mapa llegan en el paso 4. */}
-            <span className={styles.markerPlaceholder} />
-          </div>
+          <MapLayers />
 
           <p className={styles.legend}>{exploration.mapLegend}</p>
 

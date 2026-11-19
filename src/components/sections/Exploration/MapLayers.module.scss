@@ -1,0 +1,319 @@
+@import '@/styles/variables';
+@import '@/styles/starfield';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Layout "lado a lado": igual que Exploration.module.scss.
+$sideBySide: '(min-width: 992px), (max-height: #{$shortHeight}) and (orientation: landscape)';
+
+// Texto de etiquetas: Starlight ≥ 70 % sobre $spaceVoid (≈ 11:1)
+$labelColor: rgba($starlight, 0.82);
+$noteColor: rgba($starlight, 0.72);
+
+// --- Estrellas persistentes (detrás de las capas) ---------------------------
+// Ocupa el stage (se extiende 6 % por cada lado, ver `starField`). Sin
+// animación todavía: el paso 5 le añade la escala 1 → 1,15.
+.starLayer {
+  position: absolute;
+  top: -6%;
+  left: -6%;
+  z-index: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  border-radius: 50%;
+  box-shadow: starField(120, 0.75, 55, 100);
+}
+
+// --- Contenedor del mapa -----------------------------------------------------
+// Cuadrado centrado en (50 %, 34svh) en móvil y (34vw, 50svh) en side-by-side.
+.map {
+  position: absolute;
+  top: calc(34svh - #{$mapSizeMobile} / 2);
+  left: calc(50% - #{$mapSizeMobile} / 2);
+  z-index: 1;
+  width: $mapSizeMobile;
+  height: $mapSizeMobile;
+  pointer-events: none;
+
+  @media #{$sideBySide} {
+    top: calc(50svh - #{$mapSizeDesktop} / 2);
+    left: calc(34vw - #{$mapSizeDesktop} / 2);
+    width: $mapSizeDesktop;
+    height: $mapSizeDesktop;
+  }
+}
+
+// Capas apiladas: la entrante va encima (orden del DOM).
+.layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+// Provisional (paso 4): un solo nivel visible según `data-level`.
+// El paso 5 lo reemplaza por las animaciones de zoom y opacidad.
+.map[data-level='1'] .layerUniverse,
+.map[data-level='2'] .layerNeighborhood,
+.map[data-level='3'] .layerSky,
+.map[data-level='4'] .layerTon {
+  opacity: 1;
+}
+
+// El universo observable es un disco: recorta (solo el SVG, no las etiquetas) las cuerdas y anillos que
+// salen del cuadrado.
+.layerUniverse .svg {
+  clip-path: circle(50%);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// --- SVG compartido -----------------------------------------------------------
+.web {
+  fill: none;
+  stroke: rgba($starlight, 0.1);
+  stroke-linecap: round;
+  stroke-width: 5;
+}
+
+.galaxies {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.galaxiesDim {
+  stroke: rgba($starlight, 0.45);
+  stroke-width: 3.5;
+}
+
+.galaxiesMid {
+  stroke: rgba($starlight, 0.7);
+  stroke-width: 5.5;
+}
+
+.galaxiesBright {
+  stroke: rgba(mix($starlight, $solarAmber, 80%), 0.9);
+  stroke-width: 8;
+}
+
+// Nivel 1
+.ring {
+  fill: none;
+  stroke: rgba($starlight, 0.24);
+  stroke-dasharray: 7 11;
+  stroke-width: 2;
+}
+
+// Nivel 2
+.clusterCore {
+  stop-color: $starlight;
+  stop-opacity: 0.55;
+}
+
+.clusterMid {
+  stop-color: mix($starlight, $solarAmber, 40%);
+  stop-opacity: 0.2;
+}
+
+.clusterEdge {
+  stop-color: $nebulaPurple;
+  stop-opacity: 0;
+}
+
+.halo {
+  fill: none;
+  stroke: rgba($solarAmber, 0.7);
+  stroke-width: 2.5;
+}
+
+// Nivel 3
+.chart {
+  fill: rgba($cosmicBlue, 0.45);
+  stroke: rgba($starlight, 0.28);
+  stroke-width: 2;
+}
+
+.grid {
+  fill: none;
+  stroke: rgba($starlight, 0.16);
+  stroke-width: 1.5;
+}
+
+.constellation {
+  fill: none;
+  stroke: rgba($starlight, 0.3);
+  stroke-dasharray: 3 9;
+  stroke-width: 2;
+}
+
+.stars {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.starsSmall {
+  stroke: rgba($starlight, 0.55);
+  stroke-width: 4;
+}
+
+.starsMid {
+  stroke: rgba($starlight, 0.8);
+  stroke-width: 7;
+}
+
+.starsNamed {
+  stroke: $starlight;
+  stroke-width: 12;
+}
+
+// Nivel 4
+.haloCore {
+  stop-color: $solarAmber;
+  stop-opacity: 0.5;
+}
+
+.haloMid {
+  stop-color: $solarAmber;
+  stop-opacity: 0.14;
+}
+
+.haloEdge {
+  stop-color: $nebulaPurple;
+  stop-opacity: 0;
+}
+
+.discEdge {
+  stop-color: $solarAmber;
+  stop-opacity: 0;
+}
+
+.discHot {
+  stop-color: mix($starlight, $solarAmber, 40%);
+  stop-opacity: 1;
+}
+
+.hole {
+  fill: $spaceVoid;
+}
+
+.photonRing {
+  fill: none;
+  stroke: mix($starlight, $solarAmber, 55%);
+  stroke-width: 3;
+}
+
+.discFront {
+  opacity: 0.95;
+}
+
+// --- Marcadores y etiquetas (HTML, tamaño en rem) -----------------------------
+// Posición con left/top en % (inline, en el TSX); desplazamiento con `translate`
+// individual para dejar `transform` libre al zoom del paso 5.
+.dot {
+  position: absolute;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+.dotSelf {
+  background-color: $solarAmber;
+  box-shadow: 0 0 0 0.3125rem rgba($solarAmber, 0.28);
+}
+
+.dotReference {
+  background-color: $starlight;
+  box-shadow: 0 0 0 0.25rem rgba($starlight, 0.2);
+}
+
+.label {
+  position: absolute;
+  color: $labelColor;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  translate: -50% -50%;
+}
+
+.labelBelow {
+  translate: -50% 0.9rem;
+}
+
+.labelRight {
+  translate: 1rem -50%;
+}
+
+.labelSelf {
+  color: $starlight;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+// Rótulo «ilustrativo» / «esquemático» / «representación artística»
+.labelNote {
+  color: $noteColor;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+// Indicador al borde (nivel 2): «↙ Vía Láctea». La flecha (esquina) es decorativa.
+.labelEdge {
+  translate: 0 -50%;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.5rem;
+    border-bottom: 1.5px solid currentcolor;
+    border-left: 1.5px solid currentcolor;
+  }
+}
+
+// Rótulo de la carta celeste (nivel 3)
+.labelTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(0.9375rem, 2.6vmin, 1.25rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.labelSub {
+  margin-top: 0.25rem;
+  color: $noteColor;
+  font-size: 0.75rem;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+// Líneas HTML: largo = --len (unidades del viewBox, 1 u = 0,1 % del ancho),
+// ángulo = --angle. Nacen en su extremo (`transform-origin`) para que `scale`
+// las dibuje en el paso 5.
+.line {
+  position: absolute;
+  width: calc(var(--len) * 0.1%);
+  height: 1px;
+  rotate: var(--angle);
+  transform-origin: 0 50%;
+  background-color: rgba($starlight, 0.5);
+}
+
+.lineEarth {
+  background-image: linear-gradient(to right, rgba($starlight, 0.7), rgba($solarAmber, 0.85));
+  background-color: transparent;
+}
+
+.lineGuide {
+  background-color: rgba($starlight, 0.6);
+}
