@@ -186,22 +186,22 @@
       "order": 5,
       "kicker": "Energía",
       "question": "¿Por qué es tan luminoso?",
-      "answer": "Emite del orden de 10⁴⁷–10⁴⁸ erg/s, miles de veces la luz de la Vía Láctea. Su disco convierte en luz entre ~6 % y ~40 % de la masa que cae; la fusión estelar, ~0,7 %.",
+      "answer": "Emite entre 1,0 y 1,8×10⁴⁸ erg/s, del orden de 10 mil veces la luz de la Vía Láctea. Su disco convierte en luz entre ~6 % y ~40 % de la masa que cae; la fusión estelar, ~0,7 %.",
       "facts": [
         {
           "id": "luminosity",
-          "label": "Luminosidad",
-          "value": 1e40,
+          "label": "Luminosidad bolométrica",
+          "value": 1.02e41,
           "unit": "W",
-          "displayValue": "del orden de 10⁴⁰–10⁴¹ W",
-          "uncertainty": { "low": 1e40, "high": 1e41 },
+          "displayValue": "1,0–1,8×10⁴¹ W (1,0–1,8×10⁴⁸ erg/s)",
+          "uncertainty": { "low": 1.02e41, "high": 1.84e41 },
           "certainty": "derived",
-          "note": "Rango del orden de magnitud; no es un valor único.",
-          "sources": ["src-ulrich-1976", "src-shemmer-2004"]
+          "note": "Rango, no valor único: L(5100)=10^47,31 erg/s (Shemmer 2004, tabla 2) × corrección bolométrica 5–9 = 2,7–4,8×10¹⁴ L☉ (L☉=3,828×10²⁶ W); ~10⁴ veces la Vía Láctea (~3–5×10¹⁰ L☉, orden de magnitud).",
+          "sources": ["src-shemmer-2004", "src-ge-2019"]
         }
       ],
       "certainty": "derived",
-      "sources": ["src-ulrich-1976", "src-shemmer-2004"]
+      "sources": ["src-shemmer-2004", "src-ge-2019"]
     }
   ],
   "timeline": [
