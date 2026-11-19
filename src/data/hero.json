@@ -8,7 +8,7 @@
   "summary": "Escena espacial con un agujero negro y su disco de acreción luminoso sobre un campo de estrellas. Representación artística.",
   "cta": {
     "label": "Iniciar exploración",
-    "targetSectionId": "section-2"
+    "targetSectionId": "exploration"
   },
   "artwork": {
     "src": "ton618-blackhole",
@@ -33,7 +33,7 @@
         "displayValue": "entre 40 y 66 mil millones",
         "uncertainty": { "low": 4.07e10, "high": 6.6e10 },
         "certainty": "estimate",
-        "note": "Método virial con la línea Hβ; dos mediciones del mismo objeto difieren por la elección de la anchura de línea. Incertidumbre sistemática ~0,3 dex.",
+        "note": "Dos estimaciones de la línea Hβ en la literatura (Shemmer 2004 y la compilación de Ge 2019) difieren por la calibración de la luminosidad y de la anchura de línea.",
         "sources": ["src-shemmer-2004", "src-ge-2019"]
       }
     },

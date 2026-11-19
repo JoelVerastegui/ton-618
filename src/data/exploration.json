@@ -1,0 +1,341 @@
+{
+  "kicker": "Exploración · ¿Dónde estamos?",
+  "title": "Descubriendo a TON 618",
+  "mapLegend": "Mapa esquemático, no a escala",
+  "skipLinkLabel": "Ir a la línea de tiempo",
+  "levels": [
+    {
+      "id": "universe",
+      "order": 1,
+      "title": "Universo observable",
+      "scale": {
+        "label": "~93 mil millones de años luz (universo observable)",
+        "scaleNote": "ilustrativo, no a escala"
+      },
+      "markers": [
+        {
+          "id": "earth",
+          "label": "Estás aquí",
+          "kind": "reference",
+          "description": "La Tierra, origen del mapa.",
+          "illustrative": true
+        },
+        {
+          "id": "ton618",
+          "label": "TON 618",
+          "kind": "self",
+          "description": "TON 618, situado según el tiempo de viaje de su luz.",
+          "illustrative": true
+        }
+      ],
+      "mapSummary": "Telaraña de filamentos y galaxias con anillos concéntricos alrededor de la Tierra. TON 618 queda lejos, a más de 10 mil millones de años de viaje de su luz."
+    },
+    {
+      "id": "cosmic-neighborhood",
+      "order": 2,
+      "title": "Vecindad cósmica",
+      "scale": {
+        "label": "Cúmulos y filamentos de galaxias (entorno genérico)",
+        "scaleNote": "ilustrativo, no a escala"
+      },
+      "markers": [
+        {
+          "id": "milky-way",
+          "label": "Vía Láctea",
+          "kind": "reference",
+          "description": "Dirección de la Vía Láctea, fuera del encuadre.",
+          "illustrative": true
+        },
+        {
+          "id": "ton618",
+          "label": "TON 618",
+          "kind": "self",
+          "description": "TON 618 en el centro del mapa.",
+          "illustrative": true
+        }
+      ],
+      "mapSummary": "Cúmulos y filamentos genéricos de galaxias, ilustrativos: no se conoce una estructura concreta asociada. TON 618 está en el centro; la Vía Láctea queda abajo a la izquierda."
+    },
+    {
+      "id": "sky-region",
+      "order": 3,
+      "title": "Región del cielo",
+      "scale": {
+        "label": "Carta celeste de Canes Venatici",
+        "scaleNote": "esquemático"
+      },
+      "markers": [
+        {
+          "id": "canes-venatici",
+          "label": "Canes Venatici",
+          "kind": "foreground",
+          "description": "Constelación donde se proyecta TON 618, con Cor Caroli y Chara.",
+          "illustrative": true
+        },
+        {
+          "id": "ton618",
+          "label": "TON 618",
+          "kind": "self",
+          "description": "TON 618 en el centro de la carta.",
+          "illustrative": false
+        }
+      ],
+      "mapSummary": "Carta celeste esquemática con retícula de coordenadas y unas pocas estrellas. TON 618 se proyecta en Canes Venatici, cerca del límite con Coma Berenices."
+    },
+    {
+      "id": "ton618",
+      "order": 4,
+      "title": "TON 618",
+      "scale": {
+        "label": "El cuásar y su agujero negro",
+        "scaleNote": "representación artística, no a escala"
+      },
+      "markers": [
+        {
+          "id": "ton618",
+          "label": "TON 618",
+          "kind": "self",
+          "description": "Agujero negro con disco de acreción incandescente.",
+          "illustrative": true
+        }
+      ],
+      "mapSummary": "Representación artística: un agujero negro rodeado por un disco de acreción ámbar y un halo de luz."
+    }
+  ],
+  "cards": [
+    {
+      "id": "quasar",
+      "levelId": "universe",
+      "order": 1,
+      "kicker": "Concepto",
+      "question": "¿Qué es un cuásar?",
+      "answer": "Es el núcleo muy activo de una galaxia: un agujero negro supermasivo traga gas y su disco de acreción puede brillar más que todas las estrellas de la galaxia.",
+      "facts": [],
+      "certainty": "measured",
+      "sources": ["src-esahubble-quasar", "src-nasa-hubble-quasars", "src-schmidt-1963"]
+    },
+    {
+      "id": "where",
+      "levelId": "cosmic-neighborhood",
+      "order": 2,
+      "kicker": "Ubicación",
+      "question": "¿Dónde se encuentra?",
+      "answer": "Se proyecta en la constelación Canes Venatici, cerca del polo norte galáctico. Su luz viajó unos 10 mil millones de años; el universo se expandió mientras tanto.",
+      "facts": [
+        {
+          "id": "redshift",
+          "label": "Corrimiento al rojo",
+          "value": 2.2218,
+          "unit": "z",
+          "displayValue": "z ≈ 2,22",
+          "uncertainty": { "low": 2.22174, "high": 2.22186 },
+          "certainty": "measured",
+          "sources": ["src-ned"]
+        },
+        {
+          "id": "light-travel-time",
+          "label": "Tiempo de viaje de la luz",
+          "value": 1.08e10,
+          "unit": "años",
+          "displayValue": "unos 10 mil millones de años",
+          "uncertainty": { "low": 1.01e10, "high": 1.09e10 },
+          "certainty": "derived",
+          "note": "ΛCDM plano; la distancia comóvil es ~18 mil millones de años luz.",
+          "sources": ["src-ned"]
+        }
+      ],
+      "certainty": "derived",
+      "sources": ["src-ned"]
+    },
+    {
+      "id": "when",
+      "levelId": "sky-region",
+      "order": 3,
+      "kicker": "Descubrimiento",
+      "question": "¿Cuándo fue descubierto?",
+      "answer": "Se catalogó en 1957 como una estrella azul débil. En 1970 apareció como radiofuente y en 1976 su espectro la identificó como un cuásar de luminosidad extrema.",
+      "facts": [],
+      "certainty": "measured",
+      "sources": ["src-iriarte-1957", "src-colla-1970", "src-ulrich-1976"]
+    },
+    {
+      "id": "what-is",
+      "levelId": "ton618",
+      "order": 4,
+      "kicker": "El objeto",
+      "question": "¿Qué es TON 618?",
+      "answer": "Un cuásar hiperluminoso cuyo agujero negro central tendría entre 40 y 66 mil millones de masas solares, según dos estimaciones de la línea Hβ.",
+      "facts": [
+        {
+          "id": "mass",
+          "label": "Masa",
+          "value": 6.6e10,
+          "unit": "M☉",
+          "displayValue": "entre 40 y 66 mil millones",
+          "uncertainty": { "low": 4.07e10, "high": 6.6e10 },
+          "certainty": "estimate",
+          "sources": ["src-shemmer-2004", "src-ge-2019"]
+        }
+      ],
+      "certainty": "estimate",
+      "sources": ["src-shemmer-2004", "src-ge-2019"]
+    },
+    {
+      "id": "luminosity",
+      "levelId": "ton618",
+      "order": 5,
+      "kicker": "Energía",
+      "question": "¿Por qué es tan luminoso?",
+      "answer": "Emite del orden de 10⁴⁷–10⁴⁸ erg/s, miles de veces la luz de la Vía Láctea. Su disco convierte en luz entre ~6 % y ~40 % de la masa que cae; la fusión estelar, ~0,7 %.",
+      "facts": [
+        {
+          "id": "luminosity",
+          "label": "Luminosidad",
+          "value": 1e40,
+          "unit": "W",
+          "displayValue": "del orden de 10⁴⁰–10⁴¹ W",
+          "uncertainty": { "low": 1e40, "high": 1e41 },
+          "certainty": "derived",
+          "note": "Rango del orden de magnitud; no es un valor único.",
+          "sources": ["src-ulrich-1976", "src-shemmer-2004"]
+        }
+      ],
+      "certainty": "derived",
+      "sources": ["src-ulrich-1976", "src-shemmer-2004"]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ton-catalogue",
+      "order": 1,
+      "date": "1957",
+      "year": 1957,
+      "title": "Una débil estrella azul",
+      "description": "Iriarte y Chavira incluyen «Ton 618» en las listas de Tonantzintla como estrella azul débil. Aún no se la reconoce como cuásar.",
+      "certainty": "measured",
+      "sources": ["src-iriarte-1957"]
+    },
+    {
+      "id": "radio-source",
+      "order": 2,
+      "date": "1970",
+      "year": 1970,
+      "title": "Una radiofuente",
+      "description": "Aparece como la radiofuente B2 1225+31 en el catálogo de Bolonia (Colla et al.).",
+      "certainty": "measured",
+      "sources": ["src-colla-1970"]
+    },
+    {
+      "id": "quasar-spectrum",
+      "order": 3,
+      "date": "1976",
+      "year": 1976,
+      "title": "Un cuásar de luminosidad extrema",
+      "description": "El espectro de Ulrich revela z ≈ 2,2 y confirma un cuásar de luminosidad intrínseca extrema.",
+      "certainty": "measured",
+      "sources": ["src-ulrich-1976"]
+    },
+    {
+      "id": "mass-estimate",
+      "order": 4,
+      "date": "2004",
+      "year": 2004,
+      "title": "Un agujero negro colosal",
+      "description": "Shemmer et al. estiman ~66 mil millones de M☉ con la línea Hβ.",
+      "certainty": "estimate",
+      "sources": ["src-shemmer-2004"]
+    },
+    {
+      "id": "alma-gas",
+      "order": 5,
+      "date": "2021",
+      "year": 2021,
+      "title": "Gas molecular con ALMA",
+      "description": "Li et al. detectan una salida de gas molecular y un halo de ~100 kpc en la nebulosa Lyα gigante.",
+      "certainty": "measured",
+      "sources": ["src-li-2021"]
+    }
+  ],
+  "sources": [
+    {
+      "id": "src-ned",
+      "title": "NED: TON 618",
+      "authors": "NASA/IPAC Extragalactic Database",
+      "year": 2026,
+      "url": "https://ned.ipac.caltech.edu/",
+      "accessed": "2026-11-18"
+    },
+    {
+      "id": "src-shemmer-2004",
+      "title": "Near-Infrared Spectroscopy of High-Redshift AGNs. I.",
+      "authors": "Shemmer et al.",
+      "year": 2004,
+      "url": "https://arxiv.org/abs/astro-ph/0406559",
+      "accessed": "2026-11-18"
+    },
+    {
+      "id": "src-ge-2019",
+      "title": "The Blueshift of CIV Broad Emission Line in QSOs",
+      "authors": "Ge, Zhao, Bian & Green",
+      "year": 2019,
+      "url": "https://arxiv.org/abs/1903.08830",
+      "accessed": "2026-11-18"
+    },
+    {
+      "id": "src-iriarte-1957",
+      "title": "Blue stars in the North Galactic Cap",
+      "authors": "Iriarte & Chavira",
+      "year": 1957,
+      "url": "https://ui.adsabs.harvard.edu/search/q=%22Blue%20stars%20in%20the%20North%20Galactic%20Cap%22",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "src-colla-1970",
+      "title": "A catalogue of 3235 radio sources at 408 MHz",
+      "authors": "Colla et al.",
+      "year": 1970,
+      "url": "https://ui.adsabs.harvard.edu/abs/1970A%26AS....1..281C",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "src-ulrich-1976",
+      "title": "Optical spectrum and redshifts of a quasar of extremely high intrinsic luminosity - B2 1225+31",
+      "authors": "Ulrich",
+      "year": 1976,
+      "url": "https://doi.org/10.1086/182182",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "src-schmidt-1963",
+      "title": "3C 273: A Star-Like Object with Large Red-Shift",
+      "authors": "Schmidt",
+      "year": 1963,
+      "url": "https://doi.org/10.1038/1971040a0",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "src-li-2021",
+      "title": "Massive molecular outflow and 100 kpc extended cold halo gas in the enormous Lyα nebula of QSO 1228+3128",
+      "authors": "Li et al.",
+      "year": 2021,
+      "url": "https://arxiv.org/abs/2111.06409",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "src-esahubble-quasar",
+      "title": "Quasar (Hubble wordbank)",
+      "authors": "ESA/Hubble",
+      "year": 2026,
+      "url": "https://esahubble.org/wordbank/quasar/",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "src-nasa-hubble-quasars",
+      "title": "Hubble Quasars",
+      "authors": "NASA Science",
+      "year": 2026,
+      "url": "https://science.nasa.gov/mission/hubble/science/science-behind-the-discoveries/hubble-quasars/",
+      "accessed": "2026-11-19"
+    }
+  ]
+}
