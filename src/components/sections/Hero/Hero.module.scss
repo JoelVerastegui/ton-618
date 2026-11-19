@@ -1,0 +1,271 @@
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// El track mide 200svh: durante los primeros 100svh de scroll el stage queda
+// fijo (sticky) y después se libera para dejar paso a la sección siguiente.
+.track {
+  position: relative;
+  height: 200svh;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100svh;
+  overflow: clip;
+  background-color: $spaceVoid;
+}
+
+.content {
+  position: relative;
+  z-index: 6;
+  gap: 1rem;
+  padding-bottom: 4.5rem;
+
+  @include media-breakpoint-up(md) {
+    padding-bottom: 4rem;
+  }
+}
+
+.kicker {
+  margin: 0;
+  animation: fadeUp $motionBase $easeOutExpo 300ms both;
+  color: color-mix(in oklab, $solarAmber 55%, $starlight);
+  font-size: 0.8125rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  animation: fadeUp $motionBase $easeOutExpo 500ms both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  text-shadow: 0 2px 24px rgba($cosmicBlue, 0.9);
+  text-wrap: balance;
+}
+
+.titleMain {
+  font-size: clamp(3rem, 9vw, 8rem);
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  line-height: 1;
+
+  @include media-breakpoint-down(md) {
+    font-size: clamp(3rem, 18vw, 8rem);
+  }
+}
+
+.titleTagline {
+  color: rgba($starlight, 0.85);
+  font-size: clamp(1.125rem, 2.4vw, 2rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.subtitle {
+  animation: fadeUp $motionBase $easeOutExpo 700ms both;
+  max-width: 36ch;
+  margin: 0 0 0.5rem;
+  color: rgba($starlight, 0.8);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  text-wrap: balance;
+}
+
+.cta {
+  animation: fadeUp $motionBase $easeOutExpo 900ms both;
+}
+
+// Poca altura (p. ej. móvil en horizontal): el texto se compacta en función de
+// la altura para que no tape la sombra del agujero negro. El CTA conserva sus
+// 48 px de alto.
+@media (max-height: $shortHeight) {
+  .content {
+    gap: 0.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .titleMain {
+    font-size: min(clamp(3rem, 9vw, 8rem), 12svh);
+  }
+
+  .titleTagline {
+    font-size: min(clamp(1.125rem, 2.4vw, 2rem), 4.5svh);
+  }
+
+  .subtitle {
+    max-width: 60ch;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-height: $tinyHeight) {
+  .content {
+    gap: 0.25rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .titleMain {
+    font-size: min(clamp(3rem, 9vw, 8rem), 10svh);
+  }
+
+  .titleTagline {
+    font-size: min(clamp(1.125rem, 2.4vw, 2rem), 4svh);
+  }
+}
+
+.caption {
+  animation: fadeIn $motionBase ease 1200ms both;
+  position: absolute;
+  right: 1rem;
+  bottom: 0.75rem;
+  left: 1rem;
+  z-index: 6;
+  margin: 0;
+  color: rgba($starlight, 0.7);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+
+  @include media-breakpoint-up(md) {
+    left: auto;
+    max-width: 28rem;
+    text-align: right;
+  }
+}
+
+// Overlay de transición (z 7): se funde al color de la escena siguiente para
+// que no haya costura entre el final del hero y la sección 2.
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  background-color: $scene2Bg;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// Transición por scroll (p de 0 a 1 sobre los primeros 100svh de scroll).
+// Las animaciones van dentro de @supports: sin soporte de animation-timeline
+// correrían por tiempo y dejarían el hero ya desvanecido.
+@supports (animation-timeline: scroll()) {
+  .content {
+    animation: scrollText ease-in both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 35svh;
+  }
+
+  .overlay {
+    animation: scrollOverlay ease-in-out both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+}
+
+// Fallback: useScrollProgress escribe --progress (0–1) en la sección
+@supports not (animation-timeline: scroll()) {
+  .content {
+    opacity: calc(1 - clamp(0, var(--progress, 0) / 0.35, 1));
+    translate: 0 calc(-8vh * clamp(0, var(--progress, 0) / 0.35, 1));
+  }
+
+  .overlay {
+    opacity: clamp(0, (var(--progress, 0) - 0.55) / 0.45, 1);
+  }
+}
+
+@keyframes scrollText {
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  to {
+    opacity: 0;
+    translate: 0 -8vh;
+  }
+}
+
+@keyframes scrollOverlay {
+  0%,
+  55% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+// Las entradas parten de opacity: 0.01 y no de 0 a propósito: Chromium no
+// registra como contenido pintado (FCP/LCP) un texto que se anima desde
+// opacity 0, y Lighthouse falla con NO_FCP. Con 0.01 el aspecto es idéntico.
+@keyframes fadeUp {
+  from {
+    opacity: 0.01;
+    translate: 0 12px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0.01;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) {
+  .content,
+  .overlay {
+    animation-play-state: paused;
+  }
+}
+
+// prefers-reduced-motion: el hero deja de ser una escena de scroll. El track
+// colapsa a 100svh sin sticky, no hay zoom ni fundido y tampoco animación de
+// entrada (el contenido aparece directamente).
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    height: 100svh;
+  }
+
+  .stage {
+    position: relative;
+  }
+
+  .content {
+    animation: none;
+    opacity: 1;
+    translate: none;
+  }
+
+  .overlay {
+    animation: none;
+    opacity: 0;
+  }
+
+  .kicker,
+  .title,
+  .subtitle,
+  .cta,
+  .caption {
+    animation: none;
+  }
+}

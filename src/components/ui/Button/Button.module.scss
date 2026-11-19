@@ -1,0 +1,33 @@
+@import '@/styles/variables';
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 2rem;
+  border: 1.5px solid $solarAmber;
+  border-radius: 999px;
+  background-color: rgba($cosmicBlue, 0.6);
+  box-shadow: 0 0 24px rgba($solarAmber, 0.25);
+  color: $starlight;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition:
+    background-color $motionFast ease,
+    color $motionFast ease,
+    box-shadow $motionFast ease;
+
+  &:hover,
+  &:focus-visible {
+    background-color: color-mix(in oklab, $solarAmber 70%, $starlight);
+    box-shadow: 0 0 32px rgba($solarAmber, 0.45);
+    color: $cosmicBlue;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 3px;
+  }
+}
