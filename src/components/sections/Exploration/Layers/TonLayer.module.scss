@@ -42,3 +42,108 @@
 .lineGuide {
   background-color: rgba($starlight, 0.6);
 }
+
+// --- Marcadores con el scroll --------------------------------------------------
+// Anillo de destino en el agujero negro (20 % de la capa, alcance ×1,8): se desvanece
+// al llegar al nivel 4 (x = 385 → 445 svh de recorrido). La guía se dibuja desde el
+// agujero (x = 380 → 415) y el rótulo «TON 618» sale de su extremo (x = 405 → 435),
+// completos antes de la ancla del nivel 4 (x = 435). Solo `scale`, `opacity`, `translate`.
+.pulseHole {
+  --pulseSize: 20%;
+  --pulseScale: 1.8;
+}
+
+@keyframes ringFade {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes guideDraw {
+  from {
+    scale: 0 1;
+  }
+
+  to {
+    scale: 1 1;
+  }
+}
+
+@keyframes tonLabelIn {
+  from {
+    opacity: 0;
+    translate: 0 -50%;
+  }
+
+  to {
+    opacity: 1;
+    translate: 1rem -50%;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .pulseHole,
+  .lineGuide,
+  .labelTon {
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+  }
+
+  .pulseHole {
+    animation-name: ringFade;
+    @include exploRange(385, 445);
+  }
+
+  .lineGuide {
+    animation-name: guideDraw;
+    @include exploRange(380, 415);
+  }
+
+  .labelTon {
+    animation-name: tonLabelIn;
+    @include exploRange(405, 435);
+  }
+}
+
+// Sin `animation-timeline`: mismos tramos con `--x` (ver `.section`). El rótulo solo funde.
+@supports not (animation-timeline: view()) {
+  .pulseHole {
+    opacity: calc(1 - #{explProgress(385, 445)});
+  }
+
+  .lineGuide {
+    scale: #{explProgress(380, 415)} 1;
+  }
+
+  .labelTon {
+    opacity: #{explProgress(405, 435)};
+  }
+}
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) {
+  .pulseHole,
+  .lineGuide,
+  .labelTon {
+    animation-play-state: paused;
+  }
+}
+
+// Sin movimiento: guía y rótulo completos; sin anillo (queda el agujero negro).
+@media (prefers-reduced-motion: reduce) {
+  .pulseHole,
+  .lineGuide,
+  .labelTon {
+    animation: none;
+  }
+
+  .pulseHole {
+    opacity: 0;
+  }
+}

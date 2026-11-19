@@ -35,3 +35,46 @@
     border-left: 1.5px solid currentcolor;
   }
 }
+
+// El indicador «Vía Láctea» llega desde la esquina (↙) cuando la capa ya cubre al
+// nivel 1 (x = 100 → 150 svh de recorrido). Solo `translate` y `opacity`.
+@keyframes edgeIn {
+  from {
+    opacity: 0;
+    translate: 1.25rem calc(-50% - 1.25rem);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 -50%;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .labelEdge {
+    animation-name: edgeIn;
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    @include exploRange(100, 150);
+  }
+}
+
+// Sin `animation-timeline`: solo fundido, con `--x` (ver `.section`).
+@supports not (animation-timeline: view()) {
+  .labelEdge {
+    opacity: #{explProgress(100, 150)};
+  }
+}
+
+:global([data-inview='false']) .labelEdge {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .labelEdge {
+    opacity: 1;
+    animation: none;
+  }
+}

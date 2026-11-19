@@ -141,3 +141,8 @@ $barSize: 2px;
     --navProgress: #{explNavFillExpr()};
   }
 }
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) .fill {
+  animation-play-state: paused;
+}

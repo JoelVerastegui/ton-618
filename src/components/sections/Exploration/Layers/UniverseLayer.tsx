@@ -74,9 +74,10 @@ export const UniverseLayer = memo(function UniverseLayer() {
 
       <span className={clsx(shared.line, styles.lineEarth)} style={POS.earthLine} />
       <span className={clsx(shared.dot, shared.dotReference)} style={POS.earth} />
-      <span className={clsx(shared.label, shared.labelBelow)} style={POS.earth}>
+      <span className={clsx(shared.label, shared.labelBelow, styles.labelHere)} style={POS.earth}>
         {markerLabel(universe, 'earth')}
       </span>
+      <span className={shared.pulse} style={POS_CENTER} />
       <span className={clsx(shared.dot, shared.dotSelf)} style={POS_CENTER} />
       <span className={clsx(shared.label, shared.labelRight, shared.labelSelf)} style={POS_CENTER}>
         {markerLabel(universe, 'ton618')}

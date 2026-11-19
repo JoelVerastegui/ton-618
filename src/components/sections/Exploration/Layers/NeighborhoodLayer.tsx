@@ -82,6 +82,7 @@ export const NeighborhoodLayer = memo(function NeighborhoodLayer() {
         <circle className={styles.halo} cx={CENTER} cy={CENTER} r={120} />
       </LayerSvg>
 
+      <span className={shared.pulse} style={POS_CENTER} />
       <span className={clsx(shared.dot, shared.dotSelf)} style={POS_CENTER} />
       <span className={clsx(shared.label, shared.labelRight, shared.labelSelf)} style={POS_CENTER}>
         {markerLabel(neighborhood, 'ton618')}

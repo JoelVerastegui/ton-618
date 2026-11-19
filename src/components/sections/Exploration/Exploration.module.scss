@@ -309,15 +309,18 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
   }
 }
 
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) .card {
+  animation-play-state: paused;
+}
+
 // Sin `animation-timeline`: `useTrackProgress` escribe `--progress` (0–1 sobre el
 // recorrido) y `--enterProgress` (0–1 mientras el stage entra) en `.section`.
 // `--x` los une en una sola posición en svh de recorrido (-100 → 560), sin salto
 // entre la entrada y el sticky. Zoom y estrellas lo consumen en sus módulos.
 @supports not (animation-timeline: view()) {
   .section {
-    --x: calc(
-      var(--progress, 0) * #{$explorationTravel} + (var(--enterProgress, 0) - 1) * 100
-    );
+    --x: calc(var(--progress, 0) * #{$explorationTravel} + (var(--enterProgress, 0) - 1) * 100);
   }
 
   // `cardLife` (tarjetas 1-4a) y `cardStay` (4b) en función del avance `--t`.

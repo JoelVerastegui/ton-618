@@ -74,6 +74,7 @@ export const SkyRegionLayer = memo(function SkyRegionLayer() {
         <path className={clsx(styles.stars, styles.starsNamed)} d={starsNamed} />
       </LayerSvg>
 
+      <span className={shared.pulse} style={POS_CENTER} />
       <span className={clsx(shared.dot, shared.dotSelf)} style={POS_CENTER} />
       <span className={clsx(shared.label, shared.labelRight, shared.labelSelf)} style={POS_CENTER}>
         {markerLabel(skyRegion, 'ton618')}

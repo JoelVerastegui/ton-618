@@ -2,7 +2,7 @@ import { memo } from 'react';
 import type { CSSProperties } from 'react';
 import clsx from 'clsx';
 import { Layer, LayerSvg } from '@/components/sections/Exploration/Layers/Layer';
-import { CENTER, POS_SCALE_NOTE, at, vector } from '@/utils/geometry';
+import { CENTER, POS_CENTER, POS_SCALE_NOTE, at, vector } from '@/utils/geometry';
 import type { Point } from '@/utils/geometry';
 import { levelById, markerLabel } from '@/utils/layerData';
 import shared from '@/components/sections/Exploration/Layers/LayerShared.module.scss';
@@ -64,8 +64,12 @@ export const TonLayer = memo(function TonLayer() {
         </g>
       </LayerSvg>
 
+      <span className={clsx(shared.pulse, styles.pulseHole)} style={POS_CENTER} />
       <span className={clsx(shared.line, styles.lineGuide)} style={POS.guide} />
-      <span className={clsx(shared.label, shared.labelRight, shared.labelSelf)} style={POS.label}>
+      <span
+        className={clsx(shared.label, shared.labelRight, shared.labelSelf, styles.labelTon)}
+        style={POS.label}
+      >
         {markerLabel(ton, 'ton618')}
       </span>
       <span className={clsx(shared.label, shared.labelNote)} style={POS_SCALE_NOTE}>

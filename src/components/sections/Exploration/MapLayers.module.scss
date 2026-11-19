@@ -80,3 +80,8 @@
     scale: calc(1 + #{$starGrow - 1} * var(--progress, 0));
   }
 }
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) .starLayer {
+  animation-play-state: paused;
+}

@@ -108,3 +108,71 @@
   transform-origin: 0 50%;
   background-color: rgba($starlight, 0.5);
 }
+
+// --- Anillos pulsantes de destino (TON 618) -----------------------------------
+// Dos anillos (::before y ::after) desfasados medio ciclo: un anillo nuevo cada
+// `$motionPulseOffset` (1800 ms ⇒ 0,56 eventos/s, sin destellos bruscos). Solo
+// `scale` y `opacity`. Tamaño y alcance configurables con `--pulseSize` / `--pulseScale`.
+@keyframes pulseRing {
+  0% {
+    opacity: 0;
+    scale: 1;
+  }
+
+  25% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    scale: var(--pulseScale, 3);
+  }
+}
+
+.pulse {
+  position: absolute;
+  width: var(--pulseSize, 1.5rem);
+  height: var(--pulseSize, 1.5rem);
+  pointer-events: none;
+  translate: -50% -50%;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid $solarAmber;
+    border-radius: 50%;
+    opacity: 0;
+    animation: pulseRing $motionPulse ease-out infinite;
+  }
+
+  &::after {
+    animation-delay: $motionPulseOffset;
+  }
+}
+
+// Los pulsos de todas las capas corren a la vez y en fase (mismo inicio): durante un cruce
+// de niveles se ve un único anillo continuo, sin duplicar los destellos.
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) .pulse {
+  &::before,
+  &::after {
+    animation-play-state: paused;
+  }
+}
+
+// Sin movimiento: un único anillo fijo en lugar del pulso.
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    &::before {
+      opacity: 0.5;
+      scale: 1.8;
+      animation: none;
+    }
+
+    &::after {
+      display: none;
+    }
+  }
+}

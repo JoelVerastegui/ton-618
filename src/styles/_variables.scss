@@ -96,8 +96,10 @@ $cardLife: 130;
 $cardFade: 30;
 $cardShift: 18px;
 
-// Pulso de los anillos de destino
+// Pulso de los anillos de destino: dos anillos desfasados medio ciclo
+// (1 evento cada 1800 ms)
 $motionPulse: 3600ms;
+$motionPulseOffset: $motionPulse * 0.5;
 
 // Tamaño del mapa (caja cuadrada)
 $mapSizeDesktop: min(100svh, 56vw);

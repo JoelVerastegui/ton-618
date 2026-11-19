@@ -177,3 +177,20 @@
     );
   }
 }
+
+// --- `will-change` y pausa --------------------------------------------------
+// Solo la capa activa y su vecina (la saliente o la entrante de un cruce) llevan
+// `will-change`; `useExplorationLevel` escribe `data-active` / `data-near`. Fuera de
+// vista no hay capas promovidas ni animaciones en marcha (data-inview lo marca
+// useInView). Va al final: gana a las reglas anteriores por orden.
+.layer {
+  &[data-active='true'],
+  &[data-near='true'] {
+    will-change: transform, opacity;
+  }
+}
+
+:global([data-inview='false']) .layer {
+  will-change: auto;
+  animation-play-state: paused;
+}
