@@ -38,9 +38,12 @@ $easeCinematic: cubic-bezier(0.5, 0, 0.75, 0);
 // ---------------------------------------------------------------------------
 // Escena del hero
 // ---------------------------------------------------------------------------
-// Color final de la transición por scroll. Provisional: debe coincidir con el
-// fondo de la sección 2 cuando exista.
+// Color final de la transición por scroll. Debe coincidir con el fondo de la
+// sección 2 (Exploración).
 $scene2Bg: $spaceVoid;
+
+// Ámbar legible como texto (kickers, años): contraste ≥ 4,5:1 sobre $spaceVoid
+$amberText: color-mix(in oklab, $solarAmber 55%, $starlight);
 
 // Amplitud máxima del parallax con mouse (esquina del viewport, desktop ≥ 1200 px)
 $parallaxFar: 6px;
@@ -64,6 +67,53 @@ $bhSizeMobile: min(92vw, 70svh);
 $shortHeight: 600px;
 // Segundo nivel de compactación (móvil en horizontal)
 $tinyHeight: 420px;
+
+// ---------------------------------------------------------------------------
+// Sección Exploración (SPEC 02)
+// ---------------------------------------------------------------------------
+// Recorrido del sticky en svh (el track mide 100svh de viewport + recorrido)
+$explorationTravel: 560;
+$explorationTrack: (100 + $explorationTravel) * 1svh; // 660svh
+
+// Paradas de nivel, en svh de recorrido desde el inicio del sticky
+$explStops: (
+  'l1': 0,
+  'l2': 110,
+  'l3': 240,
+  'l4': 375,
+  'l4b': 490,
+);
+
+// Escala de la capa saliente (hasta) y de la entrante (desde) en cada cruce
+$zoomOut: 2.5;
+$zoomIn: 0.4;
+
+// Tarjetas: vida total y fundidos de entrada/salida (svh), desplazamiento vertical
+$cardLife: 130;
+$cardFade: 30;
+$cardShift: 18px;
+
+// Pulso de los anillos de destino
+$motionPulse: 3600ms;
+
+// Tamaño del mapa (caja cuadrada)
+$mapSizeDesktop: min(100svh, 56vw);
+$mapSizeMobile: min(100vw, 60svh);
+
+// Ancho de las tarjetas de contexto
+$cardWidth: clamp(22rem, 28vw, 27rem);
+
+// Posición dentro del track (para `animation-range: cover …`) de un punto a
+// `$x` svh de recorrido desde el inicio del sticky. El sticky arranca en
+// `cover 100svh`, por eso x = 0 → 100svh y x = -100 → 0.
+@function svhAt($x) {
+  @return ($x + 100) * 1svh;
+}
+
+// Rango de animación entre dos puntos de recorrido (en svh desde el sticky).
+@mixin exploRange($from, $to) {
+  animation-range: cover svhAt($from) cover svhAt($to);
+}
 
 // ---------------------------------------------------------------------------
 // Sobrescrituras de Bootstrap (redefinición de variables !default)

@@ -35,7 +35,7 @@
 .kicker {
   margin: 0;
   animation: fadeUp $motionBase $easeOutExpo 300ms both;
-  color: color-mix(in oklab, $solarAmber 55%, $starlight);
+  color: $amberText;
   font-size: 0.8125rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
