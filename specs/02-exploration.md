@@ -1,6 +1,6 @@
 # SPEC 02 — Exploración / Descubriendo a TON 618
 
-**Estado:** Draft
+**Estado:** Approved
 **Depende de:** SPEC 01
 **Fecha:** 2026-11-19
 **Objetivo:** Implementar la sección Exploración como segunda escena de la web: un mapa espacial SVG con cuatro niveles de zoom guiados por scroll que, al acercarse desde el universo hasta TON 618, revela cinco tarjetas de contexto y una línea temporal de hitos.
@@ -110,13 +110,13 @@ export interface ExplorationData {
 
 **Reparto de tarjetas por nivel** (el nivel 4 lleva dos tarjetas consecutivas):
 
-| Nivel | Nombre              | Tarjeta                             |
-| ----- | ------------------- | ----------------------------------- |
-| 1     | Universo observable | ¿Qué es un cuásar?                  |
-| 2     | Vecindad cósmica    | ¿Dónde se encuentra?                |
-| 3     | Región del cielo    | ¿Cuándo fue descubierto?            |
-| 4a    | TON 618             | ¿Qué es TON 618?                    |
-| 4b    | TON 618             | ¿Por qué es tan luminoso?           |
+| Nivel | Nombre              | Tarjeta                   |
+| ----- | ------------------- | ------------------------- |
+| 1     | Universo observable | ¿Qué es un cuásar?        |
+| 2     | Vecindad cósmica    | ¿Dónde se encuentra?      |
+| 3     | Región del cielo    | ¿Cuándo fue descubierto?  |
+| 4a    | TON 618             | ¿Qué es TON 618?          |
+| 4b    | TON 618             | ¿Por qué es tan luminoso? |
 
 **Contenido verificado** (cifras y textos del investigador; la redacción final cabe en ≤ 40 palabras por tarjeta):
 
@@ -128,13 +128,13 @@ export interface ExplorationData {
 
 **Línea temporal** (5 hitos, con cuatro correcciones respecto a la idea original):
 
-| Fecha | Título                         | Hecho                                                                                                                                | Certeza    |
-| ----- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
-| 1957  | Una débil estrella azul        | Iriarte y Chavira incluyen «Ton 618» en las listas de Tonantzintla como estrella azul débil. Aún no se la reconoce como cuásar.    | `measured` |
-| 1970  | Una radiofuente                | Aparece como radiofuente B2 1225+31 en el catálogo de Bolonia (Colla et al.).                                                       | `measured` |
-| 1976  | Un cuásar de luminosidad extrema | El espectro de Ulrich revela z ≈ 2,2 y confirma un cuásar de luminosidad intrínseca extrema.                                        | `measured` |
-| 2004  | Un agujero negro colosal       | Shemmer et al. estiman ~66 mil millones de M☉ con la línea Hβ.                                                                       | `estimate` |
-| 2021  | Gas molecular con ALMA         | Li et al. detectan una salida de gas molecular y un halo de ~100 kpc en la nebulosa Lyα gigante.                                    | `measured` |
+| Fecha | Título                           | Hecho                                                                                                                           | Certeza    |
+| ----- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| 1957  | Una débil estrella azul          | Iriarte y Chavira incluyen «Ton 618» en las listas de Tonantzintla como estrella azul débil. Aún no se la reconoce como cuásar. | `measured` |
+| 1970  | Una radiofuente                  | Aparece como radiofuente B2 1225+31 en el catálogo de Bolonia (Colla et al.).                                                   | `measured` |
+| 1976  | Un cuásar de luminosidad extrema | El espectro de Ulrich revela z ≈ 2,2 y confirma un cuásar de luminosidad intrínseca extrema.                                    | `measured` |
+| 2004  | Un agujero negro colosal         | Shemmer et al. estiman ~66 mil millones de M☉ con la línea Hβ.                                                                  | `estimate` |
+| 2021  | Gas molecular con ALMA           | Li et al. detectan una salida de gas molecular y un halo de ~100 kpc en la nebulosa Lyα gigante.                                | `measured` |
 
 Correcciones a la idea original: 1957 no es un cuásar (es una estrella azul); 1970 es una radiofuente y la confirmación como cuásar es de 1976; se descarta la imagen de la Galaxia Remolino (licencia desconocida y, además, científicamente irrelevante: M51 está a ~23 millones de años luz); se añaden 2004 y 2021 como hitos modernos.
 
@@ -180,12 +180,12 @@ Cada paso deja el proyecto compilando y funcional. Los pasos 2 (datos) y 3 en ad
 
 ### Capas del mapa por nivel
 
-| Nivel | Se dibuja                                                                                                                                                                                                                                                                                                  | Marcadores                                                                                                                                                  |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| L1    | Telaraña cósmica (1 `<path>`, ~6 filamentos, Starlight 10 %), galaxias en 3 `<path>` de puntos (140/60/20), 3 anillos discontinuos centrados en la Tierra a +4 mil millones de años de luz cada uno. Leyenda: «Cada anillo: +4 mil millones de años de viaje de la luz».                                     | «Estás aquí» en (250, 690); línea Tierra→TON (HTML, `--len: 314`, −37°) que se dibuja con `scale` 0→1.                                                      |
-| L2    | 5 cúmulos con `radialGradient` estático (sin blur), filamentos convergentes y ~80 galaxias en 2 `<path>`. Rotulado «ilustrativo».                                                                                                                                                                          | «Estás aquí» pasa a indicador en el borde inferior izquierdo (↙ «Vía Láctea»); halo de ~120 u en el destino.                                                |
-| L3    | Carta celeste circular (r = 430 u), retícula RA/Dec (6 `<path>`), ~40 estrellas, texto «Canes Venatici» con Cor Caroli y Chara, subtítulo «Esquemático». El círculo entrante crece de 0,4 a 1.                                                                                                               | «Observas desde la Tierra» abajo.                                                                                                                           |
-| L4    | Halo ámbar (#B96F37), disco elíptico (rx 300, ry 80, −12°) con degradado, círculo negro r = 92 y anillo de fotones. Placeholder SVG hasta tener los assets del Hero (puede reutilizar `ton618-blackhole-1024` sin archivos nuevos).                                                                          | Etiqueta «TON 618» con línea guía; el anillo pulsante se desvanece.                                                                                         |
+| Nivel | Se dibuja                                                                                                                                                                                                                                                                | Marcadores                                                                                                   |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| L1    | Telaraña cósmica (1 `<path>`, ~6 filamentos, Starlight 10 %), galaxias en 3 `<path>` de puntos (140/60/20), 3 anillos discontinuos centrados en la Tierra a +4 mil millones de años de luz cada uno. Leyenda: «Cada anillo: +4 mil millones de años de viaje de la luz». | «Estás aquí» en (250, 690); línea Tierra→TON (HTML, `--len: 314`, −37°) que se dibuja con `scale` 0→1.       |
+| L2    | 5 cúmulos con `radialGradient` estático (sin blur), filamentos convergentes y ~80 galaxias en 2 `<path>`. Rotulado «ilustrativo».                                                                                                                                        | «Estás aquí» pasa a indicador en el borde inferior izquierdo (↙ «Vía Láctea»); halo de ~120 u en el destino. |
+| L3    | Carta celeste circular (r = 430 u), retícula RA/Dec (6 `<path>`), ~40 estrellas, texto «Canes Venatici» con Cor Caroli y Chara, subtítulo «Esquemático». El círculo entrante crece de 0,4 a 1.                                                                           | «Observas desde la Tierra» abajo.                                                                            |
+| L4    | Halo ámbar (#B96F37), disco elíptico (rx 300, ry 80, −12°) con degradado, círculo negro r = 92 y anillo de fotones. Placeholder SVG hasta tener los assets del Hero (puede reutilizar `ton618-blackhole-1024` sin archivos nuevos).                                      | Etiqueta «TON 618» con línea guía; el anillo pulsante se desvanece.                                          |
 
 **Capa persistente de estrellas:** ~120 por `box-shadow` generado en compilación, detrás de las cuatro capas; escala suave de 1 a 1,15 en todo el recorrido.
 
@@ -199,19 +199,19 @@ Cada paso deja el proyecto compilando y funcional. Los pasos 2 (datos) y 3 en ad
 
 Track = 660svh (100 de viewport + 560 de recorrido); `x` en svh de recorrido desde el inicio del sticky (`p = x / 560`).
 
-| Evento                                  | x (svh)           | p         |
-| --------------------------------------- | ----------------- | --------- |
-| Entrada: stage entra, estrellas fade-in | −100 → 0          | —         |
-| Tarjeta 1: entra / sale                 | −30 → 0 / 80 → 110 | — / 0,14–0,20 |
-| Zoom L1→L2                              | 80 → 140          | 0,14–0,25 |
-| Tarjeta 2: entra / sale                 | 110 → 140 / 210 → 240 | —     |
-| Zoom L2→L3                              | 210 → 270         | 0,38–0,48 |
-| Tarjeta 3: entra / sale                 | 240 → 270 / 340 → 370 | —     |
-| Zoom L3→L4                              | 340 → 410         | 0,61–0,73 |
-| Tarjeta 4a: entra / sale                | 370 → 400 / 470 → 500 | —     |
-| Tarjeta 4b: entra                       | 490 → 520         | 0,88–0,93 |
-| Aproximación al agujero negro (L4)      | 400 → 560         | scale 1→1,25 `linear` |
-| Hold final y liberación del stage       | 520 → 560         | 1         |
+| Evento                                  | x (svh)               | p                     |
+| --------------------------------------- | --------------------- | --------------------- |
+| Entrada: stage entra, estrellas fade-in | −100 → 0              | —                     |
+| Tarjeta 1: entra / sale                 | −30 → 0 / 80 → 110    | — / 0,14–0,20         |
+| Zoom L1→L2                              | 80 → 140              | 0,14–0,25             |
+| Tarjeta 2: entra / sale                 | 110 → 140 / 210 → 240 | —                     |
+| Zoom L2→L3                              | 210 → 270             | 0,38–0,48             |
+| Tarjeta 3: entra / sale                 | 240 → 270 / 340 → 370 | —                     |
+| Zoom L3→L4                              | 340 → 410             | 0,61–0,73             |
+| Tarjeta 4a: entra / sale                | 370 → 400 / 470 → 500 | —                     |
+| Tarjeta 4b: entra                       | 490 → 520             | 0,88–0,93             |
+| Aproximación al agujero negro (L4)      | 400 → 560             | scale 1→1,25 `linear` |
+| Hold final y liberación del stage       | 520 → 560             | 1                     |
 
 Cambio de nivel activo: L2 en x = 110, L3 en x = 240, L4 en x = 375. Keyframe `cardLife` (4 stops): 0 % opacity 0 y translate 0 18px; 23 % opacity 1; 77 % opacity 1; 100 % opacity 0 y translate 0 −18px (rango ~130svh por tarjeta).
 
@@ -233,16 +233,16 @@ Starlight sobre Cosmic Blue ≈ 14:1; cuerpo al 82 % ≥ 9:1; kicker con `color-
 
 ### Presupuesto
 
-| Concepto                                    | Límite                                              |
-| ------------------------------------------- | --------------------------------------------------- |
-| Assets nuevos (imágenes, fuentes)           | 0                                                   |
-| JS del chunk de Exploración                 | ≤ 12 KB gz                                          |
-| CSS de los módulos de Exploración           | ≤ 8 KB gz                                           |
-| `exploration.json`                          | ≤ 4 KB                                              |
-| Nodos SVG / HTML                            | ≤ 120 / ≤ 80                                        |
-| Capas compuestas a la vez                   | ≤ 3                                                 |
-| Trabajo por frame al hacer scroll           | solo composite (0 Layout, 0 Paint)                  |
-| Lighthouse móvil                            | Performance ≥ 90, CLS 0                             |
+| Concepto                          | Límite                             |
+| --------------------------------- | ---------------------------------- |
+| Assets nuevos (imágenes, fuentes) | 0                                  |
+| JS del chunk de Exploración       | ≤ 12 KB gz                         |
+| CSS de los módulos de Exploración | ≤ 8 KB gz                          |
+| `exploration.json`                | ≤ 4 KB                             |
+| Nodos SVG / HTML                  | ≤ 120 / ≤ 80                       |
+| Capas compuestas a la vez         | ≤ 3                                |
+| Trabajo por frame al hacer scroll | solo composite (0 Layout, 0 Paint) |
+| Lighthouse móvil                  | Performance ≥ 90, CLS 0            |
 
 ---
 
