@@ -15,7 +15,7 @@ export function useExplorationLevel(
   sectionRef: RefObject<HTMLElement | null>,
   sentinelsRef: RefObject<HTMLElement | null>,
   anchorsRef: RefObject<HTMLElement | null>,
-  levelIds: readonly ExplorationLevelId[],
+  levelIds: readonly ExplorationLevelId[]
 ) {
   const [level, setLevel] = useState(1);
 
@@ -25,7 +25,7 @@ export function useExplorationLevel(
     if (!section || sentinels.length === 0) return;
 
     const layers = levelIds.map((id) =>
-      section.querySelector<HTMLElement>(`[data-level-id="${id}"]`),
+      section.querySelector<HTMLElement>(`[data-level-id="${id}"]`)
     );
 
     const writeDom = (index: number) => {
@@ -54,7 +54,7 @@ export function useExplorationLevel(
         writeDom(current);
         setLevel(current + 1);
       },
-      { rootMargin: '-50% 0px -50% 0px' },
+      { rootMargin: '-50% 0px -50% 0px' }
     );
     sentinels.forEach((sentinel) => observer.observe(sentinel));
 
@@ -74,7 +74,7 @@ export function useExplorationLevel(
       const anchor = anchorsRef.current?.children[target - 1];
       if (anchor) scrollToElement(anchor);
     },
-    [anchorsRef],
+    [anchorsRef]
   );
 
   return { level, goTo };

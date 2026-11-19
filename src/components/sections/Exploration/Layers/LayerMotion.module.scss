@@ -172,9 +172,7 @@
     --tIn: #{explProgress(nth($l3l4, 1), nth($l3l4, 2))};
     --tApproach: #{explProgress(nth($explApproach, 1), nth($explApproach, 2))};
     opacity: explFadeIn(--tIn);
-    scale: calc(
-      #{explZoomExpr($zoomIn, 1, --tIn)} * (1 + #{$zoomApproach - 1} * var(--tApproach))
-    );
+    scale: calc(#{explZoomExpr($zoomIn, 1, --tIn)} * (1 + #{$zoomApproach - 1} * var(--tApproach)));
   }
 }
 

@@ -14,7 +14,7 @@ import { useEffect, type RefObject } from 'react';
  */
 export function useTrackProgress(
   sectionRef: RefObject<HTMLElement | null>,
-  trackRef: RefObject<HTMLElement | null>,
+  trackRef: RefObject<HTMLElement | null>
 ) {
   useEffect(() => {
     const section = sectionRef.current;
@@ -40,7 +40,10 @@ export function useTrackProgress(
       frame = 0;
       const offset = window.scrollY - top;
       section.style.setProperty('--progress', clamp01(offset / travel).toFixed(4));
-      section.style.setProperty('--enterProgress', clamp01((offset + stageHeight) / stageHeight).toFixed(4));
+      section.style.setProperty(
+        '--enterProgress',
+        clamp01((offset + stageHeight) / stageHeight).toFixed(4)
+      );
     };
 
     const schedule = () => {

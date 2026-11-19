@@ -61,7 +61,9 @@ $barSize: 2px;
   cursor: pointer;
   background: transparent;
   border: 0;
-  transition: color $motionFast, background-color $motionFast;
+  transition:
+    color $motionFast,
+    background-color $motionFast;
 
   &:hover {
     color: $starlight;
