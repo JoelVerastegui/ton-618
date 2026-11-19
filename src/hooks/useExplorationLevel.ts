@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type RefObject } from 'react';
 import type { ExplorationLevelId } from '@/interfaces/exploration';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { scrollToElement } from '@/utils/scrollTo';
 
 /**
@@ -9,6 +10,7 @@ import { scrollToElement } from '@/utils/scrollTo';
  * - Escribe `data-level` en la sección y `data-active` / `data-near` en cada capa del
  *   mapa (`[data-level-id]`) directamente en el DOM. Solo el cambio de nivel actualiza
  *   el estado de React (para `aria-current` y la región aria-live).
+ * - Con `prefers-reduced-motion: reduce` los niveles son bloques lineales: no observa ni escribe nada.
  * - `goTo(level)` hace scroll a las anclas ocultas (hijos de `anchorsRef`).
  */
 export function useExplorationLevel(
@@ -18,11 +20,12 @@ export function useExplorationLevel(
   levelIds: readonly ExplorationLevelId[]
 ) {
   const [level, setLevel] = useState(1);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     const section = sectionRef.current;
     const sentinels = sentinelsRef.current ? Array.from(sentinelsRef.current.children) : [];
-    if (!section || sentinels.length === 0) return;
+    if (reducedMotion || !section || sentinels.length === 0) return;
 
     const layers = levelIds.map((id) =>
       section.querySelector<HTMLElement>(`[data-level-id="${id}"]`)
@@ -67,7 +70,7 @@ export function useExplorationLevel(
         delete layer.dataset.near;
       });
     };
-  }, [sectionRef, sentinelsRef, levelIds]);
+  }, [sectionRef, sentinelsRef, levelIds, reducedMotion]);
 
   const goTo = useCallback(
     (target: number) => {

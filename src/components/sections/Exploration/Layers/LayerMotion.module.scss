@@ -192,3 +192,36 @@
   will-change: auto;
   animation-play-state: paused;
 }
+
+// --- prefers-reduced-motion: reduce ---------------------------------------------
+// Cada capa es un bloque de lectura: en flujo normal (el `.map` es `display:
+// contents`), cuadrada, a escala 1 y opaca, sin zoom ni cruce. `order` la intercala con
+// el texto y las tarjetas (Exploration.module.scss). Al final del archivo: gana por
+// orden a las reglas con `animation-timeline` y al fallback con `--x`.
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .universe,
+  .neighborhood,
+  .sky,
+  .ton {
+    position: relative;
+    inset: auto;
+    width: min(100%, 36rem);
+    margin-top: 2.5rem;
+    opacity: 1;
+    scale: none;
+    animation: none;
+    aspect-ratio: 1;
+  }
+
+  .layer[data-active],
+  .layer[data-near] {
+    will-change: auto;
+  }
+
+  @each $name, $level in (universe: 1, neighborhood: 2, sky: 3, ton: 4) {
+    .#{$name} {
+      order: explReadOrder($level);
+    }
+  }
+}

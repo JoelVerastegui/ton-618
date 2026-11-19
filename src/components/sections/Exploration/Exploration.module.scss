@@ -236,6 +236,17 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
 
 .timelineAnchor {
   scroll-margin-top: 0;
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: -2px;
+  }
+}
+
+// Texto del mapa de cada nivel (título + `mapSummary`): solo para lectores de pantalla;
+// con reduced-motion se muestra (ver el bloque del final).
+.summaries {
+  @extend %srOnly;
 }
 
 // --- Tarjetas con el scroll (paso 5) -------------------------------------------
@@ -341,6 +352,108 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
       --t: #{explProgress(nth($range, 1), nth($range, 2))};
       opacity: var(--t);
       translate: 0 calc(#{$cardShift} * (1 - var(--t)));
+    }
+  }
+}
+
+// --- prefers-reduced-motion: reduce (paso 9) --------------------------------------
+// Contenido lineal, sin sticky, zoom ni pulso. El `.stage` pasa a ser una columna
+// flex en flujo normal y los hijos se reordenan con `order` (`explReadOrder`) en
+// 4 bloques de lectura: capa del mapa a tamaño normal (LayerMotion), título +
+// resumen del nivel y su(s) tarjeta(s) (la 4a y la 4b en el nivel 4). `.map` y
+// `.summaries` usan `display: contents` para que sus hijos entren en esa columna.
+// No hay animaciones, así que `getAnimations()` de la sección queda vacío. Va al final:
+// gana por orden a las reglas de arriba (misma especificidad).
+$cardLevel: (1, 2, 3, 4, 4);
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    height: auto;
+    view-timeline: none;
+  }
+
+  .stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    height: auto;
+    padding: 1.5rem 1rem 8rem;
+  }
+
+  .sentinels,
+  .anchors,
+  .scrim {
+    display: none;
+  }
+
+  // Enlace visual con la línea temporal sin tapar la última tarjeta
+  .stage::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 6rem;
+    pointer-events: none;
+    background: linear-gradient(to top, $scene2Bg, transparent);
+  }
+
+  .legend {
+    position: static;
+    inset: auto;
+    order: 0;
+    width: auto;
+    padding: 0;
+  }
+
+  .summaries {
+    display: contents;
+  }
+
+  .summary {
+    width: min(36rem, 100%);
+    margin: 0;
+    color: rgba($starlight, 0.82);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .summaryTitle {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: $starlight;
+    font-size: 1.25rem;
+    font-weight: 300;
+    line-height: 1.2;
+  }
+
+  .card,
+  .card:nth-of-type(n) {
+    position: relative;
+    inset: auto;
+    width: min(36rem, 100%);
+    height: auto;
+    margin: 0;
+    padding: 1.25rem;
+    opacity: 1;
+    translate: none;
+    animation: none;
+  }
+
+  @for $i from 1 through 4 {
+    .summary:nth-of-type(#{$i}) {
+      order: explReadOrder($i, 1);
+    }
+  }
+
+  @for $i from 1 through 5 {
+    $level: nth($cardLevel, $i);
+
+    .card:nth-of-type(#{$i}) {
+      order: explReadOrder($level, if($i == 5, 3, 2));
     }
   }
 }

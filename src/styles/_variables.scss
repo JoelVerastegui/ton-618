@@ -131,6 +131,19 @@ $sideBySide: '(min-width: 992px), (max-height: #{$shortHeight}) and (orientation
   animation-range: exploRangeOf($from, $to);
 }
 
+// Línea temporal: ancho de contenedor desde el que pasa a horizontal, duración de
+// la línea y desfase entre hitos
+$timelineBreak: 40rem;
+$timelineLine: 1200ms;
+$timelineStagger: 150ms;
+
+// Orden de lectura de los bloques con `prefers-reduced-motion: reduce` (flex en
+// columna): nivel `$level` (1-4) × 10 + posición `$slot` dentro del bloque
+// (0 capa, 1 texto del mapa, 2+ tarjetas).
+@function explReadOrder($level, $slot: 0) {
+  @return $level * 10 + $slot;
+}
+
 // Anclas de `goTo` de LevelNav (x en svh de recorrido, un punto cómodo dentro de
 // cada nivel) y línea de observación del nivel activo (50svh: centro del viewport).
 // Una ancla está en la posición `x` del track; un centinela empieza en `x + línea`.

@@ -5,13 +5,14 @@ import { useTrackProgress } from '@/hooks/useTrackProgress';
 import explorationJson from '@/data/exploration.json';
 import type { ExplorationData } from '@/interfaces/exploration';
 import { LevelNav } from '@/components/sections/Exploration/LevelNav';
+import { ExplorationTimeline } from '@/components/sections/Exploration/ExplorationTimeline';
 import { MapLayers } from '@/components/sections/Exploration/MapLayers';
 import { levelLabel } from '@/utils/levelLabel';
 import styles from '@/components/sections/Exploration/Exploration.module.scss';
 
 const exploration = explorationJson as ExplorationData;
 
-// Id de ancla de la línea temporal (la implementa el paso 9 del spec).
+// Id de ancla de la línea temporal (destino del skip link).
 const TIMELINE_ID = 'explorationTimeline';
 const TITLE_ID = 'explorationTitle';
 // Retardo antes de anunciar el cambio de nivel (evita ruido durante el scroll rápido).
@@ -65,9 +66,11 @@ export function Exploration() {
           <LevelNav levels={levels} level={level} onSelect={goTo} />
 
           {/* Equivalente textual del mapa (el SVG será aria-hidden) */}
-          <div className={styles.srOnly}>
-            {levels.map((level) => (
-              <p key={level.id}>{level.mapSummary}</p>
+          <div className={styles.summaries}>
+            {levels.map((item) => (
+              <p key={item.id} className={styles.summary}>
+                <span className={styles.summaryTitle}>{item.title}</span> {item.mapSummary}
+              </p>
             ))}
           </div>
 
@@ -105,8 +108,10 @@ export function Exploration() {
         </div>
       </div>
 
-      {/* Ancla de la línea temporal (contenido en el paso 9) */}
-      <div id={TIMELINE_ID} className={styles.timelineAnchor} tabIndex={-1} />
+      {/* Ancla de la línea temporal (destino del skip link) */}
+      <div id={TIMELINE_ID} className={styles.timelineAnchor} tabIndex={-1}>
+        <ExplorationTimeline />
+      </div>
     </section>
   );
 }

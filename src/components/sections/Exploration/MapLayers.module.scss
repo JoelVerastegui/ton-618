@@ -85,3 +85,17 @@
 :global([data-inview='false']) .starLayer {
   animation-play-state: paused;
 }
+
+// Reduced-motion: las capas entran en la columna de lectura del stage (ver
+// Exploration.module.scss) y las estrellas quedan fijas, sin fundido ni escala.
+@media (prefers-reduced-motion: reduce) {
+  .map {
+    display: contents;
+  }
+
+  .starLayer {
+    opacity: 1;
+    scale: none;
+    animation: none;
+  }
+}

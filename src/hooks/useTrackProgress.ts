@@ -1,4 +1,5 @@
 import { useEffect, type RefObject } from 'react';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 /**
  * Fallback del scroll de la sección Exploración para navegadores sin
@@ -7,7 +8,8 @@ import { useEffect, type RefObject } from 'react';
  *   hasta que se libera).
  * - `--enterProgress`: 0–1 mientras el stage entra (de -100 a 0 svh de
  *   recorrido); vale 1 durante todo el sticky.
- * Si el navegador soporta el timeline nativo, no hace nada ni registra listeners.
+ * Si el navegador soporta el timeline nativo, o con `prefers-reduced-motion: reduce` (el
+ * track es lineal), no hace nada ni registra listeners.
  * El `scroll` solo se escucha mientras el track está en vista; top y alturas se
  * cachean en `resize` y al cambiar la visibilidad, así que el handler solo lee
  * `window.scrollY`.
@@ -16,11 +18,20 @@ export function useTrackProgress(
   sectionRef: RefObject<HTMLElement | null>,
   trackRef: RefObject<HTMLElement | null>
 ) {
+  const reducedMotion = useReducedMotion();
+
   useEffect(() => {
     const section = sectionRef.current;
     const track = trackRef.current;
     const stage = track?.firstElementChild as HTMLElement | null | undefined;
-    if (!section || !track || !stage || CSS.supports('animation-timeline', 'view()')) return;
+    if (
+      reducedMotion ||
+      !section ||
+      !track ||
+      !stage ||
+      CSS.supports('animation-timeline', 'view()')
+    )
+      return;
 
     let top = 0; // posición del track en el documento
     let stageHeight = 1; // 100svh
@@ -81,5 +92,5 @@ export function useTrackProgress(
       section.style.removeProperty('--progress');
       section.style.removeProperty('--enterProgress');
     };
-  }, [sectionRef, trackRef]);
+  }, [sectionRef, trackRef, reducedMotion]);
 }

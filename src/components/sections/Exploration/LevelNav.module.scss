@@ -148,3 +148,14 @@ $barSize: 2px;
 :global([data-inview='false']) .fill {
   animation-play-state: paused;
 }
+
+// Reduced-motion: los niveles son bloques de lectura lineales; no hay navegación por zoom.
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    display: none;
+  }
+
+  .fill {
+    animation: none;
+  }
+}
