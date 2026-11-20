@@ -1,9 +1,13 @@
-import { useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { useSceneReady } from '@/hooks/useSceneReady';
 import scienceJson from '@/data/science.json';
-import type { ScienceData } from '@/interfaces/science';
-import { BlackHoleField } from '@/components/sections/Exploration/Layers/BlackHoleField';
-import quasar from '@/assets/images/science/quasar-1536.webp';
+import type { ScienceData, SciencePointId } from '@/interfaces/science';
+import { PointCard } from '@/components/sections/Science/PointCard';
+import { PointMarkers } from '@/components/sections/Science/PointMarkers';
+import { PointNav } from '@/components/sections/Science/PointNav';
+import { Viewer } from '@/components/sections/Science/Viewer';
+import { cardTitleId } from '@/utils/cardTitleId';
 import styles from '@/components/sections/Science/Science.module.scss';
 
 const science = scienceJson as ScienceData;
@@ -13,13 +17,72 @@ const TITLE_ID = 'scienceTitle';
 
 const points = [...science.points].sort((a, b) => a.order - b.order);
 
+// A dónde va el foco tras el siguiente cambio de punto.
+type FocusTarget = 'card' | 'marker' | null;
+
 export function Science() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLSpanElement>(null);
+  const focusTarget = useRef<FocusTarget>(null);
+  const lastPoint = useRef<SciencePointId | null>(null);
+  // Un único estado: el punto abierto (o ninguno). Un clic = un render de esta sección.
+  const [point, setPoint] = useState<SciencePointId | null>(null);
   useInView(sectionRef);
 
+  const closeSilently = useCallback(() => setPoint(null), []);
+  const ready = useSceneReady(sentinelRef, closeSilently);
+
+  const open = useCallback((id: SciencePointId) => {
+    focusTarget.current = 'card';
+    lastPoint.current = id;
+    setPoint(id);
+  }, []);
+
+  const switchTo = useCallback((id: SciencePointId) => {
+    focusTarget.current = null;
+    lastPoint.current = id;
+    setPoint(id);
+  }, []);
+
+  const close = useCallback(() => {
+    focusTarget.current = 'marker';
+    setPoint(null);
+  }, []);
+
+  // Foco: al abrir con un marcador pasa al título de la tarjeta; al cerrar vuelve al marcador.
+  useEffect(() => {
+    if (point && focusTarget.current === 'card') {
+      document.getElementById(cardTitleId(point))?.focus({ preventScroll: true });
+    } else if (!point && focusTarget.current === 'marker') {
+      sectionRef.current
+        ?.querySelector<HTMLElement>(`[data-point-id='${lastPoint.current}']`)
+        ?.focus({ preventScroll: true });
+    }
+    focusTarget.current = null;
+  }, [point]);
+
+  // `Esc` cierra el punto abierto.
+  useEffect(() => {
+    if (!point) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [point, close]);
+
+  const active = points.find((item) => item.id === point);
+
   return (
-    <section ref={sectionRef} id='science' aria-labelledby={TITLE_ID} className={styles.section}>
+    <section
+      ref={sectionRef}
+      id='science'
+      aria-labelledby={TITLE_ID}
+      className={styles.section}
+      data-ready={ready}
+      data-point={point ?? undefined}
+    >
       <div ref={trackRef} className={styles.track}>
         <div className={styles.stage}>
           <div className={styles.starLayer} aria-hidden='true' />
@@ -34,37 +97,19 @@ export function Science() {
           {/* Equivalente textual de la ilustración (el visor es aria-hidden) */}
           <p className={styles.summary}>{science.summary}</p>
 
-          <div className={styles.viewer} aria-hidden='true'>
-            {/* Capa de entrada: el último fotograma de Exploración (sin centelleo) */}
-            <div className={styles.entry}>
-              <BlackHoleField twinkle={false} />
-            </div>
-            <div className={styles.camera}>
-              <img
-                className={styles.quasar}
-                src={quasar}
-                alt=''
-                width={1536}
-                height={1536}
-                decoding='async'
-              />
-            </div>
-          </div>
+          <Viewer />
+          <PointMarkers points={points} inert={!ready || point !== null} onSelect={open} />
 
-          {points.map((point) => (
-            <article
-              key={point.id}
-              className={styles.card}
-              aria-labelledby={`scienceCard-${point.id}`}
-            >
-              <p className={styles.cardKicker}>{point.kicker}</p>
-              <h3 id={`scienceCard-${point.id}`} className={styles.cardTitle}>
-                {point.title}
-              </h3>
-              <p className={styles.cardAnswer}>{point.answer}</p>
-            </article>
-          ))}
+          <div className={styles.panel}>
+            <div aria-live='polite'>{active && <PointCard key={active.id} point={active} />}</div>
+            {active && (
+              <PointNav points={points} active={active.id} onSelect={switchTo} onClose={close} />
+            )}
+          </div>
         </div>
+
+        {/* Desde la parada «lista» hasta el final del track (ver `useSceneReady`) */}
+        <span ref={sentinelRef} className={styles.sentinel} aria-hidden='true' />
       </div>
     </section>
   );

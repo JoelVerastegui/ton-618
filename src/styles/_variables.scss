@@ -302,6 +302,23 @@ $sciPoints: (
   animation-range: exploRangeOf($from, $to);
 }
 
+// Caja cuadrada del visor (y de la capa de marcadores): centrada en (50 %, 34svh) en
+// móvil y (34vw, 50svh) en side-by-side. Misma geometría que el mapa de Exploración.
+@mixin sciViewerBox {
+  position: absolute;
+  top: calc(34svh - #{$mapSizeMobile} / 2 + var(--viewportExtra, 0px));
+  left: calc(50% - #{$mapSizeMobile} / 2);
+  width: $mapSizeMobile;
+  height: $mapSizeMobile;
+
+  @media #{$sideBySide} {
+    top: calc(50svh - #{$mapSizeDesktop} / 2);
+    left: calc(34vw - #{$mapSizeDesktop} / 2);
+    width: $mapSizeDesktop;
+    height: $mapSizeDesktop;
+  }
+}
+
 // Desplazamiento de cámara (% del tamaño de la imagen) que lleva el punto `$focus`
 // (x, y en % de la imagen) al centro con la escala `$scale`.
 @function sciCameraShift($focus, $scale) {

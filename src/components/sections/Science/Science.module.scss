@@ -73,27 +73,30 @@
 // Cuadrado centrado en (50 %, 34svh) en móvil y (34vw, 50svh) en side-by-side, con
 // el mismo clip circular que el nivel 4 de Exploración.
 .viewer {
-  position: absolute;
-  top: calc(34svh - #{$mapSizeMobile} / 2 + var(--viewportExtra, 0px));
-  left: calc(50% - #{$mapSizeMobile} / 2);
+  @include sciViewerBox;
   z-index: 1;
-  width: $mapSizeMobile;
-  height: $mapSizeMobile;
   pointer-events: none;
   clip-path: circle(50%);
-
-  @media #{$sideBySide} {
-    top: calc(50svh - #{$mapSizeDesktop} / 2);
-    left: calc(34vw - #{$mapSizeDesktop} / 2);
-    width: $mapSizeDesktop;
-    height: $mapSizeDesktop;
-  }
 }
 
 .entry,
 .camera {
   position: absolute;
   inset: 0;
+}
+
+// Cámara: un solo `transform` por punto (`data-point` en la sección). Parte de la
+// vista completa; el cambio entre puntos anima desde el valor actual.
+.camera {
+  transition: transform $motionCamera $easeCinematic;
+}
+
+@each $id, $cfg in $sciPoints {
+  $scale: map-get($cfg, 'scale');
+
+  .section[data-point='#{$id}'] .camera {
+    transform: translate(#{sciCameraShift(map-get($cfg, 'focus'), $scale)}) scale($scale);
+  }
 }
 
 .quasar {
@@ -126,6 +129,15 @@
   }
 }
 
+// En móvil el título cae donde se abre la tarjeta: se oculta con un punto activo.
+.section[data-point] .header {
+  visibility: hidden;
+
+  @media #{$sideBySide} {
+    visibility: visible;
+  }
+}
+
 .title {
   margin: 0 0 0.5rem;
   font-size: clamp(1.5rem, 6vw, 2rem);
@@ -150,31 +162,21 @@
   @extend %srOnly;
 }
 
-// --- Tarjetas -----------------------------------------------------------------
-// Apiladas en la misma posición; solo la activa (`data-active`) es visible. Las
-// inactivas quedan en `visibility: hidden`: no se ven ni las leen los lectores de pantalla.
-.card {
+// --- Panel (tarjeta + navegación entre puntos) ---------------------------------
+// Abajo en móvil y a la derecha en side-by-side. Vacío (y sin pointer-events) con la
+// vista completa; la tarjeta y `PointNav` solo existen con un punto activo.
+.panel {
   position: absolute;
   right: 0;
   bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--viewportExtra, 0px));
   left: 0;
   z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   width: min(34rem, calc(100% - 2rem));
   margin-inline: auto;
-  padding: 1.25rem;
-  visibility: hidden;
-  opacity: 0;
   pointer-events: none;
-  background-color: rgba($cosmicBlue, 0.82);
-  border: 1px solid rgba($starlight, 0.14);
-  border-left: 2px solid $solarAmber;
-  border-radius: 0.75rem;
-
-  &[data-active='true'] {
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
-  }
 
   @media #{$sideBySide} {
     top: 0;
@@ -185,62 +187,6 @@
     width: min($cardWidth, calc(66vw - max(4vw, 3rem) - 2rem));
     height: fit-content;
     margin: auto 0;
-    padding: 1.75rem;
-  }
-}
-
-.cardKicker {
-  margin: 0 0 0.5rem;
-  color: $amberText;
-  font-size: 0.75rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-
-.cardTitle {
-  margin: 0 0 0.75rem;
-  font-size: clamp(1.25rem, 5vw, 1.5rem);
-  font-weight: 300;
-  line-height: 1.2;
-  text-wrap: balance;
-
-  @media #{$sideBySide} {
-    font-size: clamp(1.5rem, 2.2vw, 2rem);
-  }
-}
-
-.cardAnswer {
-  max-width: 44ch;
-  margin: 0;
-  color: rgba($starlight, 0.82);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  text-wrap: pretty;
-
-  @media #{$sideBySide} {
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-}
-
-// Móvil apaisado: tarjeta compacta para caber en poca altura.
-@media (max-height: $shortHeight) and (orientation: landscape) {
-  .card {
-    padding: 1rem 1.25rem;
-  }
-
-  .cardKicker {
-    margin-bottom: 0.25rem;
-  }
-
-  .cardTitle {
-    margin-bottom: 0.5rem;
-    font-size: min(clamp(1.5rem, 2.2vw, 2rem), 6svh);
-  }
-
-  .cardAnswer {
-    font-size: min(1rem, 5svh);
-    line-height: 1.45;
   }
 }
 
@@ -358,4 +304,15 @@
   .header {
     animation-play-state: paused;
   }
+}
+
+// Línea de la parada «lista» (`$scienceReady`) hasta el final del track: `useSceneReady`
+// la observa para marcar `data-ready` y cerrar el punto activo al volver atrás.
+.sentinel {
+  position: absolute;
+  top: explLen($scienceReady);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
 }
