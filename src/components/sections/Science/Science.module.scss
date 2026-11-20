@@ -97,6 +97,16 @@
   .section[data-point='#{$id}'] .camera {
     transform: translate(#{sciCameraShift(map-get($cfg, 'focus'), $scale)}) scale($scale);
   }
+
+  @if map-has-key($cfg, 'scaleCompact') {
+    $compact: map-get($cfg, 'scaleCompact');
+
+    @media #{$sciCompact} {
+      .section[data-point='#{$id}'] .camera {
+        transform: translate(#{sciCameraShift(map-get($cfg, 'focus'), $compact)}) scale($compact);
+      }
+    }
+  }
 }
 
 .quasar {
@@ -183,10 +193,20 @@
     right: max(4vw, 3rem);
     bottom: 0;
     left: auto;
-    // Nunca invade el visor (centro a 34vw) en pantallas estrechas.
-    width: min($cardWidth, calc(66vw - max(4vw, 3rem) - 2rem));
+    // Nunca invade la parte ampliada más ancha (centro del visor a 34vw; ver `sciClear`).
+    width: min(
+      $cardWidth,
+      calc(66vw - max(4vw, 3rem) - #{$mapSizeDesktop} * #{sciClear()} - 0.5rem)
+    );
     height: fit-content;
     margin: auto 0;
+  }
+
+  @media #{$sciCompact} {
+    width: min(
+      $cardWidth,
+      calc(66vw - max(4vw, 3rem) - #{$mapSizeDesktop} * #{sciClear(true)} - 0.5rem)
+    );
   }
 }
 

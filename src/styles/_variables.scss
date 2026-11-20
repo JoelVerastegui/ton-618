@@ -253,6 +253,9 @@ $motionCamera: 1100ms;
 
 // Puntos interactivos. Coordenadas en % de la imagen del cuásar (500, 500 = centro):
 // `marker` = posición del botón; `focus` = parte que la cámara centra con `scale`.
+// `extent` = radio de la parte (fracción del lado del visor a escala 1): sombra 42,7,
+// disco 157, arcos de la lente 76 (de 1000). `scaleCompact` = escala en móvil apaisado
+// estrecho (`$sciCompact`), donde un disco ×2 quedaría bajo la tarjeta.
 // Valores iniciales, a calibrar con la imagen real. Presentación: no van en el JSON.
 $sciPoints: (
   'horizon': (
@@ -265,6 +268,7 @@ $sciPoints: (
       50,
     ),
     'scale': 3,
+    'extent': 0.0427,
   ),
   'disk': (
     'marker': (
@@ -276,6 +280,8 @@ $sciPoints: (
       50,
     ),
     'scale': 2,
+    'scaleCompact': 1.3,
+    'extent': 0.157,
   ),
   'lens': (
     'marker': (
@@ -287,8 +293,26 @@ $sciPoints: (
       44,
     ),
     'scale': 2.2,
+    'extent': 0.076,
   ),
 );
+
+// Móvil apaisado estrecho (p. ej. 640×360, 568×320): visor pequeño con la tarjeta pegada.
+$sciCompact: '(max-width: 700px) and (orientation: landscape)';
+
+// Fracción del lado del visor que ocupa, desde su centro, la parte ampliada más ancha
+// (`extent` × escala). La tarjeta de side-by-side empieza después de ella.
+@function sciClear($compact: false) {
+  $max: 0;
+  @each $id, $cfg in $sciPoints {
+    $scale: map-get($cfg, 'scale');
+    @if $compact and map-has-key($cfg, 'scaleCompact') {
+      $scale: map-get($cfg, 'scaleCompact');
+    }
+    $max: max($max, map-get($cfg, 'extent') * $scale);
+  }
+  @return $max;
+}
 
 // Altura del track de Ciencia: `vh` de fallback y `dvh`.
 @mixin scienceTrackHeight {
