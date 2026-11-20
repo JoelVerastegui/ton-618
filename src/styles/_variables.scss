@@ -78,7 +78,17 @@ $tinyHeight: 420px;
 // ---------------------------------------------------------------------------
 // Recorrido del sticky en svh (el track mide 100svh de viewport + recorrido)
 $explorationTravel: 500;
-$explorationTrack: (100 + $explorationTravel) * 1svh; // 600svh
+// Unidad de recorrido: `--explUnit` (definida en `.section`) vale 1svh en
+// side-by-side y menos en móvil vertical, para acortar el scroll de cada tarjeta.
+$explUnitMobile: 0.6svh;
+// Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
+@mixin explorationTrackHeight {
+  height: calc(100vh + #{$explorationTravel} * var(--explUnit, 1svh));
+  height: calc(100dvh + #{$explorationTravel} * var(--explUnit, 1svh));
+}
+@function explLen($x) {
+  @return calc(#{$x} * var(--explUnit, 1svh));
+}
 
 // Paradas de nivel, en svh de recorrido desde el inicio del sticky
 $explStops: (
@@ -118,7 +128,7 @@ $sideBySide: '(min-width: 992px), (max-height: #{$shortHeight}) and (orientation
 // `$x` svh de recorrido desde el inicio del sticky. El sticky arranca en
 // `cover 100svh`, por eso x = 0 → 100svh y x = -100 → 0.
 @function svhAt($x) {
-  @return ($x + 100) * 1svh;
+  @return calc(100svh + #{$x} * var(--explUnit, 1svh));
 }
 
 // Valor de `animation-range` entre dos puntos de recorrido (svh desde el

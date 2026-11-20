@@ -7,7 +7,10 @@
 // fijo (sticky) y después se libera para dejar paso a la sección siguiente.
 .track {
   position: relative;
-  height: 200svh;
+  // `dvh` sigue las barras del navegador (así no asoma la sección siguiente);
+  // `vh` de fallback.
+  height: 200vh;
+  height: 200dvh;
 }
 
 .stage {
@@ -16,7 +19,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  height: 100svh;
+  height: 100vh;
+  height: 100dvh;
   overflow: clip;
   background-color: $spaceVoid;
 }

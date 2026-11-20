@@ -24,7 +24,7 @@
 // Cuadrado centrado en (50 %, 34svh) en móvil y (34vw, 50svh) en side-by-side.
 .map {
   position: absolute;
-  top: calc(34svh - #{$mapSizeMobile} / 2);
+  top: calc(34svh - #{$mapSizeMobile} / 2 + var(--viewportExtra, 0px));
   left: calc(50% - #{$mapSizeMobile} / 2);
   z-index: 1;
   width: $mapSizeMobile;

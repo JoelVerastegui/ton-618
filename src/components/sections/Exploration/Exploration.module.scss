@@ -22,8 +22,23 @@
 
 // Borde superior liso en $scene2Bg: sin costura con el overlay final del Hero.
 .section {
+  --explUnit: #{$explUnitMobile};
   position: relative;
   background-color: $scene2Bg;
+
+  // Mitad del espacio extra cuando el viewport crece (barras del navegador
+  // ocultas): el mapa baja y la tarjeta sube esa mitad, así el conjunto queda
+  // centrado en la ventana grande. Vale 0 con las barras visibles.
+  --viewportExtra: 0px;
+
+  @supports (height: 100dvh) {
+    --viewportExtra: calc((100dvh - 100svh) / 2);
+  }
+
+  @media #{$sideBySide} {
+    --explUnit: 1svh;
+    --viewportExtra: 0px;
+  }
 }
 
 // `view-timeline`: toda la animación por scroll de la sección cuelga de este
@@ -31,14 +46,15 @@
 // El sticky empieza en `cover 100svh` y termina en `cover 660svh`.
 .track {
   position: relative;
-  height: $explorationTrack;
+  @include explorationTrackHeight;
   view-timeline: --explorationTrack block;
 }
 
 .stage {
   position: sticky;
   top: 0;
-  height: 100svh;
+  height: 100vh;
+  height: 100dvh; // sigue las barras del navegador; sin hueco bajo las tarjetas
   overflow: clip;
   background-color: $scene2Bg;
 }
@@ -49,7 +65,7 @@
 .card {
   position: absolute;
   right: 0;
-  bottom: max(1rem, env(safe-area-inset-bottom));
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--viewportExtra, 0px));
   left: 0;
   z-index: 3;
   width: min(34rem, calc(100% - 2rem));
@@ -191,16 +207,16 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
 
 @for $i from 1 through 4 {
   .anchor:nth-child(#{$i}) {
-    top: nth($explAnchors, $i) * 1svh;
+    top: explLen(nth($explAnchors, $i));
   }
 
-  $top: if($i == 1, 0, (map-get($explStops, nth($levelStops, $i)) + $explLevelLine) * 1svh);
+  $topX: if($i == 1, 0, map-get($explStops, nth($levelStops, $i)) + $explLevelLine);
 
   .sentinel:nth-child(#{$i}) {
-    top: $top;
+    top: explLen($topX);
 
     @if $i < 4 {
-      height: (map-get($explStops, nth($levelStops, $i + 1)) + $explLevelLine) * 1svh - $top;
+      height: explLen(map-get($explStops, nth($levelStops, $i + 1)) + $explLevelLine - $topX);
     } @else {
       bottom: 0;
     }

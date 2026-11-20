@@ -16,6 +16,7 @@ La spec original (mapa 100 % SVG, cinco tarjetas, línea temporal, track de 660s
 - **Ilustraciones:** el SVG puro no resultaba llamativo. Se pasa a un **balance entre imágenes generadas con IA** (con el fondo negro convertido en transparencia) **y elementos SVG/CSS interactivos**. Ver «Ilustraciones». Esto revoca la exclusión de imágenes y el presupuesto de «0 assets nuevos»; siguen excluidas las imágenes astronómicas reales.
 - **Textos de escala eliminados:** ya no se rotula «ilustrativo, no a escala», «representación artística, no a escala» ni «Mapa esquemático, no a escala» (otra sección del sitio mostrará la realidad). Solo se conserva el subtítulo «esquemático» de la carta celeste (nivel 3).
 - **Tarjeta «¿Por qué es tan luminoso?» eliminada** (4 tarjetas). El recorrido baja de 560 a 500 svh, con 130 svh por tarjeta, y se elimina la aproximación final al agujero negro (zoom ×1,25).
+- **Responsive móvil vertical (posterior):** (1) el recorrido de scroll se acorta al 60 % con `--explUnit` (0,6svh en móvil vertical, 1svh en side-by-side); (2) stage y track de Hero y Exploración usan `dvh` con fallback `vh` (antes `svh`), para que no asome la sección siguiente ni quede hueco bajo las tarjetas al ocultarse las barras del navegador; (3) `--viewportExtra` centra mapa y tarjeta cuando el viewport crece. Ver «Unidad de recorrido» y «Layout».
 - **Línea temporal eliminada** (con su skip link, sus tokens y sus estilos): era demasiado texto. Con ella desaparece la única vista de fuentes citadas.
 - **Indicador «TON 618» con línea guía eliminado** en el nivel 4.
 - **Datos recortados:** `hero.json` y `exploration.json` solo contienen lo que se muestra (más los textos para lectores de pantalla). Se borra `src/interfaces/common.ts`.
@@ -169,7 +170,9 @@ Los pasos 1–9 están hechos; el 10 queda pendiente y no se ejecutará hasta la
 
 ### Tabla scroll → progreso
 
-Track = 600svh (100 de viewport + 500 de recorrido); `x` en svh de recorrido desde el inicio del sticky (`p = x / 500`).
+Track = 100dvh + 500 unidades de recorrido; `x` en unidades de recorrido desde el inicio del sticky (`p = x / 500`).
+
+**Unidad de recorrido:** `--explUnit` (definida en `.section`) vale 1svh en side-by-side (track de 600 «svh») y 0,6svh en móvil vertical (< 992 px, no apaisado de poca altura): track ≈ 100dvh + 300svh, ~78svh de scroll por tarjeta en vez de ~130. Todas las posiciones de la tabla (`x`, anclas, centinelas, rangos de animación, tarjetas y `LevelNav`) están en esta unidad, así que `x` y `p` no cambian: lo que cambia es la distancia física en píxeles. Al verificar en móvil, convertir `x` a píxeles con `x × 0,6 × innerHeight/100` (desktop: `x × innerHeight/100`).
 
 | Evento                                    | x (svh)                 | p         |
 | ----------------------------------------- | ----------------------- | --------- |
@@ -184,7 +187,7 @@ Track = 600svh (100 de viewport + 500 de recorrido); `x` en svh de recorrido des
 | Pulso del agujero se desvanece (L4)       | 385 → 445               | —         |
 | Hold final                                | 410 → 500               | 1         |
 
-Cambio de nivel activo: L2 en x = 110, L3 en x = 240, L4 en x = 375. Anclas de `goTo`: x = 40, 175, 305, 435. Keyframe `cardLife` (4 stops): 0 % opacity 0 y translate 0 18px; 23 % opacity 1; 77 % opacity 1; 100 % opacity 0 y translate 0 −18px (rango ~130svh por tarjeta). `cardStay` solo hace la entrada.
+Cambio de nivel activo: L2 en x = 110, L3 en x = 240, L4 en x = 375. Anclas de `goTo`: x = 40, 175, 305, 435. Keyframe `cardLife` (4 stops): 0 % opacity 0 y translate 0 18px; 23 % opacity 1; 77 % opacity 1; 100 % opacity 0 y translate 0 −18px (rango de 130 unidades por tarjeta: ~130svh en desktop, ~78svh en móvil vertical). `cardStay` solo hace la entrada.
 
 ### Scroll animado (`scrollToElement`)
 
@@ -195,7 +198,8 @@ Cambio de nivel activo: L2 en x = 110, L3 en x = 240, L4 en x = 375. Anclas de `
 ### Layout
 
 - **Desktop (≥ 992 px, y móvil apaisado con `max-height: $shortHeight`):** mapa a la izquierda centrado en (34vw, 50svh); tarjeta a la derecha (ancho `$cardWidth`, margen derecho `max(4vw, 3rem)`, centrada en vertical); rail de niveles vertical en el borde izquierdo. Tarjeta: fondo `rgba($cosmicBlue, 0.82)` sin `backdrop-filter`, borde 1 px Starlight 14 % y borde izquierdo ámbar de 2 px, radio 0,75 rem, padding 1,75 rem. Kicker 0,75 rem en `$amberText`; pregunta `clamp(1.5rem, 2.2vw, 2rem)` peso 300; cuerpo 1 rem / 1,6, máx. 44ch, ≤ 220 caracteres.
-- **Móvil y tablet (< 992 px):** mapa `min(100vw, 60svh)` con centro a 34svh del borde superior; tarjeta abajo (`calc(100% - 2rem)`, máx. 34 rem, `bottom: max(1rem, env(safe-area-inset-bottom))`, ~28–33svh); `LevelNav` en fila horizontal arriba con 4 segmentos de 44 px de alto táctil.
+- **Alturas con barras del navegador:** `.stage` y `.track` (y los del Hero) usan `dvh` con `vh` de fallback declarado antes; mapa, textos y agujero negro siguen en `svh` para no redimensionarse al mostrar u ocultar las barras.
+- **Móvil y tablet (< 992 px):** mapa `min(100vw, 60svh)` con centro a 34svh del borde superior; tarjeta abajo (`calc(100% - 2rem)`, máx. 34 rem, `bottom: max(1rem, env(safe-area-inset-bottom))`, ~28–33svh). Ambos suman `--viewportExtra = (100dvh − 100svh) / 2` (0 con las barras visibles o en side-by-side): con las barras ocultas el mapa baja y la tarjeta sube esa mitad, repartiendo el espacio extra de forma simétrica; `LevelNav` en fila horizontal arriba con 4 segmentos de 44 px de alto táctil.
 - **Reduced-motion:** `.stage` en columna con padding inferior de 3 rem; bloques de lectura por nivel (capa, título + resumen, tarjeta) ordenados con `explReadOrder`.
 
 ### Contraste
@@ -246,9 +250,11 @@ Las casillas siguen sin marcar: se comprueban en el Paso 10 (verificación).
 
 **Zoom y scroll**
 
-- [ ] En `scrollY` al inicio del sticky se ve el nivel 1; al final del recorrido (x = 500svh) se ve TON 618 con la tarjeta 4 completa y sin zoom adicional.
+- [ ] En móvil vertical, con las barras del navegador visibles y ocultas (y durante la transición), el `.stage` cubre toda la ventana: no asoma la sección siguiente bajo el Hero ni hay hueco bajo las tarjetas; mapa y tarjeta quedan repartidos simétricamente (`--viewportExtra`) y sin saltos de layout (CLS = 0).
+- [ ] En móvil vertical el recorrido por tarjeta es ~78svh (0,6 × el de desktop) y las paradas (L2 = 110, L3 = 240, L4 = 375 unidades) siguen sincronizadas con zoom, tarjetas y `LevelNav`.
+- [ ] En `scrollY` al inicio del sticky se ve el nivel 1; al final del recorrido (x = 500 unidades) se ve TON 618 con la tarjeta 4 completa y sin zoom adicional.
 - [ ] Durante cada cruce de niveles nunca hay dos capas con `opacity` intermedia a la vez (comprobado en `getComputedStyle` o grabación frame a frame).
-- [ ] El nivel activo cambia en x = 110, 240 y 375 svh (±10 svh) y se refleja en `data-level`, `aria-current` y la región `aria-live`.
+- [ ] El nivel activo cambia en x = 110, 240 y 375 unidades (±10; 1 unidad = `--explUnit`) y se refleja en `data-level`, `aria-current` y la región `aria-live`.
 - [ ] En un navegador sin `animation-timeline` el efecto funciona vía `--progress` (incluido el fondo negro de la tarjeta 2) y la consola no muestra errores.
 - [ ] Los botones de `LevelNav` llevan al nivel correspondiente con `scrollToElement` (animado y lento), se activan con Enter y Espacio, y el desplazamiento se cancela con rueda, toque o teclado.
 - [ ] Solo se animan `transform` y `opacity`; no hay `filter`, `backdrop-filter` ni `mix-blend-mode`.
@@ -324,10 +330,11 @@ Las casillas siguen sin marcar: se comprueban en el Paso 10 (verificación).
 - **Scroll animado propio.** `scrollToElement` sustituye al scroll nativo; puede chocar con el scroll-snap o con la navegación futura. Se cancela con la rueda, el toque y el teclado, pero conviene probarlo en móviles reales.
 - **`animation-range` con `cover` y `calc()` de longitudes.** Verificar en Chrome, Safari y Firefox; el fallback con `--progress` cubre el efecto completo. La prueba en un Firefox real sigue pendiente, como en la SPEC 01.
 - **Hand-off con el Hero.** Si `$scene2Bg` deja de ser `$spaceVoid`, hay que revisar la costura entre el overlay del Hero y el borde superior de la sección. El fondo negro de la tarjeta 2 es un cambio de color solo durante esa tarjeta.
-- **Fatiga de scroll.** 600svh son unos 5 gestos en móvil. Mitigado con los botones de nivel y el token `$explorationTravel`.
+- **Fatiga de scroll.** 600svh serían unos 5 gestos en móvil; con `--explUnit` (0,6) son ~3. Mitigado también con los botones de nivel y el token `$explorationTravel`.
+- **`dvh` y rangos en `svh`.** El stage cambia de altura mientras las barras se mueven; los `animation-range` usan `svh` y pueden desfasarse unos puntos porcentuales al inicio y al final del sticky. Probar en un móvil real (iOS Safari y Chrome Android).
 - **Lectura rápida.** Con scroll muy rápido el usuario puede saltarse tarjetas; todo el contenido sigue en el DOM y en la versión reduced-motion.
 - **IntersectionObserver asíncrono.** El indicador de nivel puede ir un frame por detrás del scroll; es aceptable.
-- **Acoplamiento futuro con la navegación.** La sección ocupa 600svh; el `rootMargin` del `IntersectionObserver` del spec de navegación debe tenerlo en cuenta.
+- **Acoplamiento futuro con la navegación.** La sección ocupa 600svh en desktop y ~400svh en móvil vertical; el `rootMargin` del `IntersectionObserver` del spec de navegación debe tenerlo en cuenta.
 - **Pérdida de las citas de fuentes en la web.** Los JSON ya no incluyen fuentes; la trazabilidad de las cifras queda en la referencia de investigación de este documento.
 
 ---
