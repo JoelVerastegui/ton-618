@@ -117,3 +117,23 @@
 :global([data-inview='false']) .markers {
   animation-play-state: paused;
 }
+
+// Reduced-motion: marcadores visibles desde el inicio y sin pulso; los cambios de
+// opacidad son instantáneos.
+@media (prefers-reduced-motion: reduce) {
+  .markers {
+    animation: none;
+    opacity: 1;
+  }
+
+  .marker {
+    transition: none;
+  }
+
+  :global([data-ready='true']:not([data-point]):not([data-inview='false'])) {
+    .ring,
+    .ringLate {
+      animation: none;
+    }
+  }
+}

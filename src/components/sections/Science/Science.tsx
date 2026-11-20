@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { useTrackProgress } from '@/hooks/useTrackProgress';
 import { useSceneReady } from '@/hooks/useSceneReady';
 import scienceJson from '@/data/science.json';
 import type { ScienceData, SciencePointId } from '@/interfaces/science';
@@ -29,6 +30,7 @@ export function Science() {
   // Un único estado: el punto abierto (o ninguno). Un clic = un render de esta sección.
   const [point, setPoint] = useState<SciencePointId | null>(null);
   useInView(sectionRef);
+  useTrackProgress(sectionRef, trackRef);
 
   const closeSilently = useCallback(() => setPoint(null), []);
   const ready = useSceneReady(sentinelRef, closeSilently);

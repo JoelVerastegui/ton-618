@@ -158,10 +158,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .horizonSpin,
-  .ring,
-  .lensPulse {
-    animation: none;
+  .layer {
+    transition: none;
+  }
+
+  // Misma especificidad que las reglas por punto (van antes): gana por orden.
+  :global([data-point]) {
+    .horizonSpin,
+    .ring,
+    .lensPulse {
+      animation: none;
+    }
   }
 
   // Sin animación, los anillos del disco quedan visibles y estáticos.

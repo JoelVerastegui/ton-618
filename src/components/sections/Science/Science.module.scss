@@ -297,6 +297,33 @@
   }
 }
 
+// Sin `animation-timeline`: `useTrackProgress` escribe `--progress` (0–1 sobre el
+// recorrido del sticky); `--x` lo pasa a unidades de recorrido y las mismas expresiones
+// de la tabla «Track e intro» salen de él (ver `explProgress`, `explZoomExpr`).
+@supports not (animation-timeline: view()) {
+  .section {
+    --x: calc(var(--progress, 0) * #{$scienceTravel});
+  }
+
+  .entry {
+    --t: #{explProgress(0, $scienceReady)};
+    opacity: explFadeOut(--t);
+    scale: explZoomExpr(1, $zoomIn, --t);
+  }
+
+  .quasar {
+    --t: #{explProgress(0, $scienceReady)};
+    opacity: explFadeIn(--t);
+    scale: explZoomExpr($quasarIntroScale, 1, --t);
+  }
+
+  .header {
+    --t: #{explProgress(70, $scienceReady)};
+    opacity: var(--t);
+    translate: 0 calc(#{$cardShift} * (1 - var(--t)));
+  }
+}
+
 // Pausa fuera de vista (data-inview lo marca useInView)
 :global([data-inview='false']) {
   .entry,
@@ -315,4 +342,43 @@
   bottom: 0;
   left: 0;
   pointer-events: none;
+}
+
+// --- prefers-reduced-motion: reduce --------------------------------------------
+// Sin intro: el track mide 100dvh y no hay sticky, la ilustración se ve completa (sin
+// capa de entrada) y la cámara cambia al instante al pulsar un punto (acción de la
+// persona, no animación automática). Va al final: gana por orden a las reglas de arriba
+// y al fallback con `--x`.
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    height: 100vh;
+    height: 100dvh;
+    view-timeline: none;
+  }
+
+  .stage {
+    position: relative;
+  }
+
+  .sentinel,
+  .entry {
+    display: none;
+  }
+
+  .entry,
+  .quasar,
+  .header {
+    animation: none;
+  }
+
+  .quasar,
+  .header {
+    opacity: 1;
+    translate: none;
+    scale: none;
+  }
+
+  .camera {
+    transition: none;
+  }
 }

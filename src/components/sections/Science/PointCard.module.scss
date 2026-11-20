@@ -86,3 +86,9 @@
     line-height: 1.45;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}
