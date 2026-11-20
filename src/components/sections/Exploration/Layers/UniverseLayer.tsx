@@ -106,7 +106,7 @@ export const UniverseLayer = memo(function UniverseLayer() {
         {markerLabel(universe, 'ton618')}
       </span>
       <span className={clsx(shared.label, styles.labelRings)} style={POS.ringLegend}>
-        {universe.scale.ringLegend}
+        {universe.ringLegend}
       </span>
     </Layer>
   );

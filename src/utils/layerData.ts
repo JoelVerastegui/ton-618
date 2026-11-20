@@ -14,4 +14,4 @@ export const levelById = (id: ExplorationLevelId): ExplorationLevel => {
 };
 
 export const markerLabel = (level: ExplorationLevel, id: string): string =>
-  level.markers.find((marker) => marker.id === id)?.label ?? '';
+  level.markers?.find((marker) => marker.id === id)?.label ?? '';

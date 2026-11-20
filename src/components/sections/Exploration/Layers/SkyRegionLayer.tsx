@@ -90,7 +90,7 @@ export const SkyRegionLayer = memo(function SkyRegionLayer() {
       </span>
       <span className={clsx(shared.label, styles.labelTitle)} style={POS.title}>
         {markerLabel(skyRegion, 'canes-venatici')}
-        <span className={styles.labelSub}>{skyRegion.scale.scaleNote}</span>
+        <span className={styles.labelSub}>{skyRegion.scaleNote}</span>
       </span>
     </Layer>
   );
