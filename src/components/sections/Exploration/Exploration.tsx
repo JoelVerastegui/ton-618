@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import clsx from 'clsx';
 import { useInView } from '@/hooks/useInView';
 import { useExplorationLevel } from '@/hooks/useExplorationLevel';
 import { useTrackProgress } from '@/hooks/useTrackProgress';
@@ -87,6 +88,10 @@ export function Exploration() {
           ))}
 
           <div className={styles.scrim} aria-hidden='true' />
+
+          {/* Párpados: cierran el stage al final del recorrido (transición a Ciencia) */}
+          <span className={clsx(styles.lid, styles.lidTop)} aria-hidden='true' />
+          <span className={clsx(styles.lid, styles.lidBottom)} aria-hidden='true' />
         </div>
 
         {/* Posiciones del track para el nivel activo (IntersectionObserver) y para goTo */}

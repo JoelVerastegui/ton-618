@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
 import { useTrackProgress } from '@/hooks/useTrackProgress';
@@ -100,6 +101,7 @@ export function Science() {
           <p className={styles.summary}>{science.summary}</p>
 
           <Viewer />
+
           <PointMarkers points={points} inert={!ready || point !== null} onSelect={open} />
 
           <div className={styles.panel}>
@@ -108,6 +110,10 @@ export function Science() {
               <PointNav points={points} active={active.id} onSelect={switchTo} onClose={close} />
             )}
           </div>
+
+          {/* Párpados de la intro (ver «Intro con el scroll» en el SCSS) */}
+          <span className={clsx(styles.lid, styles.lidTop)} aria-hidden='true' />
+          <span className={clsx(styles.lid, styles.lidBottom)} aria-hidden='true' />
         </div>
 
         {/* Desde la parada «lista» hasta el final del track (ver `useSceneReady`) */}

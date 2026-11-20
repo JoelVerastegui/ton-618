@@ -244,19 +244,17 @@ $crossInEnd: 0.6;
 // `$scienceTravel`.
 $scienceTravel: 200;
 $scienceReady: 110;
-// Escala inicial de la imagen del cuásar (fin del zoom-out): calibrada con la imagen
-// real (anillo de fotón 8,6 % del lienzo × 2,36 = 20,3 %, el del Hero); el agujero negro
-// coincide con el del último nivel de Exploración.
-$quasarIntroScale: 2.36;
+// Escala inicial del vídeo del cuásar: con los párpados abiertos se asienta de ×1,12 a ×1.
+$quasarIntroScale: 1.12;
 // Duración del movimiento de la cámara entre puntos
 $motionCamera: 1100ms;
 
-// Puntos interactivos. Coordenadas en % de la imagen del cuásar (500, 500 = centro):
-// `marker` = posición del botón; `focus` = parte que la cámara centra con `scale`.
-// `extent` = radio de la parte (fracción del lado del visor a escala 1): sombra 42,7,
-// disco 157, arcos de la lente 76 (de 1000). `scaleCompact` = escala en móvil apaisado
-// estrecho (`$sciCompact`), donde un disco ×2 quedaría bajo la tarjeta.
-// Valores iniciales, a calibrar con la imagen real. Presentación: no van en el JSON.
+// Puntos interactivos. Coordenadas en % del lienzo del vídeo (50, 50 = centro de la
+// sombra): `marker` = posición del botón; `focus` = parte que la cámara centra con `scale`.
+// `extent` = radio de la parte (fracción del lado del visor a escala 1): sombra 0,09, disco
+// 0,33, arcos de la lente 0,2 (la fuente mide 986 px: más zoom se ve blando).
+// `scaleCompact` = escala en móvil apaisado estrecho (`$sciCompact`), donde el disco
+// ×1,5 quedaría bajo la tarjeta. Presentación: no van en el JSON.
 $sciPoints: (
   'horizon': (
     'marker': (
@@ -267,33 +265,33 @@ $sciPoints: (
       50,
       50,
     ),
-    'scale': 3,
-    'extent': 0.0427,
+    'scale': 2.2,
+    'extent': 0.09,
   ),
   'disk': (
     'marker': (
-      66,
-      53,
+      74,
+      51,
     ),
     'focus': (
-      50,
+      58,
       50,
     ),
-    'scale': 2,
-    'scaleCompact': 1.3,
-    'extent': 0.157,
+    'scale': 1.5,
+    'scaleCompact': 1.15,
+    'extent': 0.33,
   ),
   'lens': (
     'marker': (
       50,
-      41,
+      34,
     ),
     'focus': (
       50,
-      44,
+      38,
     ),
-    'scale': 2.2,
-    'extent': 0.076,
+    'scale': 2,
+    'extent': 0.2,
   ),
 );
 
