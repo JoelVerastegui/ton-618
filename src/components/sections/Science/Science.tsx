@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useInView } from '@/hooks/useInView';
 import scienceJson from '@/data/science.json';
 import type { ScienceData } from '@/interfaces/science';
+import { BlackHoleField } from '@/components/sections/Exploration/Layers/BlackHoleField';
 import quasar from '@/assets/images/science/quasar-1536.webp';
 import styles from '@/components/sections/Science/Science.module.scss';
 
@@ -34,6 +35,10 @@ export function Science() {
           <p className={styles.summary}>{science.summary}</p>
 
           <div className={styles.viewer} aria-hidden='true'>
+            {/* Capa de entrada: el último fotograma de Exploración (sin centelleo) */}
+            <div className={styles.entry}>
+              <BlackHoleField twinkle={false} />
+            </div>
             <div className={styles.camera}>
               <img
                 className={styles.quasar}

@@ -244,9 +244,10 @@ $crossInEnd: 0.6;
 // `$scienceTravel`.
 $scienceTravel: 200;
 $scienceReady: 110;
-// Escala inicial de la imagen del cuásar (fin del zoom-out); el agujero negro
+// Escala inicial de la imagen del cuásar (fin del zoom-out): calibrada con la imagen
+// real (anillo de fotón 8,6 % del lienzo × 2,36 = 20,3 %, el del Hero); el agujero negro
 // coincide con el del último nivel de Exploración.
-$quasarIntroScale: 2.5;
+$quasarIntroScale: 2.36;
 // Duración del movimiento de la cámara entre puntos
 $motionCamera: 1100ms;
 
