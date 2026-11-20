@@ -237,6 +237,88 @@ $crossInEnd: 0.6;
 }
 
 // ---------------------------------------------------------------------------
+// Sección Ciencia (SPEC 03)
+// ---------------------------------------------------------------------------
+// Recorrido del sticky (misma unidad `--explUnit` que Exploración) y paradas:
+// la escena queda lista (`data-ready`) en `$scienceReady` y se mantiene hasta
+// `$scienceTravel`.
+$scienceTravel: 200;
+$scienceReady: 110;
+// Escala inicial de la imagen del cuásar (fin del zoom-out); el agujero negro
+// coincide con el del último nivel de Exploración.
+$quasarIntroScale: 2.5;
+// Duración del movimiento de la cámara entre puntos
+$motionCamera: 1100ms;
+
+// Puntos interactivos. Coordenadas en % de la imagen del cuásar (500, 500 = centro):
+// `marker` = posición del botón; `focus` = parte que la cámara centra con `scale`.
+// Valores iniciales, a calibrar con la imagen real. Presentación: no van en el JSON.
+$sciPoints: (
+  'horizon': (
+    'marker': (
+      50,
+      50,
+    ),
+    'focus': (
+      50,
+      50,
+    ),
+    'scale': 3,
+  ),
+  'disk': (
+    'marker': (
+      66,
+      53,
+    ),
+    'focus': (
+      50,
+      50,
+    ),
+    'scale': 2,
+  ),
+  'lens': (
+    'marker': (
+      50,
+      41,
+    ),
+    'focus': (
+      50,
+      44,
+    ),
+    'scale': 2.2,
+  ),
+  'jets': (
+    'marker': (
+      50,
+      18,
+    ),
+    'focus': (
+      50,
+      30,
+    ),
+    'scale': 1.8,
+  ),
+);
+
+// Altura del track de Ciencia: `vh` de fallback y `dvh`.
+@mixin scienceTrackHeight {
+  height: calc(100vh + #{$scienceTravel} * var(--explUnit, 1svh));
+  height: calc(100dvh + #{$scienceTravel} * var(--explUnit, 1svh));
+}
+
+// Rango de animación entre dos puntos de recorrido (svh desde el sticky), igual
+// que `exploRange`.
+@mixin sciRange($from, $to) {
+  animation-range: exploRangeOf($from, $to);
+}
+
+// Desplazamiento de cámara (% del tamaño de la imagen) que lleva el punto `$focus`
+// (x, y en % de la imagen) al centro con la escala `$scale`.
+@function sciCameraShift($focus, $scale) {
+  @return (50 - list.nth($focus, 1)) * $scale * 1%, (50 - list.nth($focus, 2)) * $scale * 1%;
+}
+
+// ---------------------------------------------------------------------------
 // Sobrescrituras de Bootstrap (redefinición de variables !default)
 // ---------------------------------------------------------------------------
 $enable-dark-mode: false;

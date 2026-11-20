@@ -2,8 +2,10 @@ import { useEffect, type RefObject } from 'react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 /**
- * Fallback del scroll de la sección Exploración para navegadores sin
- * `animation-timeline: view()`. Escribe en la sección, sin estado de React:
+ * Fallback del scroll de una sección con track sticky (Exploración, Ciencia)
+ * para navegadores sin `animation-timeline: view()`. Recibe las refs de la
+ * sección y de su track (el primer hijo del track es el stage sticky).
+ * Escribe en la sección, sin estado de React:
  * - `--progress`: 0–1 sobre el recorrido del sticky (de que el stage se pega
  *   hasta que se libera).
  * - `--enterProgress`: 0–1 mientras el stage entra (de -100 a 0 svh de
