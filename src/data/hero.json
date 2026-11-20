@@ -1,89 +1,11 @@
 {
-  "kicker": "Cuásar hiperluminoso · z = 2,219",
   "title": {
     "main": "TON 618",
     "tagline": "Más allá de los límites"
   },
   "subtitle": "Un coloso con más de 60 mil millones de masas solares",
-  "summary": "Escena espacial con un agujero negro y su disco de acreción luminoso sobre un campo de estrellas. Representación artística.",
   "cta": {
     "label": "Iniciar exploración",
-    "targetSectionId": "section-2"
-  },
-  "artwork": {
-    "src": "ton618-blackhole",
-    "alt": "Representación artística de un agujero negro con disco de acreción incandescente rodeado de estrellas.",
-    "caption": "Representación artística.",
-    "status": "pending"
-  },
-  "layers": [
-    { "id": "far-stars", "kind": "far-stars", "order": 1 },
-    { "id": "nebula-particles", "kind": "nebula-particles", "order": 2 },
-    { "id": "near-stars", "kind": "near-stars", "order": 3 }
-  ],
-  "facts": [
-    {
-      "emphasis": "primary",
-      "revealStep": 1,
-      "quantity": {
-        "id": "mass",
-        "label": "Masa",
-        "value": 6.6e10,
-        "unit": "M☉",
-        "displayValue": "entre 40 y 66 mil millones",
-        "uncertainty": { "low": 4.07e10, "high": 6.6e10 },
-        "certainty": "estimate",
-        "note": "Método virial con la línea Hβ; dos mediciones del mismo objeto difieren por la elección de la anchura de línea. Incertidumbre sistemática ~0,3 dex.",
-        "sources": ["src-shemmer-2004", "src-ge-2019"]
-      }
-    },
-    {
-      "emphasis": "secondary",
-      "revealStep": 2,
-      "quantity": {
-        "id": "light-travel-time",
-        "label": "Tiempo de viaje de la luz",
-        "value": 1.08e10,
-        "unit": "años",
-        "displayValue": "más de 10 mil millones de años",
-        "certainty": "derived",
-        "note": "z = 2,219; depende de la cosmología asumida (aprox. ΛCDM, H0≈70). Distancia de tiempo de viaje de la luz; la distancia comóvil es ~18 Gly.",
-        "sources": ["src-nasa-svs", "src-ned"]
-      }
-    }
-  ],
-  "sources": [
-    {
-      "id": "src-shemmer-2004",
-      "title": "Near-Infrared Spectroscopy of High-Redshift AGNs. I.",
-      "authors": "Shemmer et al.",
-      "year": 2004,
-      "url": "https://arxiv.org/abs/astro-ph/0406559",
-      "accessed": "2026-11-18"
-    },
-    {
-      "id": "src-ge-2019",
-      "title": "The Blueshift of CIV Broad Emission Line in QSOs",
-      "authors": "Ge, Zhao, Bian & Green",
-      "year": 2019,
-      "url": "https://arxiv.org/abs/1903.08830",
-      "accessed": "2026-11-18"
-    },
-    {
-      "id": "src-nasa-svs",
-      "title": "Supermassive Black Hole Scale Comparison",
-      "authors": "NASA Scientific Visualization Studio",
-      "year": 2023,
-      "url": "https://svs.gsfc.nasa.gov/14146/",
-      "accessed": "2026-11-18"
-    },
-    {
-      "id": "src-ned",
-      "title": "NED: TON 618",
-      "authors": "NASA/IPAC Extragalactic Database",
-      "year": 2026,
-      "url": "https://ned.ipac.caltech.edu/",
-      "accessed": "2026-11-18"
-    }
-  ]
+    "targetSectionId": "exploration"
+  }
 }

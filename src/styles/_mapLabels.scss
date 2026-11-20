@@ -1,0 +1,5 @@
+// Helper sin salida CSS: colores de las etiquetas del mapa de Exploración.
+// Requiere $starlight (importar antes @/styles/variables).
+// Starlight ≥ 70 % sobre $spaceVoid (≈ 11:1)
+$labelColor: rgba($starlight, 0.82);
+$noteColor: rgba($starlight, 0.72);

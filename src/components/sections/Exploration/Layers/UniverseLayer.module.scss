@@ -1,0 +1,177 @@
+@import '@/styles/variables';
+@import '@/styles/mapLabels';
+
+// El universo observable es un disco: recorta (solo el SVG, no las etiquetas) las
+// cuerdas y anillos que salen del cuadrado.
+.disc {
+  clip-path: circle(50%);
+}
+
+.ring {
+  fill: none;
+  stroke: rgba($starlight, 0.24);
+  stroke-dasharray: 7 11;
+  stroke-width: 2;
+}
+
+// Centelleo lento de las galaxias (como las estrellas del Hero): tres grupos
+// desfasados, solo `opacity`.
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.twinkleA {
+  animation: twinkle 5s ease-in-out infinite;
+}
+
+.twinkleB {
+  animation: twinkle 6.5s ease-in-out -2s infinite;
+}
+
+.twinkleC {
+  animation: twinkle 4.2s ease-in-out -1s infinite;
+}
+
+// Vía Láctea: el disco ocupa ~85 % de la imagen (170 u de 1000 ≈ 17 % del mapa).
+.milkyWay {
+  position: absolute;
+  width: 20%;
+  height: auto;
+  pointer-events: none;
+  translate: -50% -50%;
+  user-select: none;
+}
+
+.lineEarth {
+  background-color: transparent;
+  background-image: linear-gradient(to right, rgba($starlight, 0.7), rgba($solarAmber, 0.85));
+}
+
+// Leyenda de los anillos: bloque centrado que puede partirse en 2 líneas en móvil
+// (el ancho explícito evita que el `left: 50 %` lo comprima a media capa).
+.labelRings {
+  width: 80%;
+  color: $starlight;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-align: center;
+  white-space: normal;
+  text-shadow:
+    0 0 0.5rem $spaceVoid,
+    0 0 0.25rem $spaceVoid,
+    0 0 0.125rem $spaceVoid;
+  text-wrap: balance;
+}
+
+// --- Marcadores con el scroll --------------------------------------------------
+// Ligados al timeline de la sección (`--explorationTrack`): «Estás aquí» aparece
+// al entrar el stage (x = -45 → -5 svh de recorrido) y la línea Tierra→TON se
+// dibuja después (x = -20 → 35), completa antes de la ancla del nivel 1 (x = 40) y
+// del zoom (x = 80). Solo `scale`, `opacity` y `translate`.
+@keyframes lineDraw {
+  from {
+    scale: 0 1;
+  }
+
+  to {
+    scale: 1 1;
+  }
+}
+
+@keyframes hereIn {
+  from {
+    opacity: 0;
+    translate: -50% 1.6rem; // desde 0,7 rem más abajo que su posición final (0,9 rem)
+  }
+
+  to {
+    opacity: 1;
+    translate: -50% 0.9rem;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .lineEarth {
+    animation-name: lineDraw;
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    @include exploRange(-20, 35);
+  }
+
+  .labelHere {
+    animation-name: hereIn;
+    animation-duration: 1ms;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    @include exploRange(-45, -5);
+  }
+}
+
+// Sin `animation-timeline`: mismos tramos con `--x` (ver `.section`). El rótulo solo
+// funde (su `translate` base pertenece a LayerShared).
+@supports not (animation-timeline: view()) {
+  .lineEarth {
+    scale: #{explProgress(-20, 35)} 1;
+  }
+
+  .labelHere {
+    opacity: #{explProgress(-45, -5)};
+  }
+}
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) {
+  .lineEarth,
+  .labelHere,
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation-play-state: paused;
+  }
+}
+
+// El centelleo solo corre en la capa activa: cada path animado es una capa compuesta.
+:global([data-level-id]:not([data-active='true'])) {
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+  }
+}
+
+// Flecha que señala la Tierra (el rótulo queda justo debajo del punto).
+.labelHere::before {
+  content: '↑';
+  display: block;
+  margin-top: -0.25rem;
+  color: $amberText;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow:
+    0 0 0.5rem $spaceVoid,
+    0 0 0.25rem $spaceVoid;
+}
+
+// Sin movimiento: línea y rótulo completos y fijos.
+@media (prefers-reduced-motion: reduce) {
+  .lineEarth,
+  .labelHere,
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+  }
+}

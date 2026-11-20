@@ -1,0 +1,60 @@
+@import '@/styles/variables';
+@import '@/styles/mapLabels';
+
+.chart {
+  fill: rgba($cosmicBlue, 0.45);
+  stroke: rgba($starlight, 0.28);
+  stroke-width: 2;
+}
+
+.grid {
+  fill: none;
+  stroke: rgba($starlight, 0.16);
+  stroke-width: 1.5;
+}
+
+.constellation {
+  fill: none;
+  stroke: rgba($starlight, 0.3);
+  stroke-dasharray: 3 9;
+  stroke-width: 2;
+}
+
+.stars {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.starsSmall {
+  stroke: rgba($starlight, 0.55);
+  stroke-width: 4;
+}
+
+.starsMid {
+  stroke: rgba($starlight, 0.8);
+  stroke-width: 7;
+}
+
+.starsNamed {
+  stroke: $starlight;
+  stroke-width: 12;
+}
+
+// Rótulo de la carta celeste
+.labelTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(0.9375rem, 2.6vmin, 1.25rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.labelSub {
+  margin-top: 0.25rem;
+  color: $noteColor;
+  font-size: 0.75rem;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}

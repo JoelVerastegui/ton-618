@@ -1,0 +1,475 @@
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Texto solo para lectores de pantalla
+%srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.srOnly {
+  @extend %srOnly;
+}
+
+// Región aria-live: tamaño fijo y contención estricta, así reescribir su texto no provoca Layout fuera de ella.
+.live {
+  @extend %srOnly;
+  contain: strict;
+}
+
+// Borde superior liso en $scene2Bg: sin costura con el overlay final del Hero.
+.section {
+  --explUnit: #{$explUnitMobile};
+  position: relative;
+  background-color: $scene2Bg;
+
+  // Mitad del espacio extra cuando el viewport crece (barras del navegador
+  // ocultas): el mapa baja y la tarjeta sube esa mitad, así el conjunto queda
+  // centrado en la ventana grande. Vale 0 con las barras visibles.
+  --viewportExtra: 0px;
+
+  @supports (height: 100dvh) {
+    --viewportExtra: calc((100dvh - 100svh) / 2);
+  }
+
+  @media #{$sideBySide} {
+    --explUnit: 1svh;
+    --viewportExtra: 0px;
+  }
+}
+
+// `view-timeline`: toda la animación por scroll de la sección cuelga de este
+// timeline (los descendientes lo usan con `animation-timeline: --explorationTrack`).
+// El sticky empieza en `cover 100svh` y termina en `cover 600svh` (100svh + 500 unidades).
+.track {
+  position: relative;
+  @include explorationTrackHeight;
+  view-timeline: --explorationTrack block;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh; // sigue las barras del navegador; sin hueco bajo las tarjetas
+  overflow: clip;
+  background-color: $scene2Bg;
+}
+
+// --- Tarjetas --------------------------------------------------------------
+// Apiladas en la misma posición. Con opacidad 0 siguen en el DOM y expuestas a
+// lectores de pantalla (el scroll las revela con `cardLife`, al final del archivo).
+.card {
+  position: absolute;
+  right: 0;
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--viewportExtra, 0px));
+  left: 0;
+  z-index: 3;
+  width: min(34rem, calc(100% - 2rem));
+  margin-inline: auto;
+  padding: 1.25rem;
+  opacity: 0;
+  pointer-events: none;
+  background-color: rgba($cosmicBlue, 0.82);
+  border: 1px solid rgba($starlight, 0.14);
+  border-left: 2px solid $solarAmber;
+  border-radius: 0.75rem;
+
+  @media #{$sideBySide} {
+    top: 0;
+    right: max(4vw, 3rem);
+    bottom: 0;
+    left: auto;
+    // Nunca invade el marcador central (34vw) en pantallas estrechas.
+    width: min($cardWidth, calc(66vw - max(4vw, 3rem) - 2rem));
+    height: fit-content;
+    margin: auto 0;
+    padding: 1.75rem;
+  }
+}
+
+.cardKicker {
+  margin: 0 0 0.5rem;
+  color: $amberText;
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.cardQuestion {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.25rem, 5vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.2;
+  text-wrap: balance;
+
+  @media #{$sideBySide} {
+    font-size: clamp(1.5rem, 2.2vw, 2rem);
+  }
+}
+
+.cardAnswer {
+  max-width: 44ch;
+  margin: 0;
+  color: rgba($starlight, 0.82);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+
+  @media #{$sideBySide} {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+// Móvil apaisado: tarjeta compacta para caber en poca altura.
+@media (max-height: $shortHeight) and (orientation: landscape) {
+  .card {
+    padding: 1rem 1.25rem;
+  }
+
+  .cardKicker {
+    margin-bottom: 0.25rem;
+  }
+
+  .cardQuestion {
+    margin-bottom: 0.5rem;
+    font-size: min(clamp(1.5rem, 2.2vw, 2rem), 6svh);
+  }
+
+  .cardAnswer {
+    font-size: min(1rem, 5svh);
+    line-height: 1.45;
+  }
+}
+
+// --- Continuidad -----------------------------------------------------------
+// Scrim inferior que enlaza con la línea temporal.
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to top, $scene2Bg, transparent 20%);
+
+  // Mismo degradado en negro: lo cubre mientras dura el fondo negro de la tarjeta 2.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(to top, $spaceBlack, transparent 20%);
+  }
+}
+
+// Fondo negro de la tarjeta 2 (campo de galaxias): capa opaca bajo el mapa que solo
+// cambia de `opacity` (sin pintar color) mientras dura esa tarjeta. En las demás
+// tarjetas el fondo es $scene2Bg.
+.blackout {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-color: $spaceBlack;
+}
+
+// --- Posiciones del track (nivel activo y goTo) -----------------------------------
+// Dentro del `.track` (no del stage sticky), de arriba abajo. Las anclas son
+// elementos de 0 de alto en x = `$explAnchors` unidades de recorrido. Los centinelas
+// cubren cada nivel: empiezan en la parada del nivel + la línea de observación
+// (50 % del viewport, centro) y terminan donde empieza el siguiente.
+.sentinels,
+.anchors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.anchor {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 0;
+  scroll-margin-top: 0;
+}
+
+.sentinel {
+  position: absolute;
+  right: 0;
+  left: 0;
+}
+
+$levelStops: 'l1', 'l2', 'l3', 'l4';
+
+@for $i from 1 through 4 {
+  .anchor:nth-child(#{$i}) {
+    top: explLen(nth($explAnchors, $i));
+  }
+
+  $stop: map-get($explStops, nth($levelStops, $i));
+
+  // La línea de observación está a `$explLevelLine` % de la altura del viewport (px reales),
+  // no en unidades de recorrido: en móvil vertical (`--explUnit` = 0,6svh) sumarla como
+  // unidades adelantaba el cambio de nivel ~33 unidades.
+  .sentinel:nth-child(#{$i}) {
+    @if $i == 1 {
+      top: 0;
+    } @else {
+      top: calc(#{explLen($stop)} + #{$explLevelLine}vh);
+      top: calc(#{explLen($stop)} + #{$explLevelLine}dvh);
+    }
+
+    @if $i < 4 {
+      $next: map-get($explStops, nth($levelStops, $i + 1));
+
+      @if $i == 1 {
+        height: calc(#{explLen($next)} + #{$explLevelLine}vh);
+        height: calc(#{explLen($next)} + #{$explLevelLine}dvh);
+      } @else {
+        height: explLen($next - $stop);
+      }
+    } @else {
+      bottom: 0;
+    }
+  }
+}
+
+// Texto del mapa de cada nivel (título + `mapSummary`): solo para lectores de pantalla;
+// con reduced-motion se muestra (ver el bloque del final).
+.summaries {
+  @extend %srOnly;
+}
+
+// --- Tarjetas con el scroll (paso 5) -------------------------------------------
+// Un único keyframe para las tarjetas 1-3: entra (23 %), se mantiene y sale (77 %).
+// `translate` individual: no pisa el `transform` ni el centrado por márgenes.
+@keyframes cardLife {
+  0% {
+    opacity: 0;
+    translate: 0 $cardShift;
+  }
+
+  23% {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  77% {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  100% {
+    opacity: 0;
+    translate: 0 (-$cardShift);
+  }
+}
+
+// Fondo negro: entra y sale con el mismo ritmo que la tarjeta 2 (23 % / 77 %).
+@keyframes blackoutLife {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  23%,
+  77% {
+    opacity: 1;
+  }
+}
+
+// Tarjeta final (4): solo la entrada de `cardLife`; se queda hasta soltar el stage.
+@keyframes cardStay {
+  from {
+    opacity: 0;
+    translate: 0 $cardShift;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .card {
+    animation-name: cardLife;
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+
+    // Rangos de la tabla «scroll → progreso» (x en svh de recorrido):
+    // entrada + mantenimiento + salida, de principio a fin de cada tarjeta.
+    &:nth-of-type(1) {
+      @include exploRange(-32, 110);
+    }
+
+    &:nth-of-type(2) {
+      @include exploRange(110, 240);
+    }
+
+    &:nth-of-type(3) {
+      @include exploRange(240, 370);
+    }
+
+    // Última tarjeta: solo la entrada de `cardLife`; se queda hasta soltar el stage.
+    &:nth-of-type(4) {
+      animation-name: cardStay;
+      @include exploRange(370, 400);
+    }
+  }
+
+  // Mismo tramo que la tarjeta 2.
+  .blackout,
+  .scrim::after {
+    animation-name: blackoutLife;
+    animation-duration: 1ms;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    @include exploRange(110, 240);
+  }
+}
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) {
+  .card,
+  .blackout,
+  .scrim::after {
+    animation-play-state: paused;
+  }
+}
+
+// Sin `animation-timeline`: `useTrackProgress` escribe `--progress` (0–1 sobre el
+// recorrido) y `--enterProgress` (0–1 mientras el stage entra) en `.section`.
+// `--x` los une en una sola posición en svh de recorrido (-100 → 560), sin salto
+// entre la entrada y el sticky. Zoom y estrellas lo consumen en sus módulos.
+@supports not (animation-timeline: view()) {
+  .section {
+    --x: calc(var(--progress, 0) * #{$explorationTravel} + (var(--enterProgress, 0) - 1) * 100);
+  }
+
+  // `cardLife` (tarjetas 1-3) y `cardStay` (4) en función del avance `--t`.
+  .card {
+    @for $n from 1 through 3 {
+      &:nth-of-type(#{$n}) {
+        $range: map-get($explCards, $n);
+        --t: #{explProgress(nth($range, 1), nth($range, 2))};
+        --tIn: clamp(0, calc(var(--t) / #{$cardFadeStop}), 1);
+        --tOut: clamp(0, calc((var(--t) - #{1 - $cardFadeStop}) / #{$cardFadeStop}), 1);
+        opacity: calc(var(--tIn) - var(--tOut));
+        translate: 0 calc(#{$cardShift} * (1 - var(--tIn) - var(--tOut)));
+      }
+    }
+
+    &:nth-of-type(4) {
+      $range: map-get($explCards, 4);
+      --t: #{explProgress(nth($range, 1), nth($range, 2))};
+      opacity: var(--t);
+      translate: 0 calc(#{$cardShift} * (1 - var(--t)));
+    }
+  }
+
+  .blackout,
+  .scrim::after {
+    $range: map-get($explCards, 2);
+    --t: #{explProgress(nth($range, 1), nth($range, 2))};
+    opacity: calc(
+      clamp(0, calc(var(--t) / #{$cardFadeStop}), 1) - clamp(
+          0,
+          calc((var(--t) - #{1 - $cardFadeStop}) / #{$cardFadeStop}),
+          1
+        )
+    );
+  }
+}
+
+// --- prefers-reduced-motion: reduce (paso 9) --------------------------------------
+// Contenido lineal, sin sticky, zoom ni pulso. El `.stage` pasa a ser una columna
+// flex en flujo normal y los hijos se reordenan con `order` (`explReadOrder`) en
+// 4 bloques de lectura: capa del mapa a tamaño normal (LayerMotion), título +
+// resumen del nivel y su tarjeta. `.map` y
+// `.summaries` usan `display: contents` para que sus hijos entren en esa columna.
+// No hay animaciones, así que `getAnimations()` de la sección queda vacío. Va al final:
+// gana por orden a las reglas de arriba (misma especificidad).
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    height: auto;
+    view-timeline: none;
+  }
+
+  .stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    height: auto;
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .sentinels,
+  .anchors,
+  .blackout,
+  .scrim {
+    display: none;
+  }
+
+  .summaries {
+    display: contents;
+  }
+
+  .summary {
+    width: min(36rem, 100%);
+    margin: 0;
+    color: rgba($starlight, 0.82);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .summaryTitle {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: $starlight;
+    font-size: 1.25rem;
+    font-weight: 300;
+    line-height: 1.2;
+  }
+
+  .card,
+  .card:nth-of-type(n) {
+    position: relative;
+    inset: auto;
+    width: min(36rem, 100%);
+    height: auto;
+    margin: 0;
+    padding: 1.25rem;
+    opacity: 1;
+    translate: none;
+    animation: none;
+  }
+
+  @for $i from 1 through 4 {
+    .summary:nth-of-type(#{$i}) {
+      order: explReadOrder($i, 1);
+    }
+  }
+
+  @for $i from 1 through 4 {
+    .card:nth-of-type(#{$i}) {
+      order: explReadOrder($i, 2);
+    }
+  }
+}

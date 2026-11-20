@@ -1,0 +1,133 @@
+@import '@/styles/variables';
+
+// Ilustración de fondo (galaxias y nebulosas, generada con IA) con transparencia: el
+// negro del original es alfa, así que deja ver el fondo del escenario.
+.backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  clip-path: circle(50%);
+  pointer-events: none;
+  user-select: none;
+}
+
+// El campo es un disco (igual que el universo observable): recorta también el SVG.
+.disc {
+  clip-path: circle(50%);
+}
+
+// Centelleo lento de las estrellas (como en el Hero): tres grupos desfasados, solo
+// `opacity`.
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.twinkleA {
+  animation: twinkle 5.5s ease-in-out infinite;
+}
+
+.twinkleB {
+  animation: twinkle 4.4s ease-in-out -2s infinite;
+}
+
+.twinkleC {
+  animation: twinkle 7s ease-in-out -3s infinite;
+}
+
+// Estrellas del fondo: puntos pequeños y tenues.
+.stars {
+  stroke: rgba($starlight, 0.8);
+  stroke-width: 3.5;
+}
+
+.halo {
+  fill: none;
+  stroke: rgba($solarAmber, 0.7);
+  stroke-width: 2.5;
+}
+
+// Indicador al borde: «↙ Vía Láctea». La flecha (esquina) es decorativa.
+.labelEdge {
+  translate: 0 -50%;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.5rem;
+    border-bottom: 1.5px solid currentcolor;
+    border-left: 1.5px solid currentcolor;
+  }
+}
+
+// El indicador «Vía Láctea» llega desde la esquina (↙) cuando la capa ya cubre al
+// nivel 1 (x = 100 → 150 svh de recorrido). Solo `translate` y `opacity`.
+@keyframes edgeIn {
+  from {
+    opacity: 0;
+    translate: 1.25rem calc(-50% - 1.25rem);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 -50%;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .labelEdge {
+    animation-name: edgeIn;
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    @include exploRange(100, 150);
+  }
+}
+
+// Sin `animation-timeline`: solo fundido, con `--x` (ver `.section`).
+@supports not (animation-timeline: view()) {
+  .labelEdge {
+    opacity: #{explProgress(100, 150)};
+  }
+}
+
+:global([data-inview='false']) {
+  .labelEdge,
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation-play-state: paused;
+  }
+}
+
+// El centelleo solo corre en la capa activa: cada path animado es una capa compuesta.
+:global([data-level-id]:not([data-active='true'])) {
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+  }
+
+  .labelEdge {
+    opacity: 1;
+    animation: none;
+  }
+}

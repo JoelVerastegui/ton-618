@@ -1,0 +1,101 @@
+@import '@/styles/variables';
+@import '@/styles/starfield';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// --- Estrellas persistentes (detrás de las capas) ---------------------------
+// Ocupa el stage (se extiende 6 % por cada lado, ver `starField`). Escala 1 → 1,15
+// con el scroll alrededor del centro del stage (origen = 50 % + 6 % del stage).
+.starLayer {
+  position: absolute;
+  top: -6%;
+  left: -6%;
+  z-index: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  border-radius: 50%;
+  transform-origin: 56vw 56svh;
+  box-shadow: starField(120, 0.75, 55, 100);
+}
+
+// --- Contenedor del mapa -----------------------------------------------------
+// Cuadrado centrado en (50 %, 34svh) en móvil y (34vw, 50svh) en side-by-side.
+.map {
+  position: absolute;
+  top: calc(34svh - #{$mapSizeMobile} / 2 + var(--viewportExtra, 0px));
+  left: calc(50% - #{$mapSizeMobile} / 2);
+  z-index: 1;
+  width: $mapSizeMobile;
+  height: $mapSizeMobile;
+  pointer-events: none;
+
+  @media #{$sideBySide} {
+    top: calc(50svh - #{$mapSizeDesktop} / 2);
+    left: calc(34vw - #{$mapSizeDesktop} / 2);
+    width: $mapSizeDesktop;
+    height: $mapSizeDesktop;
+  }
+}
+
+// --- Estrellas con scroll nativo ---------------------------------------------
+// El zoom de las capas de nivel está en `Layers/LayerMotion.module.scss`.
+@keyframes starsFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes starsGrow {
+  to {
+    scale: $starGrow;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  // Fade-in mientras el stage entra (cover 0 → cover 100svh) y escala suave en
+  // todo el recorrido del sticky (x = 0 → 560).
+  .starLayer {
+    animation-name: starsFade, starsGrow;
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    animation-range:
+      cover 0 cover svhAt(0),
+      #{exploRangeOf(0, $explorationTravel)};
+  }
+}
+
+// Fallback con `--progress`: el fade-in sigue a `--enterProgress` (stage entrando,
+// x = -100 → 0) y la escala a `--progress` (x = 0 → 560).
+@supports not (animation-timeline: view()) {
+  .starLayer {
+    opacity: var(--enterProgress, 0);
+    scale: calc(1 + #{$starGrow - 1} * var(--progress, 0));
+  }
+}
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) .starLayer {
+  animation-play-state: paused;
+}
+
+// Reduced-motion: las capas entran en la columna de lectura del stage (ver
+// Exploration.module.scss) y las estrellas quedan fijas, sin fundido ni escala.
+@media (prefers-reduced-motion: reduce) {
+  .map {
+    display: contents;
+  }
+
+  .starLayer {
+    opacity: 1;
+    scale: none;
+    animation: none;
+  }
+}

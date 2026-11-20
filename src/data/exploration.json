@@ -1,0 +1,76 @@
+{
+  "title": "Descubriendo a TON 618",
+  "levels": [
+    {
+      "id": "universe",
+      "order": 1,
+      "title": "Universo observable",
+      "ringLegend": "Cada anillo: +4 mil millones de años de viaje de la luz",
+      "markers": [
+        { "id": "earth", "label": "Estás aquí" },
+        { "id": "ton618", "label": "TON 618" }
+      ],
+      "mapSummary": "Telaraña de filamentos y galaxias con anillos concéntricos alrededor de la Tierra. TON 618 queda lejos, a más de 10 mil millones de años de viaje de su luz."
+    },
+    {
+      "id": "cosmic-neighborhood",
+      "order": 2,
+      "title": "Vecindad cósmica",
+      "markers": [
+        { "id": "milky-way", "label": "Vía Láctea" },
+        { "id": "ton618", "label": "TON 618" }
+      ],
+      "mapSummary": "Campo de galaxias lejanas y nebulosas sobre fondo oscuro; no se conoce una estructura concreta asociada. TON 618 está en el centro; la Vía Láctea queda abajo a la izquierda."
+    },
+    {
+      "id": "sky-region",
+      "order": 3,
+      "title": "Región del cielo",
+      "scaleNote": "esquemático",
+      "markers": [
+        { "id": "canes-venatici", "label": "Canes Venatici" },
+        { "id": "ton618", "label": "TON 618" },
+        { "id": "earth-view", "label": "Observas desde la Tierra" },
+        { "id": "cor-caroli", "label": "Cor Caroli" },
+        { "id": "chara", "label": "Chara" }
+      ],
+      "mapSummary": "Carta celeste esquemática con retícula de coordenadas y unas pocas estrellas. TON 618 se proyecta en Canes Venatici, cerca del límite con Coma Berenices."
+    },
+    {
+      "id": "ton618",
+      "order": 4,
+      "title": "TON 618",
+      "mapSummary": "Un agujero negro rodeado por un disco de acreción ámbar y un halo de luz."
+    }
+  ],
+  "cards": [
+    {
+      "id": "quasar",
+      "order": 1,
+      "kicker": "Concepto",
+      "question": "¿Qué es un cuásar?",
+      "answer": "Es el núcleo muy activo de una galaxia: un agujero negro supermasivo traga gas y su disco de acreción puede brillar más que todas las estrellas de la galaxia."
+    },
+    {
+      "id": "where",
+      "order": 2,
+      "kicker": "Ubicación",
+      "question": "¿Dónde se encuentra?",
+      "answer": "Se proyecta en la constelación Canes Venatici, cerca del polo norte galáctico. Su luz viajó unos 10 mil millones de años; el universo se expandió mientras tanto."
+    },
+    {
+      "id": "when",
+      "order": 3,
+      "kicker": "Descubrimiento",
+      "question": "¿Cuándo fue descubierto?",
+      "answer": "Se catalogó en 1957 como una estrella azul débil. En 1970 apareció como radiofuente y en 1976 su espectro la identificó como un cuásar de luminosidad extrema."
+    },
+    {
+      "id": "what-is",
+      "order": 4,
+      "kicker": "El objeto",
+      "question": "¿Qué es TON 618?",
+      "answer": "Un cuásar hiperluminoso cuyo agujero negro central tendría entre 40 y 66 mil millones de masas solares, según dos estimaciones de la línea Hβ."
+    }
+  ]
+}

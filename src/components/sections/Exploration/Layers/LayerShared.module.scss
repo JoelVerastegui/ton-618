@@ -1,0 +1,178 @@
+@import '@/styles/variables';
+@import '@/styles/mapLabels';
+
+// Estilos comunes a las capas del mapa: SVG, galaxias, marcadores, etiquetas y
+// líneas. Lo específico de cada capa vive en su propio módulo.
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// --- SVG compartido -----------------------------------------------------------
+.web {
+  fill: none;
+  stroke: rgba($starlight, 0.1);
+  stroke-linecap: round;
+  stroke-width: 5;
+}
+
+.galaxies {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.galaxiesDim {
+  stroke: rgba($starlight, 0.45);
+  stroke-width: 3.5;
+}
+
+.galaxiesMid {
+  stroke: rgba($starlight, 0.7);
+  stroke-width: 5.5;
+}
+
+.galaxiesBright {
+  stroke: rgba(mix($starlight, $solarAmber, 80%), 0.9);
+  stroke-width: 8;
+}
+
+// --- Marcadores y etiquetas (HTML, tamaño en rem) -----------------------------
+// Posición con left/top en % (inline, en el TSX); desplazamiento con `translate`
+// individual para dejar `transform` libre al zoom.
+.dot {
+  position: absolute;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+.dotSelf {
+  background-color: $solarAmber;
+  box-shadow: 0 0 0 0.3125rem rgba($solarAmber, 0.28);
+}
+
+.dotReference {
+  background-color: $starlight;
+  box-shadow: 0 0 0 0.25rem rgba($starlight, 0.2);
+}
+
+.label {
+  position: absolute;
+  color: $labelColor;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow:
+    0 0 0.375rem $spaceVoid,
+    0 0 0.125rem $spaceVoid;
+  translate: -50% -50%;
+}
+
+.labelBelow {
+  translate: -50% 0.9rem;
+}
+
+.labelRight {
+  translate: 1rem -50%;
+}
+
+.labelLeft {
+  translate: calc(-100% - 1rem) -50%;
+}
+
+.labelSelf {
+  color: $starlight;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+// Rótulo «ilustrativo» / «esquemático» / «representación artística»
+.labelNote {
+  color: $noteColor;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+// Líneas HTML: largo = --len (unidades del viewBox, 1 u = 0,1 % del ancho),
+// ángulo = --angle. Nacen en su extremo (`transform-origin`) para poder dibujarlas
+// con `scale`.
+.line {
+  position: absolute;
+  width: calc(var(--len) * 0.1%);
+  height: 1px;
+  rotate: var(--angle);
+  transform-origin: 0 50%;
+  background-color: rgba($starlight, 0.5);
+}
+
+// --- Anillos pulsantes de destino (TON 618) -----------------------------------
+// Dos anillos (::before y ::after) desfasados medio ciclo: un anillo nuevo cada
+// `$motionPulseOffset` (1800 ms ⇒ 0,56 eventos/s, sin destellos bruscos). Solo
+// `scale` y `opacity`. Tamaño y alcance configurables con `--pulseSize` / `--pulseScale`.
+@keyframes pulseRing {
+  0% {
+    opacity: 0;
+    scale: 1;
+  }
+
+  25% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    scale: var(--pulseScale, 3);
+  }
+}
+
+.pulse {
+  position: absolute;
+  width: var(--pulseSize, 1.5rem);
+  height: var(--pulseSize, 1.5rem);
+  pointer-events: none;
+  translate: -50% -50%;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid $solarAmber;
+    border-radius: 50%;
+    opacity: 0;
+    animation: pulseRing $motionPulse ease-out infinite;
+  }
+
+  &::after {
+    animation-delay: $motionPulseOffset;
+  }
+}
+
+// Los pulsos de todas las capas corren a la vez y en fase (mismo inicio): durante un cruce
+// de niveles se ve un único anillo continuo, sin duplicar los destellos.
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) .pulse {
+  &::before,
+  &::after {
+    animation-play-state: paused;
+  }
+}
+
+// Sin movimiento: un único anillo fijo en lugar del pulso.
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    &::before {
+      opacity: 0.5;
+      scale: 1.8;
+      animation: none;
+    }
+
+    &::after {
+      display: none;
+    }
+  }
+}

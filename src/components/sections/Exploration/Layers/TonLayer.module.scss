@@ -1,0 +1,120 @@
+@import '@/styles/variables';
+
+// Imagen del agujero negro (la del Hero, con fondo transparente): el disco ocupa ~81 %
+// del ancho y el agujero ~21 % (el anillo de destino mide 20 %).
+.blackHole {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  clip-path: circle(50%);
+  pointer-events: none;
+  user-select: none;
+}
+
+// El campo es un disco (como en los niveles 1 y 2): recorta también las estrellas.
+.disc {
+  clip-path: circle(50%);
+}
+
+// Centelleo lento de las estrellas (como en el Hero): tres grupos desfasados, solo
+// `opacity`.
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.twinkleA {
+  animation: twinkle 5.5s ease-in-out infinite;
+}
+
+.twinkleB {
+  animation: twinkle 4.4s ease-in-out -2s infinite;
+}
+
+.twinkleC {
+  animation: twinkle 7s ease-in-out -3s infinite;
+}
+
+.stars {
+  stroke: rgba($starlight, 0.8);
+  stroke-width: 3.5;
+}
+
+// --- Marcadores con el scroll --------------------------------------------------
+// Anillo de destino en el agujero negro (20 % de la capa, alcance ×1,8): se desvanece
+// al llegar al nivel 4 (x = 385 → 445 svh de recorrido). Solo `opacity`.
+.pulseHole {
+  --pulseSize: 20%;
+  --pulseScale: 1.8;
+}
+
+@keyframes ringFade {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .pulseHole {
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+  }
+
+  .pulseHole {
+    animation-name: ringFade;
+    @include exploRange(385, 445);
+  }
+}
+
+// Sin `animation-timeline`: mismo tramo con `--x` (ver `.section`).
+@supports not (animation-timeline: view()) {
+  .pulseHole {
+    opacity: calc(1 - #{explProgress(385, 445)});
+  }
+}
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) {
+  .twinkleA,
+  .twinkleB,
+  .twinkleC,
+  .pulseHole {
+    animation-play-state: paused;
+  }
+}
+
+// El centelleo solo corre en la capa activa: cada path animado es una capa compuesta.
+:global([data-level-id]:not([data-active='true'])) {
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+  }
+}
+
+// Sin movimiento: sin anillo (queda el agujero negro).
+@media (prefers-reduced-motion: reduce) {
+  .twinkleA,
+  .twinkleB,
+  .twinkleC,
+  .pulseHole {
+    animation: none;
+  }
+
+  .pulseHole {
+    opacity: 0;
+  }
+}

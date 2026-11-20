@@ -1,0 +1,211 @@
+@import '@/styles/variables';
+
+// Posición, estado base y zoom por scroll de las capas del mapa (paso 5).
+// Capas apiladas: la entrante va encima (orden del DOM). Estado base (sin
+// animación): solo el nivel 1 visible; las demás parten de su estado de entrada
+// (opacidad 0, escala `$zoomIn`) y el scroll las lleva a 1.
+.layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  scale: $zoomIn;
+}
+
+.universe {
+  opacity: 1;
+  scale: 1;
+}
+
+// --- Zoom y cruce de niveles (scroll nativo) ---------------------------------
+// Solo `scale` y `opacity`. El timeline `--explorationTrack` lo define el
+// `.track` (Exploration.module.scss). Las entradas de `animation-name`,
+// `animation-range` y `animation-composition` van en el mismo orden: la saliente
+// y la entrante de un cruce comparten rango.
+//
+// Saliente: scale 1 → 2,5; mantiene opacidad 1 hasta el 60 % y baja a 0 (ya tapada
+// por la entrante, que está a 1 desde el 60 %). Entrante: scale 0,4 → 1; opacidad
+// 0 → 1 entre el 20 % y el 60 %. Nunca hay dos capas semitransparentes a la vez.
+@keyframes zoomOut {
+  0% {
+    opacity: 1;
+    scale: 1;
+  }
+
+  25% {
+    scale: zoomStop(1, $zoomOut, 1);
+  }
+
+  50% {
+    scale: zoomStop(1, $zoomOut, 2);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  75% {
+    scale: zoomStop(1, $zoomOut, 3);
+  }
+
+  100% {
+    opacity: 0;
+    scale: $zoomOut;
+  }
+}
+
+@keyframes zoomIn {
+  0% {
+    opacity: 0;
+    scale: $zoomIn;
+  }
+
+  20% {
+    opacity: 0;
+  }
+
+  25% {
+    scale: zoomStop($zoomIn, 1, 1);
+  }
+
+  50% {
+    scale: zoomStop($zoomIn, 1, 2);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  75% {
+    scale: zoomStop($zoomIn, 1, 3);
+  }
+
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .layer {
+    animation-timing-function: linear;
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-fill-mode: forwards;
+    animation-timeline: --explorationTrack;
+  }
+
+  $l1l2: map-get($explZoom, 'l1l2');
+  $l2l3: map-get($explZoom, 'l2l3');
+  $l3l4: map-get($explZoom, 'l3l4');
+
+  .universe {
+    animation-name: zoomOut;
+    animation-range: #{exploRangeOf(nth($l1l2, 1), nth($l1l2, 2))};
+  }
+
+  .neighborhood {
+    animation-name: zoomIn, zoomOut;
+    animation-range:
+      #{exploRangeOf(nth($l1l2, 1), nth($l1l2, 2))},
+      #{exploRangeOf(nth($l2l3, 1), nth($l2l3, 2))};
+  }
+
+  .sky {
+    animation-name: zoomIn, zoomOut;
+    animation-range:
+      #{exploRangeOf(nth($l2l3, 1), nth($l2l3, 2))},
+      #{exploRangeOf(nth($l3l4, 1), nth($l3l4, 2))};
+  }
+
+  .ton {
+    animation-name: zoomIn;
+    animation-range: #{exploRangeOf(nth($l3l4, 1), nth($l3l4, 2))};
+  }
+}
+
+// --- Fallback con `--progress` ------------------------------------------------
+// Mismas curvas que los keyframes (lineales por tramos) en función de `--x`
+// (svh de recorrido, ver `.section`). Los tramos de entrada y salida de una capa
+// no se solapan, así que `opacity` y `scale` de ambos se combinan por producto;
+// la aproximación del nivel 4 multiplica a `zoomIn` (como `animation-composition: add`
+// sobre `scale`).
+@supports not (animation-timeline: view()) {
+  $l1l2: map-get($explZoom, 'l1l2');
+  $l2l3: map-get($explZoom, 'l2l3');
+  $l3l4: map-get($explZoom, 'l3l4');
+
+  .universe {
+    --tOut: #{explProgress(nth($l1l2, 1), nth($l1l2, 2))};
+    opacity: explFadeOut(--tOut);
+    scale: explZoomExpr(1, $zoomOut, --tOut);
+  }
+
+  .neighborhood {
+    --tIn: #{explProgress(nth($l1l2, 1), nth($l1l2, 2))};
+    --tOut: #{explProgress(nth($l2l3, 1), nth($l2l3, 2))};
+    opacity: calc(#{explFadeIn(--tIn)} * #{explFadeOut(--tOut)});
+    scale: calc(#{explZoomExpr($zoomIn, 1, --tIn)} * #{explZoomExpr(1, $zoomOut, --tOut)});
+  }
+
+  .sky {
+    --tIn: #{explProgress(nth($l2l3, 1), nth($l2l3, 2))};
+    --tOut: #{explProgress(nth($l3l4, 1), nth($l3l4, 2))};
+    opacity: calc(#{explFadeIn(--tIn)} * #{explFadeOut(--tOut)});
+    scale: calc(#{explZoomExpr($zoomIn, 1, --tIn)} * #{explZoomExpr(1, $zoomOut, --tOut)});
+  }
+
+  .ton {
+    --tIn: #{explProgress(nth($l3l4, 1), nth($l3l4, 2))};
+    opacity: explFadeIn(--tIn);
+    scale: #{explZoomExpr($zoomIn, 1, --tIn)};
+  }
+}
+
+// --- `will-change` y pausa --------------------------------------------------
+// Solo la capa activa y su vecina (la saliente o la entrante de un cruce) llevan
+// `will-change`; `useExplorationLevel` escribe `data-active` / `data-near`. Fuera de
+// vista no hay capas promovidas ni animaciones en marcha (data-inview lo marca
+// useInView). Va al final: gana a las reglas anteriores por orden.
+.layer {
+  &[data-active='true'],
+  &[data-near='true'] {
+    will-change: transform, opacity;
+  }
+}
+
+:global([data-inview='false']) .layer {
+  will-change: auto;
+  animation-play-state: paused;
+}
+
+// --- prefers-reduced-motion: reduce ---------------------------------------------
+// Cada capa es un bloque de lectura: en flujo normal (el `.map` es `display:
+// contents`), cuadrada, a escala 1 y opaca, sin zoom ni cruce. `order` la intercala con
+// el texto y las tarjetas (Exploration.module.scss). Al final del archivo: gana por
+// orden a las reglas con `animation-timeline` y al fallback con `--x`.
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .universe,
+  .neighborhood,
+  .sky,
+  .ton {
+    position: relative;
+    inset: auto;
+    width: min(100%, 36rem);
+    margin-top: 2.5rem;
+    opacity: 1;
+    scale: none;
+    animation: none;
+    aspect-ratio: 1;
+  }
+
+  .layer[data-active],
+  .layer[data-near] {
+    will-change: auto;
+  }
+
+  @each $name, $level in (universe: 1, neighborhood: 2, sky: 3, ton: 4) {
+    .#{$name} {
+      order: explReadOrder($level);
+    }
+  }
+}

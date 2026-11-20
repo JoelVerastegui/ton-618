@@ -1,3 +1,6 @@
+@use 'sass:list';
+@use 'sass:math';
+
 // Tokens del proyecto y sobrescrituras de Bootstrap.
 // Se importa ANTES de las variables de Bootstrap (ver _bootstrap-custom.scss).
 
@@ -11,6 +14,8 @@ $starlight: #e5e8ef;
 
 // Vacío espacial: color base del fondo y de los bordes de la escena
 $spaceVoid: #070b16;
+// Negro puro: solo el fondo de la tarjeta 2 de Exploration (campo de galaxias)
+$spaceBlack: #000000;
 
 // ---------------------------------------------------------------------------
 // Tipografía
@@ -38,9 +43,12 @@ $easeCinematic: cubic-bezier(0.5, 0, 0.75, 0);
 // ---------------------------------------------------------------------------
 // Escena del hero
 // ---------------------------------------------------------------------------
-// Color final de la transición por scroll. Provisional: debe coincidir con el
-// fondo de la sección 2 cuando exista.
+// Color final de la transición por scroll. Debe coincidir con el fondo de la
+// sección 2 (Exploración).
 $scene2Bg: $spaceVoid;
+
+// Ámbar legible como texto (kickers, años): contraste ≥ 4,5:1 sobre $spaceVoid
+$amberText: color-mix(in oklab, $solarAmber 55%, $starlight);
 
 // Amplitud máxima del parallax con mouse (esquina del viewport, desktop ≥ 1200 px)
 $parallaxFar: 6px;
@@ -66,6 +74,169 @@ $shortHeight: 600px;
 $tinyHeight: 420px;
 
 // ---------------------------------------------------------------------------
+// Sección Exploración (SPEC 02)
+// ---------------------------------------------------------------------------
+// Recorrido del sticky en svh (el track mide 100svh de viewport + recorrido)
+$explorationTravel: 500;
+// Unidad de recorrido: `--explUnit` (definida en `.section`) vale 1svh en
+// side-by-side y menos en móvil vertical, para acortar el scroll de cada tarjeta.
+$explUnitMobile: 0.6svh;
+// Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
+@mixin explorationTrackHeight {
+  height: calc(100vh + #{$explorationTravel} * var(--explUnit, 1svh));
+  height: calc(100dvh + #{$explorationTravel} * var(--explUnit, 1svh));
+}
+@function explLen($x) {
+  @return calc(#{$x} * var(--explUnit, 1svh));
+}
+
+// Paradas de nivel, en svh de recorrido desde el inicio del sticky
+$explStops: (
+  'l1': 0,
+  'l2': 110,
+  'l3': 240,
+  'l4': 375,
+);
+
+// Escala de la capa saliente (hasta) y de la entrante (desde) en cada cruce
+$zoomOut: 2.5;
+$zoomIn: 0.4;
+
+// Tarjetas: vida total y fundidos de entrada/salida (svh), desplazamiento vertical
+$cardLife: 130;
+$cardFade: 30;
+$cardShift: 18px;
+
+// Pulso de los anillos de destino: dos anillos desfasados medio ciclo
+// (1 evento cada 1800 ms)
+$motionPulse: 3600ms;
+$motionPulseOffset: $motionPulse * 0.5;
+
+// Tamaño del mapa (caja cuadrada)
+$mapSizeDesktop: min(100svh, 56vw);
+$mapSizeMobile: min(100vw, 60svh);
+
+// Ancho de las tarjetas de contexto
+$cardWidth: clamp(22rem, 28vw, 27rem);
+
+// Media query del layout «lado a lado» (mapa a la izquierda, tarjeta a la
+// derecha). Se usa solo en la sección Exploración (Exploration.module.scss y
+// MapLayers.module.scss): desktop ≥ 992 px o móvil apaisado de poca altura.
+$sideBySide: '(min-width: 992px), (max-height: #{$shortHeight}) and (orientation: landscape)';
+
+// Posición dentro del track (para `animation-range: cover …`) de un punto a
+// `$x` svh de recorrido desde el inicio del sticky. El sticky arranca en
+// `cover 100svh`, por eso x = 0 → 100svh y x = -100 → 0.
+@function svhAt($x) {
+  @return calc(100svh + #{$x} * var(--explUnit, 1svh));
+}
+
+// Valor de `animation-range` entre dos puntos de recorrido (svh desde el
+// sticky). Útil para listas (una entrada por animación): `#{exploRangeOf(a, b)}, …`.
+@function exploRangeOf($from, $to) {
+  @return cover svhAt($from) cover svhAt($to);
+}
+
+// Rango de animación entre dos puntos de recorrido (en svh desde el sticky).
+@mixin exploRange($from, $to) {
+  animation-range: exploRangeOf($from, $to);
+}
+
+// Orden de lectura de los bloques con `prefers-reduced-motion: reduce` (flex en
+// columna): nivel `$level` (1-4) × 10 + posición `$slot` dentro del bloque
+// (0 capa, 1 texto del mapa, 2+ tarjetas).
+@function explReadOrder($level, $slot: 0) {
+  @return $level * 10 + $slot;
+}
+
+// Anclas de `goTo` de LevelNav (x en svh de recorrido, un punto cómodo dentro de
+// cada nivel) y línea de observación del nivel activo (50 % de la altura del viewport).
+// Una ancla está en la posición `x` del track; un centinela empieza en `x` + la línea
+// (en `dvh`, no en unidades de recorrido, para que el cambio caiga en `x` también en móvil).
+$explAnchors: (40, 175, 305, 435);
+$explLevelLine: 50;
+
+// Tramos de zoom entre niveles (x en svh de recorrido) y aproximación final
+$explZoom: (
+  'l1l2': (
+    80,
+    140,
+  ),
+  'l2l3': (
+    210,
+    270,
+  ),
+  'l3l4': (
+    340,
+    410,
+  ),
+);
+$starGrow: 1.15;
+
+// Parada `$i` (0-4) de un zoom geométrico $from → $to en 4 tramos, a 2 decimales.
+// Los keyframes lineales por tramos aproximan la curva exponencial.
+@function zoomStop($from, $to, $i) {
+  @return math.div(math.round($from * math.pow(math.div($to, $from), math.div($i, 4)) * 100), 100);
+}
+
+// Fallback con `--progress` (sin `animation-timeline`). Todas las expresiones
+// parten de `--x`: posición en svh de recorrido (-100 → 560), que define
+// `.section` en Exploration.module.scss. Solo generan cadenas CSS (sin salida).
+// Tarjetas: tramo (svh) de cada una y fracción de entrada/salida de `cardLife`.
+$explCards: (
+  1: (
+    -32,
+    110,
+  ),
+  2: (
+    110,
+    240,
+  ),
+  3: (
+    240,
+    370,
+  ),
+  4: (
+    370,
+    400,
+  ),
+);
+$cardFadeStop: 0.23;
+// Cruce de niveles: la entrante sube de opacidad entre el 20 % y el 60 % del
+// tramo; la saliente baja entre el 60 % y el 100 %.
+$crossInStart: 0.2;
+$crossInEnd: 0.6;
+
+// Avance 0–1 de `--x` entre `$from` y `$to`.
+@function explProgress($from, $to) {
+  @return unquote('clamp(0, calc((var(--x) - #{$from}) / #{$to - $from}), 1)');
+}
+
+// Zoom geométrico `$from` → `$to` como lineal por tramos (4 tramos, mismas
+// paradas que `zoomStop`), en función del avance `$tVar` (0–1).
+@function explZoomExpr($from, $to, $tVar) {
+  $expr: '#{zoomStop($from, $to, 0)}';
+  @for $i from 1 through 4 {
+    $delta: zoomStop($from, $to, $i) - zoomStop($from, $to, $i - 1);
+    $expr: '#{$expr} + #{$delta} * clamp(0, calc(4 * var(#{$tVar}) - #{$i - 1}), 1)';
+  }
+  @return unquote('calc(#{$expr})');
+}
+
+// Opacidad de la capa entrante / saliente en función del avance `$tVar`.
+@function explFadeIn($tVar) {
+  @return unquote(
+    'clamp(0, calc((var(#{$tVar}) - #{$crossInStart}) / #{$crossInEnd - $crossInStart}), 1)'
+  );
+}
+
+@function explFadeOut($tVar) {
+  @return unquote(
+    'calc(1 - clamp(0, calc((var(#{$tVar}) - #{$crossInEnd}) / #{1 - $crossInEnd}), 1))'
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Sobrescrituras de Bootstrap (redefinición de variables !default)
 // ---------------------------------------------------------------------------
 $enable-dark-mode: false;
@@ -77,3 +248,36 @@ $font-family-sans-serif: $fontFamilySans;
 $headings-font-weight: 300;
 $link-color: $starlight;
 $link-hover-color: $solarAmber;
+
+// Indicador de progreso de LevelNav: lineal por tramos entre las paradas de nivel.
+// Cada nivel ocupa un cuarto de la barra, así el relleno llega al borde del segmento
+// activo justo cuando cambia el nivel. Paradas en svh de recorrido.
+$explNavStops: (0, 110, 240, 375, $explorationTravel);
+
+// Fallback con `--x`: suma de los tramos recorridos (cadena CSS, sin salida).
+@function explNavFillExpr() {
+  $expr: '0';
+  @for $i from 1 through 4 {
+    $from: list.nth($explNavStops, $i);
+    $to: list.nth($explNavStops, $i + 1);
+    $expr: '#{$expr} + #{math.div(1, 4)} * #{explProgress($from, $to)}';
+  }
+  @return unquote('calc(#{$expr})');
+}
+
+// Keyframes del relleno (0 → 1) en la propiedad `scale`; `$axis`: 'x' | 'y'.
+@mixin explNavFillKeyframes($name, $axis) {
+  @keyframes #{$name} {
+    @for $i from 1 through 5 {
+      $at: list.nth($explNavStops, $i);
+      $pct: math.div(math.round(math.div($at, $explorationTravel) * 10000), 100) * 1%;
+      #{$pct} {
+        @if $axis == 'x' {
+          scale: math.div($i - 1, 4) 1;
+        } @else {
+          scale: 1 math.div($i - 1, 4);
+        }
+      }
+    }
+  }
+}

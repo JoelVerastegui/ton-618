@@ -1,36 +1,10 @@
-@use 'sass:list';
 @use 'sass:math';
 
 @import '@/styles/variables';
+@import '@/styles/starfield';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
-
-// ---------------------------------------------------------------------------
-// Generación de estrellas en compilación: una lista de box-shadow sobre un
-// elemento de 1×1 px. Las posiciones cubren la capa completa (112 % del stage,
-// porque cada capa se extiende inset: -6 %).
-// ---------------------------------------------------------------------------
-@function starField($count, $spreadMax: 0, $alphaMin: 40, $alphaMax: 70) {
-  $shadows: ();
-
-  @for $i from 1 through $count {
-    $x: math.div(math.random(1120), 10) * 1vw;
-    $y: math.div(math.random(1120), 10) * 1svh;
-    $alpha: math.div($alphaMin + math.random($alphaMax - $alphaMin + 1) - 1, 100);
-    $spread: math.div(math.random(10), 10) * $spreadMax;
-    $tint: $starlight;
-
-    // ~1 de cada 4 estrellas con tinte azulado
-    @if math.random(4) == 1 {
-      $tint: #bcd0ff;
-    }
-
-    $shadows: list.append($shadows, $x $y 0 $spread rgba($tint, $alpha), comma);
-  }
-
-  @return $shadows;
-}
 
 // ---------------------------------------------------------------------------
 // Escena

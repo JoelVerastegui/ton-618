@@ -1,0 +1,13 @@
+# Documentation
+docs
+**/*.md
+
+# Project config
+package.json
+package-lock.json
+
+# Claude assets
+.claude/
+
+# Data
+**/*.json
