@@ -77,8 +77,8 @@ $tinyHeight: 420px;
 // Sección Exploración (SPEC 02)
 // ---------------------------------------------------------------------------
 // Recorrido del sticky en svh (el track mide 100svh de viewport + recorrido)
-$explorationTravel: 560;
-$explorationTrack: (100 + $explorationTravel) * 1svh; // 660svh
+$explorationTravel: 500;
+$explorationTrack: (100 + $explorationTravel) * 1svh; // 600svh
 
 // Paradas de nivel, en svh de recorrido desde el inicio del sticky
 $explStops: (
@@ -86,7 +86,6 @@ $explStops: (
   'l2': 110,
   'l3': 240,
   'l4': 375,
-  'l4b': 490,
 );
 
 // Escala de la capa saliente (hasta) y de la entrante (desde) en cada cruce
@@ -133,12 +132,6 @@ $sideBySide: '(min-width: 992px), (max-height: #{$shortHeight}) and (orientation
   animation-range: exploRangeOf($from, $to);
 }
 
-// Línea temporal: ancho de contenedor desde el que pasa a horizontal, duración de
-// la línea y desfase entre hitos
-$timelineBreak: 40rem;
-$timelineLine: 1200ms;
-$timelineStagger: 150ms;
-
 // Orden de lectura de los bloques con `prefers-reduced-motion: reduce` (flex en
 // columna): nivel `$level` (1-4) × 10 + posición `$slot` dentro del bloque
 // (0 capa, 1 texto del mapa, 2+ tarjetas).
@@ -167,8 +160,6 @@ $explZoom: (
     410,
   ),
 );
-$explApproach: (400, 560);
-$zoomApproach: 1.25;
 $starGrow: 1.15;
 
 // Parada `$i` (0-4) de un zoom geométrico $from → $to en 4 tramos, a 2 decimales.
@@ -196,11 +187,7 @@ $explCards: (
   ),
   4: (
     370,
-    500,
-  ),
-  5: (
-    490,
-    520,
+    400,
   ),
 );
 $cardFadeStop: 0.23;

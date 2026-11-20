@@ -58,10 +58,16 @@
 // (el ancho explícito evita que el `left: 50 %` lo comprima a media capa).
 .labelRings {
   width: 80%;
-  color: $noteColor;
-  font-size: 0.75rem;
+  color: $starlight;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   text-align: center;
   white-space: normal;
+  text-shadow:
+    0 0 0.5rem $spaceVoid,
+    0 0 0.25rem $spaceVoid,
+    0 0 0.125rem $spaceVoid;
   text-wrap: balance;
 }
 

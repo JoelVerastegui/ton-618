@@ -43,54 +43,6 @@
   background-color: $scene2Bg;
 }
 
-// --- Skip link -------------------------------------------------------------
-.skipLink {
-  @extend %srOnly;
-  z-index: 10;
-  color: $starlight;
-
-  &:focus-visible {
-    top: 0.75rem;
-    left: 0.75rem;
-    width: auto;
-    height: auto;
-    margin: 0;
-    padding: 0.75rem 1rem;
-    overflow: visible;
-    clip-path: none;
-    white-space: normal;
-    background-color: $cosmicBlue;
-    border: 1px solid rgba($starlight, 0.4);
-    border-radius: 0.5rem;
-    outline: 2px solid $starlight;
-    outline-offset: 2px;
-  }
-}
-
-// Leyenda: móvil, en la parte baja del cuadrado del mapa (las esquinas están
-// vacías); side-by-side, al pie del stage bajo el mapa.
-.legend {
-  position: absolute;
-  top: calc(34svh + #{$mapSizeMobile} / 2 - 1.5rem);
-  right: 0;
-  left: 0;
-  z-index: 3;
-  margin: 0;
-  padding-inline: 1rem;
-  color: rgba($starlight, 0.7);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  text-align: center;
-
-  @media #{$sideBySide} {
-    top: auto;
-    right: auto;
-    bottom: 0.75rem;
-    left: calc(34vw - #{$mapSizeDesktop} / 2);
-    width: $mapSizeDesktop;
-  }
-}
-
 // --- Tarjetas --------------------------------------------------------------
 // Apiladas en la misma posición. Con opacidad 0 siguen en el DOM y expuestas a
 // lectores de pantalla (el scroll las revela con `cardLife`, al final del archivo).
@@ -255,15 +207,6 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
   }
 }
 
-.timelineAnchor {
-  scroll-margin-top: 0;
-
-  &:focus-visible {
-    outline: 2px solid $starlight;
-    outline-offset: -2px;
-  }
-}
-
 // Texto del mapa de cada nivel (título + `mapSummary`): solo para lectores de pantalla;
 // con reduced-motion se muestra (ver el bloque del final).
 .summaries {
@@ -271,7 +214,7 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
 }
 
 // --- Tarjetas con el scroll (paso 5) -------------------------------------------
-// Un único keyframe para las tarjetas 1-4a: entra (23 %), se mantiene y sale (77 %).
+// Un único keyframe para las tarjetas 1-3: entra (23 %), se mantiene y sale (77 %).
 // `translate` individual: no pisa el `transform` ni el centrado por márgenes.
 @keyframes cardLife {
   0% {
@@ -308,7 +251,7 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
   }
 }
 
-// Tarjeta final (4b): solo la entrada de `cardLife`; se queda hasta soltar el stage.
+// Tarjeta final (4): solo la entrada de `cardLife`; se queda hasta soltar el stage.
 @keyframes cardStay {
   from {
     opacity: 0;
@@ -343,13 +286,10 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
       @include exploRange(240, 370);
     }
 
+    // Última tarjeta: solo la entrada de `cardLife`; se queda hasta soltar el stage.
     &:nth-of-type(4) {
-      @include exploRange(370, 500);
-    }
-
-    &:nth-of-type(5) {
       animation-name: cardStay;
-      @include exploRange(490, 520);
+      @include exploRange(370, 400);
     }
   }
 
@@ -383,9 +323,9 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
     --x: calc(var(--progress, 0) * #{$explorationTravel} + (var(--enterProgress, 0) - 1) * 100);
   }
 
-  // `cardLife` (tarjetas 1-4a) y `cardStay` (4b) en función del avance `--t`.
+  // `cardLife` (tarjetas 1-3) y `cardStay` (4) en función del avance `--t`.
   .card {
-    @for $n from 1 through 4 {
+    @for $n from 1 through 3 {
       &:nth-of-type(#{$n}) {
         $range: map-get($explCards, $n);
         --t: #{explProgress(nth($range, 1), nth($range, 2))};
@@ -396,8 +336,8 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
       }
     }
 
-    &:nth-of-type(5) {
-      $range: map-get($explCards, 5);
+    &:nth-of-type(4) {
+      $range: map-get($explCards, 4);
       --t: #{explProgress(nth($range, 1), nth($range, 2))};
       opacity: var(--t);
       translate: 0 calc(#{$cardShift} * (1 - var(--t)));
@@ -422,12 +362,10 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
 // Contenido lineal, sin sticky, zoom ni pulso. El `.stage` pasa a ser una columna
 // flex en flujo normal y los hijos se reordenan con `order` (`explReadOrder`) en
 // 4 bloques de lectura: capa del mapa a tamaño normal (LayerMotion), título +
-// resumen del nivel y su(s) tarjeta(s) (la 4a y la 4b en el nivel 4). `.map` y
+// resumen del nivel y su tarjeta. `.map` y
 // `.summaries` usan `display: contents` para que sus hijos entren en esa columna.
 // No hay animaciones, así que `getAnimations()` de la sección queda vacío. Va al final:
 // gana por orden a las reglas de arriba (misma especificidad).
-$cardLevel: (1, 2, 3, 4, 4);
-
 @media (prefers-reduced-motion: reduce) {
   .track {
     height: auto;
@@ -441,7 +379,7 @@ $cardLevel: (1, 2, 3, 4, 4);
     gap: 1.5rem;
     align-items: center;
     height: auto;
-    padding: 1.5rem 1rem 8rem;
+    padding: 1.5rem 1rem 3rem;
   }
 
   .sentinels,
@@ -449,26 +387,6 @@ $cardLevel: (1, 2, 3, 4, 4);
   .blackout,
   .scrim {
     display: none;
-  }
-
-  // Enlace visual con la línea temporal sin tapar la última tarjeta
-  .stage::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 6rem;
-    pointer-events: none;
-    background: linear-gradient(to top, $scene2Bg, transparent);
-  }
-
-  .legend {
-    position: static;
-    inset: auto;
-    order: 0;
-    width: auto;
-    padding: 0;
   }
 
   .summaries {
@@ -512,11 +430,9 @@ $cardLevel: (1, 2, 3, 4, 4);
     }
   }
 
-  @for $i from 1 through 5 {
-    $level: nth($cardLevel, $i);
-
+  @for $i from 1 through 4 {
     .card:nth-of-type(#{$i}) {
-      order: explReadOrder($level, if($i == 5, 3, 2));
+      order: explReadOrder($i, 2);
     }
   }
 }

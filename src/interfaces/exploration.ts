@@ -39,24 +39,10 @@ export interface ExplorationCard {
   sources: string[]; // ids de Source
 }
 
-export interface TimelineEvent {
-  id: string;
-  order: number;
-  date: string; // «1957»
-  year: number;
-  title: string;
-  description: string;
-  certainty: Certainty;
-  sources: string[];
-}
-
 export interface ExplorationData {
   kicker: string;
   title: string; // h2 visualmente oculto
-  mapLegend: string; // «Mapa esquemático, no a escala»
-  skipLinkLabel: string;
   levels: ExplorationLevel[];
   cards: ExplorationCard[];
-  timeline: TimelineEvent[];
   sources: Source[];
 }

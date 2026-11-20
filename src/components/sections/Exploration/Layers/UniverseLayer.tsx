@@ -6,7 +6,6 @@ import { Layer, LayerSvg } from '@/components/sections/Exploration/Layers/Layer'
 import {
   CENTER,
   POS_CENTER,
-  POS_SCALE_NOTE,
   at,
   bezierPath,
   dots,
@@ -105,9 +104,6 @@ export const UniverseLayer = memo(function UniverseLayer() {
       <span className={clsx(shared.dot, shared.dotSelf)} style={POS_CENTER} />
       <span className={clsx(shared.label, shared.labelRight, shared.labelSelf)} style={POS_CENTER}>
         {markerLabel(universe, 'ton618')}
-      </span>
-      <span className={clsx(shared.label, shared.labelNote)} style={POS_SCALE_NOTE}>
-        {universe.scale.scaleNote}
       </span>
       <span className={clsx(shared.label, styles.labelRings)} style={POS.ringLegend}>
         {universe.scale.ringLegend}
