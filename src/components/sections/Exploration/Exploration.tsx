@@ -74,6 +74,8 @@ export function Exploration() {
             ))}
           </div>
 
+          <div className={styles.blackout} aria-hidden='true' />
+
           <MapLayers />
 
           <p className={styles.legend}>{exploration.mapLegend}</p>

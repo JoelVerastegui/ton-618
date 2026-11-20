@@ -186,6 +186,27 @@
   z-index: 2;
   pointer-events: none;
   background: linear-gradient(to top, $scene2Bg, transparent 20%);
+
+  // Mismo degradado en negro: lo cubre mientras dura el fondo negro de la tarjeta 2.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(to top, $spaceBlack, transparent 20%);
+  }
+}
+
+// Fondo negro de la tarjeta 2 (campo de galaxias): capa opaca bajo el mapa que solo
+// cambia de `opacity` (sin pintar color) mientras dura esa tarjeta. En las demás
+// tarjetas el fondo es $scene2Bg.
+.blackout {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-color: $spaceBlack;
 }
 
 // --- Posiciones del track (nivel activo y goTo) -----------------------------------
@@ -274,6 +295,19 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
   }
 }
 
+// Fondo negro: entra y sale con el mismo ritmo que la tarjeta 2 (23 % / 77 %).
+@keyframes blackoutLife {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  23%,
+  77% {
+    opacity: 1;
+  }
+}
+
 // Tarjeta final (4b): solo la entrada de `cardLife`; se queda hasta soltar el stage.
 @keyframes cardStay {
   from {
@@ -318,11 +352,26 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
       @include exploRange(490, 520);
     }
   }
+
+  // Mismo tramo que la tarjeta 2.
+  .blackout,
+  .scrim::after {
+    animation-name: blackoutLife;
+    animation-duration: 1ms;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    @include exploRange(110, 240);
+  }
 }
 
 // Pausa fuera de vista (data-inview lo marca useInView)
-:global([data-inview='false']) .card {
-  animation-play-state: paused;
+:global([data-inview='false']) {
+  .card,
+  .blackout,
+  .scrim::after {
+    animation-play-state: paused;
+  }
 }
 
 // Sin `animation-timeline`: `useTrackProgress` escribe `--progress` (0–1 sobre el
@@ -354,6 +403,19 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
       translate: 0 calc(#{$cardShift} * (1 - var(--t)));
     }
   }
+
+  .blackout,
+  .scrim::after {
+    $range: map-get($explCards, 2);
+    --t: #{explProgress(nth($range, 1), nth($range, 2))};
+    opacity: calc(
+      clamp(0, calc(var(--t) / #{$cardFadeStop}), 1) - clamp(
+          0,
+          calc((var(--t) - #{1 - $cardFadeStop}) / #{$cardFadeStop}),
+          1
+        )
+    );
+  }
 }
 
 // --- prefers-reduced-motion: reduce (paso 9) --------------------------------------
@@ -384,6 +446,7 @@ $cardLevel: (1, 2, 3, 4, 4);
 
   .sentinels,
   .anchors,
+  .blackout,
   .scrim {
     display: none;
   }

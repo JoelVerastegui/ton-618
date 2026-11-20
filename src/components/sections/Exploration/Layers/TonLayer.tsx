@@ -2,7 +2,17 @@ import { memo } from 'react';
 import type { CSSProperties } from 'react';
 import clsx from 'clsx';
 import { Layer, LayerSvg } from '@/components/sections/Exploration/Layers/Layer';
-import { CENTER, POS_CENTER, POS_SCALE_NOTE, at, vector } from '@/utils/geometry';
+import blackHole from '@/assets/images/hero/ton618-blackhole-1024.webp';
+import {
+  CENTER,
+  POS_CENTER,
+  POS_SCALE_NOTE,
+  at,
+  dots,
+  scatterDisk,
+  seeded,
+  vector,
+} from '@/utils/geometry';
 import type { Point } from '@/utils/geometry';
 import { levelById, markerLabel } from '@/utils/layerData';
 import shared from '@/components/sections/Exploration/Layers/LayerShared.module.scss';
@@ -10,8 +20,8 @@ import styles from '@/components/sections/Exploration/Layers/TonLayer.module.scs
 
 const ton = levelById('ton618');
 
-// Etiqueta «TON 618» a (700, 240); la guía parte a 110 u del centro.
-const GUIDE_FROM = 110;
+// Etiqueta «TON 618» a (700, 240); la guía parte a 175 u del centro, fuera del brillo del disco.
+const GUIDE_FROM = 175;
 const GUIDE_TARGET: Point = [700, 240];
 const guideAngle = Math.atan2(GUIDE_TARGET[1] - CENTER, GUIDE_TARGET[0] - CENTER);
 const GUIDE_START: Point = [
@@ -31,38 +41,38 @@ const POS = {
   } as CSSProperties,
 };
 
-const HALO_ID = 'explorationHalo';
-const DISC_ID = 'explorationDisc';
+// Estrellas del fondo, bajo la imagen del agujero negro: puntos repartidos por todo el
+// cuadrado (el radio 710 cubre las esquinas). Un grupo fijo y tres que centellean con
+// ritmos distintos.
+const rand = seeded(618);
+const [fixedStars, ...twinklingStars] = [220, 60, 60, 60].map((count) =>
+  dots(scatterDisk(count, 710, rand))
+);
+const TWINKLE = [styles.twinkleA, styles.twinkleB, styles.twinkleC];
 
-// Nivel 4 · TON 618 (representación artística)
+// Nivel 4 · TON 618 (representación artística). La imagen del agujero negro es la del
+// Hero (misma URL: sin descarga nueva).
 export const TonLayer = memo(function TonLayer() {
   return (
     <Layer levelId='ton618' variant='ton'>
-      <LayerSvg>
-        <defs>
-          <radialGradient id={HALO_ID}>
-            <stop className={styles.haloCore} offset='0.15' />
-            <stop className={styles.haloMid} offset='0.5' />
-            <stop className={styles.haloEdge} offset='1' />
-          </radialGradient>
-          <linearGradient id={DISC_ID}>
-            <stop className={styles.discEdge} offset='0' />
-            <stop className={styles.discHot} offset='0.5' />
-            <stop className={styles.discEdge} offset='1' />
-          </linearGradient>
-        </defs>
-        <circle cx={CENTER} cy={CENTER} r={470} fill={`url(#${HALO_ID})`} />
-        <g transform={`rotate(-12 ${CENTER} ${CENTER})`}>
-          <ellipse cx={CENTER} cy={CENTER} rx={300} ry={80} fill={`url(#${DISC_ID})`} />
-          <circle className={styles.hole} cx={CENTER} cy={CENTER} r={92} />
-          <circle className={styles.photonRing} cx={CENTER} cy={CENTER} r={97} />
+      <LayerSvg className={styles.disc}>
+        <path className={clsx(shared.galaxies, styles.stars)} d={fixedStars} />
+        {twinklingStars.map((d, i) => (
           <path
-            d={`M200 ${CENTER}A300 80 0 0 0 800 ${CENTER}L600 ${CENTER}A100 14 0 0 1 400 ${CENTER}Z`}
-            fill={`url(#${DISC_ID})`}
-            className={styles.discFront}
+            key={TWINKLE[i]}
+            className={clsx(shared.galaxies, styles.stars, TWINKLE[i])}
+            d={d}
           />
-        </g>
+        ))}
       </LayerSvg>
+      <img
+        className={styles.blackHole}
+        src={blackHole}
+        alt=''
+        width={1024}
+        height={1024}
+        decoding='async'
+      />
 
       <span className={clsx(shared.pulse, styles.pulseHole)} style={POS_CENTER} />
       <span className={clsx(shared.line, styles.lineGuide)} style={POS.guide} />

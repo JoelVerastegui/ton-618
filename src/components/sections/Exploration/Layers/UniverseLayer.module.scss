@@ -14,6 +14,41 @@
   stroke-width: 2;
 }
 
+// Centelleo lento de las galaxias (como las estrellas del Hero): tres grupos
+// desfasados, solo `opacity`.
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.twinkleA {
+  animation: twinkle 5s ease-in-out infinite;
+}
+
+.twinkleB {
+  animation: twinkle 6.5s ease-in-out -2s infinite;
+}
+
+.twinkleC {
+  animation: twinkle 4.2s ease-in-out -1s infinite;
+}
+
+// Vía Láctea: el disco ocupa ~85 % de la imagen (170 u de 1000 ≈ 17 % del mapa).
+.milkyWay {
+  position: absolute;
+  width: 20%;
+  height: auto;
+  pointer-events: none;
+  translate: -50% -50%;
+  user-select: none;
+}
+
 .lineEarth {
   background-color: transparent;
   background-image: linear-gradient(to right, rgba($starlight, 0.7), rgba($solarAmber, 0.85));
@@ -92,7 +127,10 @@
 // Pausa fuera de vista (data-inview lo marca useInView)
 :global([data-inview='false']) {
   .lineEarth,
-  .labelHere {
+  .labelHere,
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
     animation-play-state: paused;
   }
 }
@@ -100,7 +138,10 @@
 // Sin movimiento: línea y rótulo completos y fijos.
 @media (prefers-reduced-motion: reduce) {
   .lineEarth,
-  .labelHere {
+  .labelHere,
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
     animation: none;
   }
 }

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import type { CSSProperties } from 'react';
 import clsx from 'clsx';
+import milkyWay from '@/assets/images/exploration/milky-way-384.webp';
 import { Layer, LayerSvg } from '@/components/sections/Exploration/Layers/Layer';
 import {
   CENTER,
@@ -49,7 +50,12 @@ const galaxies = [140, 60, 20].map((count) => {
   return dots([...scatterAlong(WEB, along, 34, rand), ...scatterDisk(count - along, 470, rand)]);
 });
 
+// La Vía Láctea (vista cenital, ilustración generada con IA) se coloca de modo que
+// la Tierra quede sobre un brazo, a ~0,6 del radio del centro galáctico.
+const MILKY_WAY_CENTER: Point = [EARTH[0] - 41, EARTH[1] - 31];
+
 const POS = {
+  milkyWay: at(MILKY_WAY_CENTER[0], MILKY_WAY_CENTER[1]),
   earth: at(EARTH[0], EARTH[1]),
   earthLine: {
     ...at(EARTH[0], EARTH[1]),
@@ -67,11 +73,29 @@ export const UniverseLayer = memo(function UniverseLayer() {
         {RINGS.map((radius) => (
           <circle key={radius} className={styles.ring} cx={EARTH[0]} cy={EARTH[1]} r={radius} />
         ))}
-        <path className={clsx(shared.galaxies, shared.galaxiesDim)} d={galaxies[0]} />
-        <path className={clsx(shared.galaxies, shared.galaxiesMid)} d={galaxies[1]} />
-        <path className={clsx(shared.galaxies, shared.galaxiesBright)} d={galaxies[2]} />
+        <path
+          className={clsx(shared.galaxies, shared.galaxiesDim, styles.twinkleA)}
+          d={galaxies[0]}
+        />
+        <path
+          className={clsx(shared.galaxies, shared.galaxiesMid, styles.twinkleB)}
+          d={galaxies[1]}
+        />
+        <path
+          className={clsx(shared.galaxies, shared.galaxiesBright, styles.twinkleC)}
+          d={galaxies[2]}
+        />
       </LayerSvg>
 
+      <img
+        className={styles.milkyWay}
+        style={POS.milkyWay}
+        src={milkyWay}
+        alt=''
+        width={384}
+        height={384}
+        decoding='async'
+      />
       <span className={clsx(shared.line, styles.lineEarth)} style={POS.earthLine} />
       <span className={clsx(shared.dot, shared.dotReference)} style={POS.earth} />
       <span className={clsx(shared.label, shared.labelBelow, styles.labelHere)} style={POS.earth}>
