@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { BlackHoleField } from '@/components/sections/Exploration/Layers/BlackHoleField';
+import { Overlays } from '@/components/sections/Science/Overlays';
 import quasar from '@/assets/images/science/quasar-1536.webp';
 import styles from '@/components/sections/Science/Science.module.scss';
 
@@ -21,6 +22,7 @@ export const Viewer = memo(function Viewer() {
           height={1536}
           decoding='async'
         />
+        <Overlays />
       </div>
     </div>
   );
