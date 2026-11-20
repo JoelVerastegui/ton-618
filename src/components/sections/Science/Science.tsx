@@ -88,8 +88,6 @@ export function Science() {
     >
       <div ref={trackRef} className={styles.track}>
         <div className={styles.stage}>
-          <div className={styles.starLayer} aria-hidden='true' />
-
           <header className={styles.header}>
             <h2 id={TITLE_ID} className={styles.title}>
               {science.title}

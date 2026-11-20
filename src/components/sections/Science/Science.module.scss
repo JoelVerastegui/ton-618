@@ -1,5 +1,4 @@
 @import '@/styles/variables';
-@import '@/styles/starfield';
 @import '@/styles/eyelids';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
@@ -52,24 +51,7 @@
   height: 100vh;
   height: 100dvh; // sigue las barras del navegador; sin hueco bajo las tarjetas
   overflow: clip;
-  background-color: $scene2Bg;
-}
-
-// --- Estrellas persistentes ---------------------------------------------------
-// Mismo campo (misma semilla y parámetros) y misma escala final que Exploración
-// (`$starGrow`): el fondo no cambia al empezar la intro.
-.starLayer {
-  position: absolute;
-  top: -6%;
-  left: -6%;
-  z-index: 0;
-  width: 1px;
-  height: 1px;
-  pointer-events: none;
-  border-radius: 50%;
-  transform-origin: 56vw 56svh;
-  scale: $starGrow;
-  box-shadow: starField(120, 0.75, 55, 100, 618);
+  background-color: $scienceBg;
 }
 
 // --- Visor y cámara -----------------------------------------------------------
@@ -92,7 +74,7 @@
 // Cámara: un solo `transform` por punto (`data-point` en la sección). Parte de la
 // vista completa; el cambio entre puntos anima desde el valor actual.
 .camera {
-  transition: transform $motionCamera $easeCinematic;
+  transition: transform $motionCamera ease-out;
 }
 
 @each $id, $cfg in $sciPoints {
@@ -143,12 +125,17 @@
   }
 }
 
-// En móvil el título cae donde se abre la tarjeta: se oculta con un punto activo.
+// En móvil el título cae donde se abre la tarjeta: se oculta con un punto activo. En móvil
+// apaisado bajo (`$sciCompact`) también: el hint quedaría sobre el disco con poco contraste.
 .section[data-point] .header {
   visibility: hidden;
 
   @media #{$sideBySide} {
     visibility: visible;
+  }
+
+  @media #{$sciCompact} {
+    visibility: hidden;
   }
 }
 
@@ -235,6 +222,7 @@
   }
 }
 
+// Va en `.camera` y no en el `<video>`: un `<video>` animado no se compone en Chrome y repinta en cada paso de scroll.
 @keyframes quasarIn {
   from {
     scale: $quasarIntroScale;
@@ -299,7 +287,7 @@
   }
 
   .stage,
-  .quasar,
+  .camera,
   .header,
   .lid {
     animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
@@ -314,7 +302,7 @@
     @include sciRange(-1, 0);
   }
 
-  .quasar {
+  .camera {
     animation-name: quasarIn;
     @include sciRange(0, $scienceReady);
   }
@@ -347,7 +335,7 @@
     --open: #{explProgress(0, 55)};
   }
 
-  .quasar {
+  .camera {
     --t: #{explProgress(0, $scienceReady)};
     scale: calc(1 + (#{$quasarIntroScale} - 1) * (1 - var(--t)));
   }
@@ -369,7 +357,7 @@
 
 // Pausa fuera de vista (data-inview lo marca useInView)
 :global([data-inview='false']) {
-  .quasar,
+  .camera,
   .header,
   .lid {
     animation-play-state: paused;
@@ -413,12 +401,12 @@
   }
 
   .stage,
-  .quasar,
+  .camera,
   .header {
     animation: none;
   }
 
-  .quasar,
+  .camera,
   .header {
     opacity: 1;
     translate: none;

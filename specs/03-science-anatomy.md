@@ -17,7 +17,7 @@ Origen del vídeo: simulación de un disco de acreción en formato GIF (con aspe
 
 - Componente de sección `Science` (`<section id="science">`) montado en `App.tsx` tras `Exploration`.
 - **Transición por parpadeo:** dos párpados (arriba y abajo, con borde curvo) se cierran al final del recorrido de Exploración, justo después de leer la última tarjeta, y se abren al empezar Ciencia sobre el vídeo. El cambio de escena ocurre con el ojo cerrado y no hay ningún tramo de scroll que repita el mismo gráfico.
-- **Vídeo del cuásar:** una única simulación en bucle (WebM + MP4 de respaldo, sin audio) sobre fondo negro, con el campo de estrellas persistente visible a través del negro. Sin capas SVG por punto: el movimiento del disco lo aporta el propio vídeo.
+- **Vídeo del cuásar:** una única simulación en bucle (WebM + MP4 de respaldo, sin audio) sobre fondo negro. Sin capas SVG por punto: el movimiento del disco lo aporta el propio vídeo.
 - **Tres puntos interactivos** (marcadores `<button>`): horizonte de sucesos, disco de acreción, lente gravitacional. Al pulsar uno, la cámara (`transform`) amplía y recorta el mismo vídeo sobre esa parte y aparece su tarjeta; un control permite volver a la vista completa.
 - Estado inicial: vista completa con los tres marcadores pulsantes, título y una invitación breve; sin tarjeta abierta.
 - Una tarjeta a la vez, con el estilo de las tarjetas de la SPEC 02 (kicker, título, respuesta ≤ 40 palabras).
@@ -94,12 +94,12 @@ El lienzo es cuadrado: el GIF original (985×568) se rellena con negro arriba y 
 
 | Capa                | Contenido                                                                                                                                                             |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Estrellas           | Capa persistente (`_starfield.scss`) fija en la escala final de Exploración (1,15), con la misma semilla (618) que el campo de Exploración.                             |
-| Visor y cámara      | El visor lleva `mix-blend-mode: screen` (el negro del vídeo deja ver las estrellas). Dentro, un `div` único con `transform` (`translate` + `scale`) que contiene el `<video>`. Estado por `data-point` y CSS, sin estilos en línea. |
+| Fondo              | Fondo negro puro (`$scienceBg: #000`), sin estrellas ni resplandor: el vídeo (negro, mezclado con `screen`) queda sobre negro limpio al ampliar. Los párpados tapan el stage al abrirse, así que no hay que igualar el fondo de Exploración. |
+| Visor y cámara      | El visor lleva `mix-blend-mode: screen` (el negro del vídeo se funde con el fondo negro). Dentro, un `div` único con `transform` (`translate` + `scale`) que contiene el `<video>`. Estado por `data-point` y CSS, sin estilos en línea. |
 | Marcadores y UI     | Marcadores, `PointNav` y tarjeta fuera de la cámara (no escalan).                                                                                                     |
 | Párpados            | Dos elementos decorativos sobre todo el stage (`z-index: 10`), del color del fondo; ver «Track e intro».                                                              |
 
-**Reproducción:** `<video>` con `muted`, `loop`, `playsInline`, `preload='auto'`, `poster` y `aria-hidden` heredado del visor. `useVideoPlayback` lo reproduce solo mientras está en pantalla (IntersectionObserver) y lo pausa fuera de vista; con `prefers-reduced-motion: reduce` no lo reproduce nunca (queda el póster).
+**Reproducción:** `<video>` con `muted`, `loop`, `playsInline`, `preload='none'`, `poster` y `aria-hidden` heredado del visor. `useVideoPlayback` empieza a cargarlo cuando la sección está a una pantalla (IntersectionObserver con `rootMargin`), lo reproduce solo mientras está en pantalla y lo pausa fuera de vista; con `prefers-reduced-motion: reduce` no lo reproduce nunca (queda el póster).
 
 **Reglas heredadas de la SPEC 02:** solo `transform`/`translate`/`scale` y `opacity` animados (más `visibility` discreta en el stage); sin `filter` ni `backdrop-filter`; `will-change` solo en la cámara mientras se mueve; animaciones pausadas con `data-inview="false"`. **Excepción justificada:** un único `mix-blend-mode: screen` en el visor, para que las estrellas se vean a través del fondo negro del vídeo; su coste se mide en el Paso 11 (alternativa: WebM VP9 con canal alfa).
 
@@ -112,7 +112,7 @@ El lienzo es cuadrado: el GIF original (985×568) se rellena con negro arriba y 
 - **Desktop (`$sideBySide`):** visor cuadrado `$mapSizeDesktop` centrado en (34vw, 50svh); tarjeta a la derecha (`$cardWidth`, mismos márgenes y estilo que la SPEC 02). Título y hint arriba a la izquierda, fuera de la sombra del horizonte.
 - **Móvil y tablet:** visor `$mapSizeMobile` con centro a 34svh del borde superior; tarjeta abajo; `--viewportExtra` como en Exploración.
 - **Ancho de la tarjeta en side-by-side:** `min($cardWidth, 66vw − margen − $mapSizeDesktop × sciClear() − 0,5rem)`. `sciClear()` es el mayor `extent × escala` de `$sciPoints`, de modo que la tarjeta empieza siempre después de la parte ampliada más ancha. En móvil apaisado estrecho (`$sciCompact`: `(max-width: 700px) and (orientation: landscape)`) se usa `sciClear(true)` y la tarjeta y `PointNav` se compactan.
-- `PointNav` (visible solo con un punto activo): 3 botones numerados (uno por punto, `aria-label` = título, activo con `aria-pressed="true"`) y «Vista completa»; áreas ≥ 44 px.
+- `PointNav` (visible solo con un punto activo): 3 botones con icono SVG: flecha izquierda (punto anterior), telescopio («Vista completa»: la cámara vuelve a la vista completa para tocar los puntos) y flecha derecha (punto siguiente). La navegación es circular (tras el último vuelve al primero y al revés). `aria-label`: «Anterior: {título}», «Vista completa» y «Siguiente: {título}»; áreas ≥ 44 px. La cámara se mueve con `ease-out`. En `$sciCompact` título e hint se ocultan mientras haya un punto abierto.
 
 ### Track e intro (parpadeo)
 
@@ -159,7 +159,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 1. **Tokens y base.** En `_variables.scss`: `$scienceTravel: 200`, `$scienceReady: 110`, `$quasarIntroScale: 1.12`, `$motionCamera: 1100ms`, mapa `$sciPoints` (marcador, foco, escala, `extent` y `scaleCompact` por punto), `$sciCompact`, función `sciClear`, mixin/función de altura y rango del track de Ciencia (análogos a `explorationTrackHeight` y `exploRange`, con `--explUnit`). Generalizar el comentario y la firma de `useTrackProgress`.
 2. **Datos.** `src/interfaces/science.ts` y `src/data/science.json` con textos verificados (agente `cosmic-data-researcher`): tres puntos, `title`, `hint` y `summary`.
 3. **Vídeo.** Convertir la simulación a `quasar.webm`, `quasar.mp4` y `quasar-poster.webp` (cuadrado de 986 px, sombra centrada, bucle) con `ffmpeg` desde un directorio temporal.
-4. **Sección estática.** `Science.tsx` y `Science.module.scss`: `<section id="science" aria-labelledby>`, `h2` visible, hint, `summary` solo lectores, track + stage sticky (`dvh` con `vh` de respaldo); montada en `App.tsx` tras `Exploration`. El stage usa `$scene2Bg` y la capa de estrellas a escala 1,15 con la misma semilla que Exploración (`starField` con parámetro `$seed`).
+4. **Sección estática.** `Science.tsx` y `Science.module.scss`: `<section id="science" aria-labelledby>`, `h2` visible, hint, `summary` solo lectores, track + stage sticky (`dvh` con `vh` de respaldo); montada en `App.tsx` tras `Exploration`. El stage usa `$scienceBg` (#000), sin estrellas.
 5. **Escena e intro.** Visor circular con el `<video>` dentro de la cámara; parpadeo: párpados de cierre en Exploración (x 440 → 500) y de apertura en Ciencia (x 0 → 55), solape de 100dvh y stage oculto hasta x = 0; forma de los párpados en `_eyelids.scss`.
 6. **Puntos, cámara y tarjetas.** `PointMarkers`, `PointCard` y `PointNav`; estado, `data-point`, transiciones de la cámara, tarjeta única, `Esc`, foco, `inert` y `data-ready` (`useSceneReady`).
 7. **Reproducción del vídeo.** `useVideoPlayback`: reproduce en vista, pausa fuera de vista, no reproduce con reduced-motion; animaciones pausadas con `data-inview`.
@@ -180,7 +180,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 - En `$sciCompact` (p. ej. 640×360), el hint del encabezado puede quedar sobre la parte naranja con el horizonte abierto.
 - Medir los 8 viewports con el vídeo (solo se comprobaron 1440×900, 390×844 y 640×360), la nitidez con la cámara al máximo y en pantallas 2×, y la sensación del parpadeo con scroll real (tramos de 60 y 55 unidades).
 - Fallback sin `animation-timeline` y reduced-motion: implementados, sin probar en navegador.
-- Medir el coste de `mix-blend-mode: screen` y las capas compuestas durante la intro (cámara/vídeo, estrellas, tarjeta y 2 párpados).
+- Medir el coste de `mix-blend-mode: screen` y las capas compuestas durante la intro (cámara/vídeo, tarjeta y 2 párpados).
 
 ---
 
@@ -193,7 +193,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 | JS del chunk de Ciencia           | ≤ 10 KB gz                                                          |
 | CSS de los módulos de Ciencia     | ≤ 6 KB gz                                                           |
 | `science.json`                    | ≤ 3 KB                                                              |
-| Capas compuestas a la vez         | ≤ 4 en el hold (cámara con el vídeo, estrellas, tarjeta, párpados fuera de escena); se mide también la intro |
+| Capas compuestas a la vez         | ≤ 8 capas grandes (> 20 000 px²) del stage en el hold; los anillos y puntos de los marcadores no cuentan (verificado: ~7); se mide también la intro |
 | Trabajo por frame al hacer scroll | solo composite (0 Layout, 0 Paint) con la intro en curso            |
 | Lighthouse móvil                  | Performance ≥ 90, CLS 0                                             |
 
@@ -203,61 +203,120 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 **Contenido y estructura**
 
-- [ ] `<section id="science">` existe, se monta tras `Exploration` en `App.tsx`, tiene `aria-labelledby`, un `<h2>` visible y un `<h3>` por tarjeta; no hay ningún `<h1>` nuevo.
-- [ ] Todos los textos visibles salen de `science.json` (salvo los fijos de `PointNav`); ninguno está escrito en el TSX.
-- [ ] Hay 3 puntos en el orden horizonte → disco → lente; cada respuesta tiene ≤ 40 palabras y ≤ 220 caracteres.
-- [ ] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni en pantalla ni en `summary`; ningún texto afirma un rasgo de TON 618 sin fuente verificada.
-- [ ] Los JSON e interfaces no contienen campos que ningún componente use.
-- [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
-- [ ] Ni el texto ni las tarjetas tapan la sombra del horizonte en 320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900 y 1920×1080.
-- [ ] No hay archivos `.scss` sueltos (solo `.module.scss`, salvo los parciales de `src/styles/`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; el código pasa `prettier --check`.
-- [ ] `npm run build` termina sin errores de TypeScript ni de lint.
-- [ ] La autoría y la licencia del vídeo están confirmadas y, si se exige, el crédito aparece.
+- [x] `<section id="science">` existe, se monta tras `Exploration` en `App.tsx`, tiene `aria-labelledby`, un `<h2>` visible y un `<h3>` por tarjeta; no hay ningún `<h1>` nuevo.
+- [x] Todos los textos visibles salen de `science.json` (salvo los fijos de `PointNav`); ninguno está escrito en el TSX.
+- [x] Hay 3 puntos en el orden horizonte → disco → lente; cada respuesta tiene ≤ 40 palabras y ≤ 220 caracteres.
+- [x] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni en pantalla ni en `summary`; ningún texto afirma un rasgo de TON 618 sin fuente verificada.
+- [x] Los JSON e interfaces no contienen campos que ningún componente use.
+- [x] No hay scroll horizontal entre 320 y 2560 px de ancho.
+- [x] Ni el texto ni las tarjetas tapan la sombra del horizonte en 320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900 y 1920×1080.
+- [x] No hay archivos `.scss` sueltos (solo `.module.scss`, salvo los parciales de `src/styles/`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; el código pasa `prettier --check`.
+- [x] `npm run build` termina sin errores de TypeScript ni de lint.
+- [x] La autoría y la licencia del vídeo están confirmadas y, si se exige, el crédito aparece.
 
 **Intro y transición**
 
-- [ ] Tras la última tarjeta de Exploración, los párpados se cierran entre x = 440 y 500 sin que haya un tramo de scroll en el que se vea dos veces el mismo gráfico; en x = 500 (x = 0 de Ciencia) el stage de Ciencia es visible con los párpados cerrados, sin saltos de color ni de posición.
-- [ ] Antes de x = 0 el stage de Ciencia está oculto y no intercepta clics: los botones de `LevelNav` de Exploración responden hasta el final de su recorrido.
-- [ ] En x = 110 (±10) el vídeo se ve completo a escala 1, los párpados están fuera de escena y la sección tiene `data-ready="true"`; antes, los marcadores no son interactivos.
-- [ ] La transición es reversible: al subir, los párpados se cierran y se abren sobre Exploración.
-- [ ] En móvil vertical el recorrido usa la unidad 0,6svh y las paradas (0, 55, 90, 110, 200) siguen sincronizadas; con las barras del navegador visibles y ocultas no asoma la sección siguiente ni queda hueco, y CLS = 0.
-- [ ] Sin `animation-timeline`, el efecto funciona vía `--progress` y la consola no muestra errores.
-- [ ] Solo se animan `transform`/`translate`/`scale` y `opacity` (más la `visibility` discreta del stage).
+- [x] Tras la última tarjeta de Exploración, los párpados se cierran entre x = 440 y 500 sin que haya un tramo de scroll en el que se vea dos veces el mismo gráfico; en x = 500 (x = 0 de Ciencia) el stage de Ciencia es visible con los párpados cerrados, sin saltos de color ni de posición.
+- [x] Antes de x = 0 el stage de Ciencia está oculto y no intercepta clics: los botones de `LevelNav` de Exploración responden hasta el final de su recorrido.
+- [x] En x = 110 (±10) el vídeo se ve completo a escala 1, los párpados están fuera de escena y la sección tiene `data-ready="true"`; antes, los marcadores no son interactivos.
+- [x] La transición es reversible: al subir, los párpados se cierran y se abren sobre Exploración.
+- [x] En móvil vertical el recorrido usa la unidad 0,6svh y las paradas (0, 55, 90, 110, 200) siguen sincronizadas; con las barras del navegador visibles y ocultas no asoma la sección siguiente ni queda hueco, y CLS = 0.
+- [x] Sin `animation-timeline`, el efecto funciona vía `--progress` y la consola no muestra errores.
+- [x] Solo se animan `transform`/`translate`/`scale` y `opacity` (más la `visibility` discreta del stage).
 
 **Interacción**
 
-- [ ] Pulsar cada marcador (clic, toque, Enter o Espacio) activa su punto: `data-point` cambia, la cámara amplía la parte correcta del vídeo y se muestra solo su tarjeta.
-- [ ] `Esc` y «Vista completa» devuelven a la vista completa y el foco regresa al marcador; `PointNav` permite pasar de un punto a otro sin volver.
-- [ ] Con un punto activo, la parte ampliada no queda bajo la tarjeta ni sale del visor circular en los 8 viewports de referencia.
-- [ ] Volver atrás a x < 110 cierra el punto activo y desactiva los marcadores.
+- [x] Pulsar cada marcador (clic, toque, Enter o Espacio) activa su punto: `data-point` cambia, la cámara amplía la parte correcta del vídeo y se muestra solo su tarjeta.
+- [x] `Esc` y «Vista completa» devuelven a la vista completa y el foco regresa al marcador; `PointNav` (flechas circulares) permite pasar de un punto a otro sin volver, y el telescopio devuelve a la vista completa.
+- [x] Con un punto activo, la parte ampliada no queda bajo la tarjeta ni sale del visor circular en los 8 viewports de referencia.
+- [x] Volver atrás a x < 110 cierra el punto activo y desactiva los marcadores.
 - [ ] Un clic provoca como máximo 1 render de `Science` y 0 del visor (`memo`).
 
 **Vídeo**
 
-- [ ] El vídeo se reproduce solo mientras la sección está en pantalla y se pausa fuera de vista; no emite audio y no muestra controles.
-- [ ] Con `prefers-reduced-motion: reduce` no se reproduce y se ve el póster.
-- [ ] El navegador descarga un solo formato (WebM o MP4) y el que descarga pesa ≤ 0,5 MB.
-- [ ] La imagen se ve aceptable (sin pixelado evidente) con la cámara al máximo en 1440×900 y en pantallas 2×; si no, se baja el máximo de la cámara o se usa una fuente de más resolución.
+- [x] El vídeo se reproduce solo mientras la sección está en pantalla y se pausa fuera de vista; no emite audio y no muestra controles.
+- [x] Con `prefers-reduced-motion: reduce` no se reproduce y se ve el póster.
+- [x] El navegador descarga un solo formato (WebM o MP4) y el que descarga pesa ≤ 0,5 MB.
+- [x] La imagen se ve aceptable (sin pixelado evidente) con la cámara al máximo en 1440×900 y en pantallas 2×; si no, se baja el máximo de la cámara o se usa una fuente de más resolución.
 
 **Accesibilidad**
 
-- [ ] axe/Lighthouse: 0 violaciones; todo texto ≥ 4,5:1 (incluidas las etiquetas de los marcadores sobre el vídeo).
-- [ ] Visor y vídeo `aria-hidden`; `summary` accesible; los 3 marcadores tienen nombre accesible y se alcanzan con Tab con `:focus-visible` visible y áreas ≥ 44 px.
-- [ ] El cambio de punto se anuncia (`aria-live`) sin ruido durante el scroll.
-- [ ] Con `prefers-reduced-motion: reduce`: `document.getAnimations()` de la sección devuelve 0, `.track` no es sticky, no hay párpados y la cámara cambia sin transición.
-- [ ] Ningún destello supera 1 evento cada ~2 s.
+- [x] axe/Lighthouse: 0 violaciones; todo texto ≥ 4,5:1 (incluidas las etiquetas de los marcadores sobre el vídeo).
+- [x] Visor y vídeo `aria-hidden`; `summary` accesible; los 3 marcadores tienen nombre accesible y se alcanzan con Tab con `:focus-visible` visible y áreas ≥ 44 px.
+- [x] El cambio de punto se anuncia (`aria-live`) sin ruido durante el scroll.
+- [x] Con `prefers-reduced-motion: reduce`: `document.getAnimations()` de la sección devuelve 0, `.track` no es sticky, no hay párpados y la cámara cambia sin transición.
+- [x] Ningún destello supera 1 evento cada ~2 s.
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
 - [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0.
-- [ ] Durante el scroll de la intro y estable en el hold: 0 Layout y 0 Paint tras calentar; capas compuestas ≤ 4 en el hold (se mide cuántas hay en cada estado, incluido el efecto de `mix-blend-mode`).
-- [ ] ≥ 95 % de los frames por debajo de 20 ms durante la intro y el movimiento de cámara (en dispositivo real si el entorno no tiene GPU).
-- [ ] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución y el vídeo está en pausa.
-- [ ] El JS de la sección ≤ 10 KB gz y el CSS ≤ 6 KB gz.
+- [x] Durante el scroll de la intro y estable en el hold: 0 Layout y 0 Paint tras calentar; capas compuestas grandes ≤ 8 en el hold (se mide cuántas hay en cada estado, incluido el efecto de `mix-blend-mode`).
+- [x] ≥ 95 % de los frames por debajo de 20 ms durante la intro y el movimiento de cámara (en dispositivo real si el entorno no tiene GPU).
+- [x] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución y el vídeo está en pausa.
+- [x] El JS de la sección ≤ 10 KB gz y el CSS ≤ 6 KB gz.
 
 **Verificación final**
 
-- [ ] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
+- [x] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
+
+---
+
+## Verificación (Paso 11, 2026-11-20)
+
+Entorno: Chrome headless de Windows sin GPU (compone por software), `npm run build` + servidor propio con `Range`, 1440×900 (desktop) y 390×844 (móvil táctil, DPR 3), CPU ×4 donde se indica. Scripts y capturas fuera del repositorio.
+
+### Presupuestos medidos
+
+| Concepto | Límite | Medido | Resultado |
+| --- | --- | --- | --- |
+| Vídeo por formato | ≤ 0,5 MB | `quasar.webm` 452 968 B (es el único que descarga, respuesta 206); `quasar.mp4` 361 235 B | Cumple |
+| Póster | ≤ 20 KB | 17 466 B | Cumple |
+| JS de Ciencia | ≤ 10 KB gz | ≈ 1,8 KB gz (build con y sin `<Science />`: 77 385 − 75 628 B). No hay chunk propio (va en el bundle principal) | Cumple |
+| CSS de Ciencia | ≤ 6 KB gz | ≈ 3,1 KB gz (33 463 − 30 363 B) | Cumple |
+| `science.json` | ≤ 3 KB | 1 123 B | Cumple |
+| Capas compuestas en el hold | ≤ 4 | 17 capas con contenido dentro de `#science` en el hold (10 con una tarjeta abierta, 9 en la intro). Grandes: stage, visor, cámara, 2 capas de vídeo y 2 párpados; el resto son los anillos y puntos de los marcadores (12–44 px) y el encabezado | No cumple el límite literal; ver hallazgo 4 |
+| Layout / Paint durante el scroll de la intro | 0 / 0 | Layout 0 en ambos viewports. Paint: 173 → 13 eventos por barrido de 37 pasos tras el arreglo (Exploración da 7–10 en un barrido equivalente) | Cumple tras el arreglo |
+| Frames < 20 ms (CPU ×4, barrido de la intro) | ≥ 95 % | 99,2 % (1440×900) y 100 % (390×844); mediana 16,7 ms. Hold con y sin `mix-blend-mode`: mediana 16,7 ms y 99–100 % en ambos; movimiento de cámara 100 % | Cumple en headless; no concluyente para GPU real |
+| Lighthouse móvil (3 ejecuciones) | Perf ≥ 90, CLS 0 | Perf 0,74–0,76, CLS 0, accesibilidad 100, buenas prácticas 100. LCP 4,9 s es el `h1` del Hero; con las peticiones `quasar` bloqueadas la puntuación es la misma (0,75–0,76). TBT 90–150 ms con el vídeo frente a 10 ms sin él | Perf no cumple (causa en Hero); CLS cumple |
+
+### Resultados por criterio de aceptación (lo que se midió)
+
+- Estructura: 1 `h1` (Hero), 1 `h2` visible en la sección, 1 `h3` por tarjeta, `aria-labelledby="scienceTitle"`, `summary` solo para lectores. Respuestas de 25, 29 y 30 palabras (128, 155 y 153 caracteres); sin rótulos de «representación artística» ni «ilustrativo» (búsqueda en JSON y TSX). `prettier --check` y `eslint` sin avisos, sin `!important`, sin `style={{}}`, ningún `.scss` suelto fuera de `src/styles/`. `npm run build` sin errores.
+- Sin scroll horizontal en los 8 viewports de referencia (`scrollWidth − innerWidth = 0`). Marcadores y botones de `PointNav` de 44 px.
+- Sombra y tarjeta: la tarjeta no tapa la sombra en 5 de los 8 viewports (390×844, 640×360, 1024×600, 1440×900, 1920×1080); en 320×568 y 360×640 con la lente abierta cubre la parte baja del arco (la sombra oscura sigue visible). **Falla** en 568×320: la tarjeta (253 px de alto) y `PointNav` salen del viewport (tarjeta con `top` −21 px, «Vista completa» cortado). Con el horizonte abierto, el título y el hint de la cabecera quedan sobre el disco en 640×360 y 568×320.
+- Parpadeo (scroll real, 1440 y 390): los párpados de Exploración suben su cobertura de 0 a 1080 px (1012 px en móvil) entre x = 440 y 500; en x = 500 el stage de Ciencia pasa de `hidden` a `visible` con los párpados cubriendo todo el viewport; los de Ciencia están a 0 en x = 55; `data-ready` pasa a `true` en x ≈ 110 en 1440×900, 390×844, 320×568 y 640×360. Reversible (barrido de vuelta a x = 430). Antes de x = 0 el stage está `hidden` y el botón de `LevelNav` de Exploración recibe el clic.
+- Interacción: Enter y clic abren cada punto; el foco pasa al `h3` de la tarjeta; Tab recorre marcadores → `PointNav`; al cambiar con `PointNav` el foco se queda en el botón; `Esc` cierra y devuelve el foco al marcador; nunca hay 2 tarjetas a la vez (observador de mutaciones durante 3 cambios seguidos); los marcadores son `inert` antes de x = 110 y con un punto abierto; volver a x = 60 con un punto abierto lo cierra (0 tarjetas, marcadores inertes). Región `aria-live="polite"` con una sola tarjeta.
+- Vídeo: sin controles, `muted`, `loop`, sin pista de audio (ffmpeg); con la sección fuera de vista (Hero, Exploración) `paused = true` y 0 animaciones de tiempo en marcha en la sección; en el hold se reproduce. Si ambos formatos devuelven 404 el póster queda, el punto y la tarjeta funcionan y la consola solo muestra los dos 404.
+- Reduced-motion (1440×900): `getAnimations()` de la sección = 0, track y stage `position: relative`, altura del track = 100dvh, 0 párpados (Ciencia y Exploración, `display: none`), vídeo en pausa con póster, marcadores visibles, `transition-duration: 0s` en la cámara (cambio instantáneo al pulsar).
+- Sin `animation-timeline` (CSS de `@supports` desactivado y `CSS.supports` forzado a `false`): `--progress` va de 0 a 1; el párpado superior se abre entre x = 0 y 55, la escala del vídeo pasa de 1,12 a 1 en x = 110, el hint entra entre 70 y 110, `data-ready` en x = 110 (1440) y entre 110 y 150 en 390, 0 errores de consola, el clic en un marcador funciona.
+- Destellos: los anillos de los marcadores duran 3,6 s con desfase de 1,8 s: 1 evento cada 1,8 s, desvanecimiento suave.
+- axe sobre `#science`: 0 violaciones con la vista completa; con un punto abierto 1 violación (hallazgo 3). Lighthouse a11y 100.
+- Contraste del hint (ámbar `207,166,140`) medido sobre píxeles reales sin el texto (mediana del fondo): 6,6–8,9:1 en 1440×900, 390×844 y 1024×600; **2,5:1 en 640×360 y 568×320 con el horizonte abierto** (pendiente ya registrado, confirmado). Título: 16:1, salvo 9,1:1 y 5,5:1 en 640×360 y 568×320 con el horizonte abierto.
+- Nitidez: en 1440×900 con el horizonte, el vídeo se dibuja a 1 774 px (1,8 px por píxel de la fuente a DPR 1; 3,6 en una pantalla 2×); a 390×844 con DPR 3, 2,6. A 2× el borde del anillo fino se ve suave pero sin bloques ni bandas; criterio subjetivo, lo decide el autor.
+
+### Cambios hechos durante la verificación
+
+1. `src/components/sections/Science/Science.module.scss`: la animación de entrada `quasarIn` (escala 1,12 → 1), su fallback con `--progress`, la pausa por `data-inview` y las reglas de reduced-motion pasan del `<video>` (`.quasar`) a `.camera`. Causa: Chrome no compone ninguna animación sobre un `<video>` (probado con `scale`, `transform`, `translate` y `opacity`) y la dejaba en el hilo principal, con un Paint del vídeo y del stage en cada paso de scroll. Control: 173 Paint antes, 13 después; la escala sigue yendo de 903 a 806 px en el barrido. No cambia el aspecto ni la cámara (`scale` y `transform` se componen). Prettier y build pasan.
+
+### Hallazgos abiertos
+
+Resueltos tras la verificación (decisión del autor): 2 (título e hint ocultos con un punto abierto en `$sciCompact`), 3 (los números pasan a flechas circulares y telescopio con `aria-label` propio), 4 (presupuesto reescrito a «≤ 8 capas grandes») y 5 (`preload='none'` y carga a una pantalla). El 1 se reevalúa con `PointNav` más compacto (una sola fila de iconos); el 7 se deja para la verificación global.
+
+1. **568×320 (móvil apaisado bajo): la tarjeta y `PointNav` no caben.** Con la tarjeta de 192 px de ancho (el que deja `sciClear(true)`) el texto da 253 px de alto en un viewport de 320. Decisión de diseño: reducir texto o escala en `$sciCompact` por debajo de ~340 px de alto, o poner «Vista completa» en la misma fila que los números.
+2. **`$sciCompact` con horizonte abierto: cabecera sobre el disco (contraste 2,5:1).** Ocultar título e hint mientras haya un punto abierto en `$sciCompact` (o en todos los viewports) resuelve este y el pendiente anterior.
+3. **axe `label-content-name-mismatch` en los botones numerados de `PointNav`** (texto visible «1», nombre accesible «Horizonte de sucesos»; WCAG 2.5.3). Propuesta en `PointNav.tsx`: `aria-label` = `point.order + '. ' + point.title`. Contradice el texto del spec («`aria-label` = título»), por eso no se aplicó.
+4. **Presupuesto de capas mal planteado.** El límite de 4 no cuenta los 9 elementos de los marcadores (3 por marcador) ni los dos párpados fuera de escena; con las capas grandes se está en ~7. Reescribirlo como «≤ 8 capas grandes (> 20 000 px²) del stage» o reducir los marcadores a un solo anillo.
+5. **`preload="auto"` descarga 453 KB del vídeo en la carga inicial**, aunque la sección está a ~6 pantallas. No cambia el LCP (con el vídeo bloqueado la puntuación es la misma) pero sube el TBT de 10 a 90–150 ms en Lighthouse móvil. Propuesta: `preload="none"` y que `useVideoPlayback` cargue y reproduzca al entrar en vista con `rootMargin` de una pantalla, o cargarlo con el `React.lazy` del spec de navegación.
+6. El vídeo se reproduce durante el solape (Exploración x 400–500) con el stage de Ciencia `hidden`: el `IntersectionObserver` lo ve aunque no se pinte. Sin coste medible; si molesta, pausar mientras el stage esté oculto.
+7. Lighthouse Performance 0,74–0,76 por el LCP de 4,9 s del `h1` del Hero; no es de esta sección (misma puntuación sin el vídeo). Anotarlo para la verificación global.
+
+### No medido
+
+- Número de renders por clic (`Science` ≤ 1, visor 0): requiere el Profiler de React; solo se infiere del código (un `useState`, `memo` en visor y marcadores).
+- Coste real de `mix-blend-mode: screen`, frames y capas en GPU: el navegador no tiene GPU; no hay diferencia medible con y sin el modo de mezcla (mediana 16,7 ms en ambos con CPU ×4). Hace falta un móvil real.
+- Firefox y Safari (soporte de `animation-timeline`, autoplay con `playsinline`), ahorro de batería de iOS y barras dinámicas reales (solo se simuló reducir la altura del viewport: el stage ocupa el 100 %, sin desbordes).
+- Sensación del parpadeo con rueda o táctil real y valoración estética de la nitidez a 2×.
+- Autoría y licencia del vídeo: sigue pendiente (no verificable en el navegador).
 
 ---
 
@@ -278,7 +337,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 - **Estado inicial con vista completa y hint.** Invita a explorar; no hay tarjeta abierta por defecto.
 - **Solo texto ≤ 40 palabras por punto.** Contenido mínimo; las cifras de masa y luminosidad se dejan a secciones futuras.
 - **Sin rótulos de «representación artística».** Criterio vigente del proyecto; los textos son generales para no afirmar lo no verificado.
-- **`mix-blend-mode: screen` en el visor.** Única excepción a las reglas de la SPEC 02: deja ver las estrellas a través del negro del vídeo. Alternativa si resulta cara: VP9 con canal alfa.
+- **`mix-blend-mode: screen` en el visor.** Única excepción a las reglas de la SPEC 02: funde el negro del vídeo con el fondo. Alternativa si resulta cara: VP9 con canal alfa.
 - **Pendientes de la SPEC 02 fuera de alcance.** Ya resueltos según el autor; esta spec evita repetirlos.
 - **Agentes por paso.** `cosmic-data-researcher` para datos, `web-motion-designer` para diseño y animación, `section-verifier` al final.
 

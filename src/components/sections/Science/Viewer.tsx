@@ -24,7 +24,7 @@ export const Viewer = memo(function Viewer() {
           muted
           loop
           playsInline
-          preload='auto'
+          preload='none'
           disablePictureInPicture
           tabIndex={-1}
         >
