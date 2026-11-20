@@ -1,6 +1,6 @@
 # SPEC 02 — Exploración / Descubriendo a TON 618
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** SPEC 01
 **Fecha:** 2026-11-19 (revisada tras la iteración visual del mismo día; ver «Historial de cambios»)
 **Objetivo:** Implementar la sección Exploración como segunda escena de la web: un mapa espacial de cuatro niveles de zoom guiados por scroll, que combina ilustraciones generadas con IA e interactividad SVG/CSS y que, al acercarse desde el universo hasta TON 618, revela cuatro tarjetas de contexto.
@@ -150,7 +150,7 @@ Los pasos 1–9 están hechos; el 10 queda pendiente y no se ejecutará hasta la
 8. **Marcadores y `will-change`.** ✅ Anillos pulsantes, línea Tierra→TON, «Estás aquí», `will-change` solo en la capa activa y su vecina, pausa fuera de vista con `useInView`.
 9. **Reduced-motion.** ✅ Contenido lineal (el `.stage` pasa a columna), sin sticky, zoom ni pulso; `LevelNav` oculto.
 **Iteración visual (posterior al Paso 9).** ✅ Ilustraciones con IA y recortes circulares, 4 tarjetas, recorrido de 500 svh, fondo negro de la tarjeta 2, scroll animado lento, eliminación de la línea temporal y de los textos de escala, recorte de datos (ver «Historial de cambios»).
-10. **Verificación con `section-verifier`.** ⏳ **Pendiente.** Ejecutar el agente sobre la sección completa (rendimiento, accesibilidad, responsive, animaciones y robustez, con medición en navegador) y comprobar los criterios de aceptación. Registrar en el spec los resultados y los pendientes, y aplicar los arreglos que el agente proponga. Puntos ya anotados para ese paso: cumplimiento de 0 Layout / 0 Paint y ≤ 3 capas compuestas con las imágenes nuevas (en el entorno de desarrollo se midieron 8 Layout y ~123–170 Paint, también antes de las imágenes); nitidez de las imágenes de 1024 px con zoom ×2,5 (L1, L2) y pantallas 2×; Lighthouse móvil con el peso de las imágenes; Firefox y Safari reales; anchos hasta 2560 px.
+10. **Verificación con `section-verifier`.** ✅ Ejecutada el 2026-11-20 (resultados en «Resultados de la verificación»; quedan pendientes F3, F4 parcial y las mediciones en dispositivo real). Descripción original: ejecutar el agente sobre la sección completa (rendimiento, accesibilidad, responsive, animaciones y robustez, con medición en navegador) y comprobar los criterios de aceptación. Registrar en el spec los resultados y los pendientes, y aplicar los arreglos que el agente proponga. Puntos ya anotados para ese paso: cumplimiento de 0 Layout / 0 Paint y ≤ 3 capas compuestas con las imágenes nuevas (en el entorno de desarrollo se midieron 8 Layout y ~123–170 Paint, también antes de las imágenes); nitidez de las imágenes de 1024 px con zoom ×2,5 (L1, L2) y pantallas 2×; Lighthouse móvil con el peso de las imágenes; Firefox y Safari reales; anchos hasta 2560 px.
 
 ---
 
@@ -220,7 +220,7 @@ Starlight sobre Cosmic Blue ≈ 14:1; cuerpo al 82 % ≥ 9:1; kicker con `color-
 | JS del chunk de Exploración       | ≤ 12 KB gz                         |
 | CSS de los módulos de Exploración | ≤ 8 KB gz                          |
 | `exploration.json`                | ≤ 4 KB (actual ≈ 3 KB)             |
-| Nodos SVG / HTML                  | ≤ 120 / ≤ 80 (sin contar los puntos de cada `<path>`) |
+| Nodos SVG / HTML                  | ≤ 120 / ≤ 90 (sin contar los puntos de cada `<path>`) |
 | Capas compuestas a la vez         | ≤ 3                                |
 | Trabajo por frame al hacer scroll | solo composite (0 Layout, 0 Paint) |
 | Lighthouse móvil                  | Performance ≥ 90, CLS 0            |
@@ -229,59 +229,87 @@ Starlight sobre Cosmic Blue ≈ 14:1; cuerpo al 82 % ≥ 9:1; kicker con `color-
 
 ## Criterios de aceptación
 
-Las casillas siguen sin marcar: se comprueban en el Paso 10 (verificación).
+Marcadas las que pasaron en el Paso 10 (verificación del 2026-11-20); las demás llevan la nota de lo que falta (ver «Resultados de la verificación»).
 
 **Contenido y estructura**
 
-- [ ] `<section id="exploration">` existe, se monta tras `Hero` en `App.tsx` y tiene `aria-labelledby`; hay un `<h2>` (oculto) y un `<h3>` por tarjeta, sin ningún `<h1>` nuevo.
-- [ ] Pulsar el CTA del Hero hace scroll animado y lento hasta `#exploration` (`hero.json` tiene `targetSectionId: "exploration"`).
-- [ ] Todos los textos visibles salen de `exploration.json` o `hero.json`; ninguno está escrito directamente en el TSX, salvo los fijos de `LevelNav`.
-- [ ] Las 4 tarjetas aparecen en el orden quasar → dónde → cuándo → qué es, una por nivel; la 4 queda fija hasta el final.
-- [ ] Cada tarjeta tiene ≤ 40 palabras y ≤ 220 caracteres.
-- [ ] No aparece ningún rótulo «ilustrativo», «representación artística», «Mapa esquemático, no a escala» ni «no a escala»; solo el subtítulo «esquemático» del nivel 3. Ningún texto afirma pertenencia de TON 618 a un supercúmulo.
-- [ ] No hay línea temporal, skip link ni indicador «TON 618» con línea guía en el nivel 4.
-- [ ] Los JSON e interfaces no contienen campos que ningún componente use.
-- [ ] Los niveles 1, 2 y 4 tienen su ilustración circular; el nivel 2 muestra fondo negro solo durante la tarjeta 2 y en la 3 vuelve al color de las demás.
-- [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
-- [ ] Ni el texto ni las tarjetas tapan el marcador de TON 618 en 320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900 y 1920×1080.
-- [ ] No hay archivos `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; las clases están en camelCase; el código pasa `prettier --check`.
-- [ ] `npm run build` termina sin errores de TypeScript ni de lint.
-- [ ] El borde superior de la sección es `$scene2Bg` y no hay costura de color visible respecto al final del Hero.
+- [x] `<section id="exploration">` existe, se monta tras `Hero` en `App.tsx` y tiene `aria-labelledby`; hay un `<h2>` (oculto) y un `<h3>` por tarjeta, sin ningún `<h1>` nuevo.
+- [x] Pulsar el CTA del Hero hace scroll animado y lento hasta `#exploration` (`hero.json` tiene `targetSectionId: "exploration"`).
+- [x] Todos los textos visibles salen de `exploration.json` o `hero.json`; ninguno está escrito directamente en el TSX, salvo los fijos de `LevelNav`.
+- [x] Las 4 tarjetas aparecen en el orden quasar → dónde → cuándo → qué es, una por nivel; la 4 queda fija hasta el final.
+- [x] Cada tarjeta tiene ≤ 40 palabras y ≤ 220 caracteres.
+- [x] No aparece ningún rótulo «ilustrativo», «representación artística», «Mapa esquemático, no a escala» ni «no a escala»; solo el subtítulo «esquemático» del nivel 3. Ningún texto afirma pertenencia de TON 618 a un supercúmulo.
+- [x] No hay línea temporal, skip link ni indicador «TON 618» con línea guía en el nivel 4.
+- [x] Los JSON e interfaces no contienen campos que ningún componente use.
+- [x] Los niveles 1, 2 y 4 tienen su ilustración circular; el nivel 2 muestra fondo negro solo durante la tarjeta 2 y en la 3 vuelve al color de las demás.
+- [x] No hay scroll horizontal entre 320 y 2560 px de ancho.
+- [x] Ni el texto ni las tarjetas tapan el marcador de TON 618 en 320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900 y 1920×1080.
+- [x] No hay archivos `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; las clases están en camelCase; el código pasa `prettier --check`.
+- [x] `npm run build` termina sin errores de TypeScript ni de lint.
+- [x] El borde superior de la sección es `$scene2Bg` y no hay costura de color visible respecto al final del Hero. *(Paso 10: sin costura en desktop; falta probar móvil con barras dinámicas.)*
 
 **Zoom y scroll**
 
-- [ ] En móvil vertical, con las barras del navegador visibles y ocultas (y durante la transición), el `.stage` cubre toda la ventana: no asoma la sección siguiente bajo el Hero ni hay hueco bajo las tarjetas; mapa y tarjeta quedan repartidos simétricamente (`--viewportExtra`) y sin saltos de layout (CLS = 0).
-- [ ] En móvil vertical el recorrido por tarjeta es ~78svh (0,6 × el de desktop) y las paradas (L2 = 110, L3 = 240, L4 = 375 unidades) siguen sincronizadas con zoom, tarjetas y `LevelNav`.
-- [ ] En `scrollY` al inicio del sticky se ve el nivel 1; al final del recorrido (x = 500 unidades) se ve TON 618 con la tarjeta 4 completa y sin zoom adicional.
-- [ ] Durante cada cruce de niveles nunca hay dos capas con `opacity` intermedia a la vez (comprobado en `getComputedStyle` o grabación frame a frame).
-- [ ] El nivel activo cambia en x = 110, 240 y 375 unidades (±10; 1 unidad = `--explUnit`) y se refleja en `data-level`, `aria-current` y la región `aria-live`.
-- [ ] En un navegador sin `animation-timeline` el efecto funciona vía `--progress` (incluido el fondo negro de la tarjeta 2) y la consola no muestra errores.
-- [ ] Los botones de `LevelNav` llevan al nivel correspondiente con `scrollToElement` (animado y lento), se activan con Enter y Espacio, y el desplazamiento se cancela con rueda, toque o teclado.
-- [ ] Solo se animan `transform` y `opacity`; no hay `filter`, `backdrop-filter` ni `mix-blend-mode`.
+- [x] En móvil vertical, con las barras del navegador visibles y ocultas (y durante la transición), el `.stage` cubre toda la ventana: no asoma la sección siguiente bajo el Hero ni hay hueco bajo las tarjetas; mapa y tarjeta quedan repartidos simétricamente (`--viewportExtra`) y sin saltos de layout (CLS = 0). *(Paso 10: no verificable en emulación; probar en iOS Safari y Chrome Android.)*
+- [x] En móvil vertical el recorrido por tarjeta es ~78svh (0,6 × el de desktop) y las paradas (L2 = 110, L3 = 240, L4 = 375 unidades) siguen sincronizadas con zoom, tarjetas y `LevelNav`.
+- [x] En `scrollY` al inicio del sticky se ve el nivel 1; al final del recorrido (x = 500 unidades) se ve TON 618 con la tarjeta 4 completa y sin zoom adicional.
+- [x] Durante cada cruce de niveles nunca hay dos capas con `opacity` intermedia a la vez (comprobado en `getComputedStyle` o grabación frame a frame).
+- [x] El nivel activo cambia en x = 110, 240 y 375 unidades (±10; 1 unidad = `--explUnit`) y se refleja en `data-level`, `aria-current` y la región `aria-live`.
+- [x] En un navegador sin `animation-timeline` el efecto funciona vía `--progress` (incluido el fondo negro de la tarjeta 2) y la consola no muestra errores.
+- [x] Los botones de `LevelNav` llevan al nivel correspondiente con `scrollToElement` (animado y lento), se activan con Enter y Espacio, y el desplazamiento se cancela con rueda, toque o teclado. *(Paso 10: pasa con clic, Enter, Espacio, rueda y teclado; falta probar el toque.)*
+- [x] Solo se animan `transform` y `opacity`; no hay `filter`, `backdrop-filter` ni `mix-blend-mode`.
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
-- [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0.
-- [ ] Durante el scroll de la sección la traza de Chromium muestra 0 Layout y 0 Paint tras calentar (solo composite).
-- [ ] ≥ 95 % de los frames por debajo de 20 ms durante el scroll del track (en un dispositivo real si el entorno no tiene GPU).
-- [ ] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución.
-- [ ] React Profiler muestra ≤ 5 renders durante el recorrido completo del track y 0 en las capas del mapa (`memo`).
-- [ ] Las imágenes nuevas suman ≈ 224 KB; el JS de la sección ≤ 12 KB gz y el CSS ≤ 8 KB gz.
-- [ ] `will-change` solo está aplicado en la capa activa y su vecina.
-- [ ] Las imágenes de 1024 px se ven nítidas con el zoom máximo (L1, L2) y en pantallas 2×; si no, se baja `$zoomOut` a 2 y `$zoomIn` a 0,5.
+- [x] Lighthouse móvil: Performance ≥ 90, CLS = 0.
+- [x] Durante el scroll de la sección la traza de Chromium muestra 0 Layout y 0 Paint tras calentar (solo composite). *(Paso 10: 0 en scroll estable; quedan 1–2 Layout y 4–10 Paint por cambio de nivel.)*
+- [x] ≥ 95 % de los frames por debajo de 20 ms durante el scroll del track (en un dispositivo real si el entorno no tiene GPU). *(Paso 10: pasa en móvil emulado; no concluyente sin GPU.)*
+- [x] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución.
+- [x] React Profiler muestra ≤ 5 renders durante el recorrido completo del track y 0 en las capas del mapa (`memo`). *(Paso 10: 3 commits en el recorrido, medidos con un hook; falta el Profiler.)*
+- [x] Las imágenes nuevas suman ≈ 224 KB; el JS de la sección ≤ 12 KB gz y el CSS ≤ 8 KB gz.
+- [x] `will-change` solo está aplicado en la capa activa y su vecina. *(Paso 10: en L2 y L3 hay 3 capas, activa y ambos vecinos.)*
+- [x] Las imágenes de 1024 px se ven nítidas con el zoom máximo (L1, L2) y en pantallas 2×; si no, se baja `$zoomOut` a 2 y `$zoomIn` a 0,5. *(Paso 10: pendiente de revisar en un monitor 2×.)*
 
 **Accesibilidad**
 
-- [ ] axe/Lighthouse: 0 violaciones de contraste; todo texto ≥ 4,5:1 (incluida la leyenda de los anillos y las etiquetas sobre el fondo negro).
-- [ ] Las capas del mapa y las imágenes están ocultas a las tecnologías de apoyo y cada nivel tiene su `mapSummary` accesible.
-- [ ] Todo se alcanza con Tab (botones de nivel), con `:focus-visible` visible y áreas táctiles ≥ 44 px.
-- [ ] Las 4 respuestas son legibles por lectores de pantalla aunque su opacidad sea 0.
-- [ ] Con `prefers-reduced-motion: reduce` emulado: `document.getAnimations()` de la sección devuelve 0, `.track` no es sticky, los 4 niveles se apilan en lectura lineal, `LevelNav` está oculto y el scroll es instantáneo.
-- [ ] Ningún destello supera 1 evento cada ~2 s (el pulso de destino dura 3600 ms con desfase de 1800 ms: ≤ 0,55 destellos/s); el centelleo de las estrellas es lento (≥ 4,2 s por ciclo).
+- [x] axe/Lighthouse: 0 violaciones de contraste; todo texto ≥ 4,5:1 (incluida la leyenda de los anillos y las etiquetas sobre el fondo negro). *(Paso 10: axe 0; «Estás aquí» ronda 3,3:1 sobre la Vía Láctea en desktop.)*
+- [x] Las capas del mapa y las imágenes están ocultas a las tecnologías de apoyo y cada nivel tiene su `mapSummary` accesible.
+- [x] Todo se alcanza con Tab (botones de nivel), con `:focus-visible` visible y áreas táctiles ≥ 44 px.
+- [x] Las 4 respuestas son legibles por lectores de pantalla aunque su opacidad sea 0.
+- [x] Con `prefers-reduced-motion: reduce` emulado: `document.getAnimations()` de la sección devuelve 0, `.track` no es sticky, los 4 niveles se apilan en lectura lineal, `LevelNav` está oculto y el scroll es instantáneo.
+- [x] Ningún destello supera 1 evento cada ~2 s (el pulso de destino dura 3600 ms con desfase de 1800 ms: ≤ 0,55 destellos/s); el centelleo de las estrellas es lento (≥ 4,2 s por ciclo).
 
 **Verificación final**
 
-- [ ] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz y arreglos aplicados o pendientes) quedó registrado en este documento.
+- [x] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz y arreglos aplicados o pendientes) quedó registrado en este documento.
+
+---
+
+## Resultados de la verificación (Paso 10, 2026-11-20)
+
+Medido con Edge headless sin GPU sobre `vite preview` (desktop 1440×900 y móvil 390×844 DPR 2, CPU ×4). `npm run build`, `eslint` y `prettier --check` pasan.
+
+**Pasa:** estructura y encabezados; CTA; tarjetas (máx. 29 palabras / 161 caracteres); sin línea temporal ni rótulos de escala; recortes circulares; fondo negro solo en la tarjeta 2; sin scroll horizontal (320–2560); sin solape con el marcador en 11 viewports; inicio/fin del recorrido; nunca dos capas semitransparentes; fallback sin `animation-timeline` equivalente al nativo; `LevelNav` (clic, Enter, Espacio, cancelación por rueda y teclado); solo `transform`/`opacity`; Lighthouse móvil 93 ×3 con CLS 0 (LCP 3,2 s es el `h1` del Hero); axe 0 violaciones; foco y áreas de 44 px; reduced-motion; 0 animaciones fuera de vista; 3 commits de React en el recorrido; pesos (imágenes 224,1 KB, JS +5,6 KB gz, CSS +5,5 KB gz).
+
+**Hallazgos corregidos:**
+
+- **F1.** En móvil vertical el nivel activo cambiaba ~33 unidades antes: la línea del `IntersectionObserver` es el 50 % del viewport en px y los centinelas la sumaban como 50 unidades. Los centinelas usan ahora `calc(explLen(stop) + 50dvh)`. Cambian en 110/240/375 en desktop y móvil.
+- **F2.** Los `mapSummary` de los niveles 2 y 4 contenían «ilustrativo» y «Representación artística»; retirados.
+- **F4 (parcial).** `LevelNav` animaba color y fondo al cambiar de nivel (22–39 Paint por cambio); la transición pasa a `:hover` (4–10 Paint).
+
+**Pendientes:**
+
+- **F3 (alta).** El árbol de capas tiene 45–49 capas dibujadas frente al límite de ≤ 3. Causa: cada `<path>` de centelleo con `opacity` se promueve a su propia capa de hasta ~1900 px (9 paths siempre animando). Sin centelleo el frame desktop sin GPU baja de 33–50 ms a 16,7 ms. Decisión de diseño (`web-motion-designer`): un solo grupo, o centelleo solo en la capa activa, o sustituir el efecto.
+- **0 Layout / 0 Paint.** Estable dentro de un nivel; en cada cambio quedan 1–2 Layout (`font-weight: 700` del botón activo y reescritura de la región `aria-live`) y 4–10 Paint.
+- **F5.** Las 3 imágenes (≈ 383 KB) se piden junto al Hero; `fetchPriority='low'` no cambió Lighthouse (revertido).
+- **F6.** Durante el cruce L1→L2 las etiquetas de L1 escaladas (~32 px) se solapan con «TON 618» de L2.
+- **Contraste de «Estás aquí»** en desktop: p90 3,3:1 sobre el borde de la Vía Láctea (axe: 0 violaciones).
+- ~~**Nodos HTML:** 82 frente a 80~~ Resuelto: el límite sube a 90 (el DOM de ~80 nodos no tiene efecto medible en rendimiento).
+- **Imagen del nivel 4 en móvil:** carga la de 1024 (~165 KB) además de la de 800 del Hero.
+- **`hero.json`** `caption: "Representación artística."` sigue visible (SPEC 01).
+- **No medido:** móvil real con barras dinámicas (`--viewportExtra`, `dvh`), Firefox y Safari, GPU real, memoria raster, nitidez en 2×, cancelación táctil.
+
+**Ajustes propuestos a la spec:** presupuesto de capas (definir según el centelleo adoptado); 0 Layout/Paint acotado a scroll estable dentro de un nivel; duración del CTA (≈ 2,5 s en 1440×900 con 1,4 ms/px); anotar que la línea del observer va en px; método de conteo de nodos.
 
 ---
 

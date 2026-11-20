@@ -20,7 +20,7 @@
         { "id": "milky-way", "label": "Vía Láctea" },
         { "id": "ton618", "label": "TON 618" }
       ],
-      "mapSummary": "Campo de galaxias lejanas y nebulosas sobre fondo oscuro, ilustrativo: no se conoce una estructura concreta asociada. TON 618 está en el centro; la Vía Láctea queda abajo a la izquierda."
+      "mapSummary": "Campo de galaxias lejanas y nebulosas sobre fondo oscuro; no se conoce una estructura concreta asociada. TON 618 está en el centro; la Vía Láctea queda abajo a la izquierda."
     },
     {
       "id": "sky-region",
@@ -40,7 +40,7 @@
       "id": "ton618",
       "order": 4,
       "title": "TON 618",
-      "mapSummary": "Representación artística: un agujero negro rodeado por un disco de acreción ámbar y un halo de luz."
+      "mapSummary": "Un agujero negro rodeado por un disco de acreción ámbar y un halo de luz."
     }
   ],
   "cards": [

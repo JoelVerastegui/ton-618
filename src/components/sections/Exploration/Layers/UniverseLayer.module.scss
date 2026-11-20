@@ -141,6 +141,30 @@
   }
 }
 
+// El centelleo solo corre en la capa activa: cada path animado es una capa compuesta.
+:global([data-level-id]:not([data-active='true'])) {
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+  }
+}
+
+// Flecha que señala la Tierra (el rótulo queda justo debajo del punto).
+.labelHere::before {
+  content: '↑';
+  display: block;
+  margin-top: -0.25rem;
+  color: $amberText;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow:
+    0 0 0.5rem $spaceVoid,
+    0 0 0.25rem $spaceVoid;
+}
+
 // Sin movimiento: línea y rótulo completos y fijos.
 @media (prefers-reduced-motion: reduce) {
   .lineEarth,

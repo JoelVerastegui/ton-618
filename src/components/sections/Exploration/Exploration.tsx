@@ -11,7 +11,7 @@ import styles from '@/components/sections/Exploration/Exploration.module.scss';
 
 const exploration = explorationJson as ExplorationData;
 
-// Id de ancla de la línea temporal (destino del skip link).
+// Id del encabezado que nombra la sección (aria-labelledby).
 const TITLE_ID = 'explorationTitle';
 // Retardo antes de anunciar el cambio de nivel (evita ruido durante el scroll rápido).
 const ANNOUNCE_DELAY_MS = 400;
@@ -53,7 +53,7 @@ export function Exploration() {
       <h2 id={TITLE_ID} className={styles.srOnly}>
         {exploration.title}
       </h2>
-      <p ref={liveRef} className={styles.srOnly} role='status' aria-live='polite' />
+      <p ref={liveRef} className={styles.live} role='status' aria-live='polite' />
 
       <div ref={trackRef} className={styles.track}>
         <div className={styles.stage}>
@@ -101,8 +101,6 @@ export function Exploration() {
           ))}
         </div>
       </div>
-
-      {/* Ancla de la línea temporal (destino del skip link) */}
     </section>
   );
 }

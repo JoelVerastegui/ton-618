@@ -53,7 +53,6 @@ export function Hero() {
               {hero.cta.label}
             </Button>
           </div>
-          <p className={styles.caption}>{hero.caption}</p>
           <div className={styles.overlay} aria-hidden='true' />
         </div>
       </div>

@@ -126,26 +126,6 @@
   }
 }
 
-.caption {
-  animation: fadeIn $motionBase ease 1200ms both;
-  position: absolute;
-  right: 1rem;
-  bottom: 0.75rem;
-  left: 1rem;
-  z-index: 6;
-  margin: 0;
-  color: rgba($starlight, 0.7);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  text-align: center;
-
-  @include media-breakpoint-up(md) {
-    left: auto;
-    max-width: 28rem;
-    text-align: right;
-  }
-}
-
 // Overlay de transición (z 7): se funde al color de la escena siguiente para
 // que no haya costura entre el final del hero y la sección 2.
 .overlay {
@@ -268,8 +248,7 @@
   .kicker,
   .title,
   .subtitle,
-  .cta,
-  .caption {
+  .cta {
     animation: none;
   }
 }

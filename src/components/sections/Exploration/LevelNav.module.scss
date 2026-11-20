@@ -61,12 +61,13 @@ $barSize: 2px;
   cursor: pointer;
   background: transparent;
   border: 0;
-  transition:
-    color $motionFast,
-    background-color $motionFast;
 
+  // La transición solo existe al entrar en hover: si estuviera en el estado base,
+  // el cambio de `.active` al cambiar de nivel animaría color y fondo 200 ms
+  // (~25 Paint por cambio de nivel, medidos con la traza de Chromium).
   &:hover {
     color: $starlight;
+    transition: color $motionFast;
   }
 
   &:focus-visible {
@@ -75,10 +76,9 @@ $barSize: 2px;
   }
 }
 
-// El nivel activo no depende solo del color: fondo, peso y relleno de la barra.
+// El nivel activo no depende solo del color: fondo y relleno de la barra (sin cambio de peso: evitaría Layout).
 .active {
   color: $starlight;
-  font-weight: 700;
   background-color: rgba($starlight, 0.12);
 }
 

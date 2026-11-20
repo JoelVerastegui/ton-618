@@ -20,6 +20,12 @@
   @extend %srOnly;
 }
 
+// Región aria-live: tamaño fijo y contención estricta, así reescribir su texto no provoca Layout fuera de ella.
+.live {
+  @extend %srOnly;
+  contain: strict;
+}
+
 // Borde superior liso en $scene2Bg: sin costura con el overlay final del Hero.
 .section {
   --explUnit: #{$explUnitMobile};
@@ -43,7 +49,7 @@
 
 // `view-timeline`: toda la animación por scroll de la sección cuelga de este
 // timeline (los descendientes lo usan con `animation-timeline: --explorationTrack`).
-// El sticky empieza en `cover 100svh` y termina en `cover 660svh`.
+// El sticky empieza en `cover 100svh` y termina en `cover 600svh` (100svh + 500 unidades).
 .track {
   position: relative;
   @include explorationTrackHeight;
@@ -179,9 +185,9 @@
 
 // --- Posiciones del track (nivel activo y goTo) -----------------------------------
 // Dentro del `.track` (no del stage sticky), de arriba abajo. Las anclas son
-// elementos de 0 de alto en x = `$explAnchors` svh de recorrido. Los centinelas
+// elementos de 0 de alto en x = `$explAnchors` unidades de recorrido. Los centinelas
 // cubren cada nivel: empiezan en la parada del nivel + la línea de observación
-// (50svh, centro del viewport) y terminan donde empieza el siguiente.
+// (50 % del viewport, centro) y terminan donde empieza el siguiente.
 .sentinels,
 .anchors {
   position: absolute;
@@ -210,13 +216,28 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
     top: explLen(nth($explAnchors, $i));
   }
 
-  $topX: if($i == 1, 0, map-get($explStops, nth($levelStops, $i)) + $explLevelLine);
+  $stop: map-get($explStops, nth($levelStops, $i));
 
+  // La línea de observación está a `$explLevelLine` % de la altura del viewport (px reales),
+  // no en unidades de recorrido: en móvil vertical (`--explUnit` = 0,6svh) sumarla como
+  // unidades adelantaba el cambio de nivel ~33 unidades.
   .sentinel:nth-child(#{$i}) {
-    top: explLen($topX);
+    @if $i == 1 {
+      top: 0;
+    } @else {
+      top: calc(#{explLen($stop)} + #{$explLevelLine}vh);
+      top: calc(#{explLen($stop)} + #{$explLevelLine}dvh);
+    }
 
     @if $i < 4 {
-      height: explLen(map-get($explStops, nth($levelStops, $i + 1)) + $explLevelLine - $topX);
+      $next: map-get($explStops, nth($levelStops, $i + 1));
+
+      @if $i == 1 {
+        height: calc(#{explLen($next)} + #{$explLevelLine}vh);
+        height: calc(#{explLen($next)} + #{$explLevelLine}dvh);
+      } @else {
+        height: explLen($next - $stop);
+      }
     } @else {
       bottom: 0;
     }

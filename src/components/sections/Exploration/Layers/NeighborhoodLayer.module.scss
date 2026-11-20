@@ -110,6 +110,15 @@
   }
 }
 
+// El centelleo solo corre en la capa activa: cada path animado es una capa compuesta.
+:global([data-level-id]:not([data-active='true'])) {
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .twinkleA,
   .twinkleB,

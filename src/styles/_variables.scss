@@ -150,8 +150,9 @@ $sideBySide: '(min-width: 992px), (max-height: #{$shortHeight}) and (orientation
 }
 
 // Anclas de `goTo` de LevelNav (x en svh de recorrido, un punto cómodo dentro de
-// cada nivel) y línea de observación del nivel activo (50svh: centro del viewport).
-// Una ancla está en la posición `x` del track; un centinela empieza en `x + línea`.
+// cada nivel) y línea de observación del nivel activo (50 % de la altura del viewport).
+// Una ancla está en la posición `x` del track; un centinela empieza en `x` + la línea
+// (en `dvh`, no en unidades de recorrido, para que el cambio caiga en `x` también en móvil).
 $explAnchors: (40, 175, 305, 435);
 $explLevelLine: 50;
 
