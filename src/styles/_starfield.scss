@@ -1,22 +1,61 @@
 @use 'sass:list';
 @use 'sass:math';
 
+// Siguiente estado de un generador Park-Miller (determinista; 16807 × 2^31 cabe en un double).
+@function starNext($state) {
+  @return $state * 16807 % 2147483647;
+}
+
+// Entero 1..$max a partir del estado.
+@function starInt($state, $max) {
+  @return 1 + math.floor(math.div($state, 2147483647) * $max);
+}
+
 // Helper sin salida CSS: generación de estrellas en compilación. Devuelve una
 // lista de box-shadow para aplicar sobre un elemento de 1×1 px. Las posiciones
 // cubren una capa del 112 % del stage (cada capa se extiende inset: -6 %).
+// Con `$seed` el campo es determinista: dos módulos que pasen la misma semilla y
+// los mismos parámetros obtienen exactamente las mismas estrellas (continuidad entre
+// secciones). Sin `$seed` es aleatorio en cada compilación.
 // Requiere `$starlight` (importar antes `_variables`).
-@function starField($count, $spreadMax: 0, $alphaMin: 40, $alphaMax: 70) {
+@function starField($count, $spreadMax: 0, $alphaMin: 40, $alphaMax: 70, $seed: null) {
   $shadows: ();
+  $state: $seed;
 
   @for $i from 1 through $count {
-    $x: math.div(math.random(1120), 10) * 1vw;
-    $y: math.div(math.random(1120), 10) * 1svh;
-    $alpha: math.div($alphaMin + math.random($alphaMax - $alphaMin + 1) - 1, 100);
-    $spread: math.div(math.random(10), 10) * $spreadMax;
+    $rx: null;
+    $ry: null;
+    $ra: null;
+    $rs: null;
+    $rt: null;
+
+    @if $seed {
+      $state: starNext($state);
+      $rx: starInt($state, 1120);
+      $state: starNext($state);
+      $ry: starInt($state, 1120);
+      $state: starNext($state);
+      $ra: starInt($state, $alphaMax - $alphaMin + 1);
+      $state: starNext($state);
+      $rs: starInt($state, 10);
+      $state: starNext($state);
+      $rt: starInt($state, 4);
+    } @else {
+      $rx: math.random(1120);
+      $ry: math.random(1120);
+      $ra: math.random($alphaMax - $alphaMin + 1);
+      $rs: math.random(10);
+      $rt: math.random(4);
+    }
+
+    $x: math.div($rx, 10) * 1vw;
+    $y: math.div($ry, 10) * 1svh;
+    $alpha: math.div($alphaMin + $ra - 1, 100);
+    $spread: math.div($rs, 10) * $spreadMax;
     $tint: $starlight;
 
     // ~1 de cada 4 estrellas con tinte azulado
-    @if math.random(4) == 1 {
+    @if $rt == 1 {
       $tint: #bcd0ff;
     }
 
