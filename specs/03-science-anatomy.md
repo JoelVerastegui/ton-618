@@ -3,7 +3,7 @@
 **Estado:** Approved
 **Depende de:** SPEC 02 (y, por ella, SPEC 01)
 **Fecha:** 2026-11-20
-**Objetivo:** Implementar la sección Ciencia como tercera escena de la web: tras el zoom final de Exploración, una intro guiada por scroll aleja la cámara del agujero negro hasta revelar la ilustración completa de un cuásar, con cuatro puntos interactivos (horizonte de sucesos, disco de acreción, lente gravitacional y chorros relativistas) que acercan la cámara a esa parte y muestran su tarjeta.
+**Objetivo:** Implementar la sección Ciencia como tercera escena de la web: tras el zoom final de Exploración, una intro guiada por scroll aleja la cámara del agujero negro hasta revelar la ilustración completa de un cuásar, con tres puntos interactivos (horizonte de sucesos, disco de acreción y lente gravitacional) que acercan la cámara a esa parte y muestran su tarjeta.
 
 Origen del contenido: `docs/ideas/03-science.md`. Datos y textos verificados por el agente `cosmic-data-researcher`; diseño, animación y prompts de imagen por el agente `web-motion-designer`; verificación final por el agente `section-verifier`.
 
@@ -16,9 +16,9 @@ Origen del contenido: `docs/ideas/03-science.md`. Datos y textos verificados por
 - Componente de sección `Science` (`<section id="science">`) montado en `App.tsx` tras `Exploration`.
 - **Intro con continuidad de zoom:** track sticky corto que empieza con el mismo fotograma que el final de Exploración (agujero negro en círculo, mismo fondo y estrellas) y, con el scroll, hace zoom-out hasta la ilustración completa del cuásar.
 - **Ilustración del cuásar:** una imagen generada con IA (WebP con alfa, el negro pasa a transparencia) más capas SVG/CSS interactivas. Mismo balance que la SPEC 02.
-- **Cuatro puntos interactivos** (marcadores `<button>`): horizonte de sucesos, disco de acreción, lente gravitacional, chorros relativistas. Al pulsar uno, la cámara se acerca a esa parte (`transform`) y aparece su tarjeta; un control permite volver a la vista completa.
+- **Tres puntos interactivos** (marcadores `<button>`): horizonte de sucesos, disco de acreción, lente gravitacional. Al pulsar uno, la cámara se acerca a esa parte (`transform`) y aparece su tarjeta; un control permite volver a la vista completa.
 - **Animación explicativa** dentro del punto «Disco de acreción»: el material que cae se calienta y brilla mientras el horizonte permanece negro (por qué el agujero negro no emite luz, pero su entorno sí).
-- Estado inicial: vista completa con los cuatro marcadores pulsantes, título y una invitación breve; sin tarjeta abierta.
+- Estado inicial: vista completa con los tres marcadores pulsantes, título y una invitación breve; sin tarjeta abierta.
 - Una tarjeta a la vez, con el estilo de las tarjetas de la SPEC 02 (kicker, título, respuesta ≤ 40 palabras).
 - Accesibilidad: marcadores y navegación entre puntos con teclado, `Esc` para volver, gestión del foco.
 - Comportamiento completo con `prefers-reduced-motion: reduce`.
@@ -29,7 +29,7 @@ Origen del contenido: `docs/ideas/03-science.md`. Datos y textos verificados por
 
 - Cualquier cambio visual o de contenido en Hero y Exploración (la continuidad se resuelve solo desde Ciencia; ver «Decisiones»).
 - Zoom libre del usuario (rueda, pellizco, arrastre) y scroll guiado de punto en punto.
-- Elementos adicionales del cuásar (toro de polvo, corona, regiones de líneas anchas) y datos numéricos destacados por punto.
+- Elementos adicionales del cuásar (chorros relativistas, toro de polvo, corona, regiones de líneas anchas) y datos numéricos destacados por punto.
 - Las secciones 4 en adelante (masa, luminosidad, etc.).
 - Navegación completa (rutas, `history.replaceState`, `React.lazy`), Navbar y Footer.
 - Audio.
@@ -45,13 +45,13 @@ Archivos: `src/interfaces/science.ts` y `src/data/science.json`. Solo contienen 
 
 ```ts
 // src/interfaces/science.ts
-export type SciencePointId = 'horizon' | 'disk' | 'lens' | 'jets';
+export type SciencePointId = 'horizon' | 'disk' | 'lens';
 
 export interface SciencePoint {
   id: SciencePointId;
   order: number;
   kicker: string; // p. ej. «El límite»
-  title: string; // nombre del punto: «Horizonte de sucesos», «Disco de acreción», «Lente gravitacional», «Chorros relativistas»
+  title: string; // nombre del punto: «Horizonte de sucesos», «Disco de acreción», «Lente gravitacional»
   answer: string; // ≤ 40 palabras y ≤ 220 caracteres
 }
 
@@ -72,7 +72,6 @@ Contenido orientativo de las respuestas (el investigador los verifica y los reda
 | Horizonte de sucesos   | El límite a partir del cual nada, ni siquiera la luz, puede escapar.                                         |
 | Disco de acreción      | Gas y materia que orbitan y se calientan intensamente. El agujero negro no emite luz; el material que cae sí. |
 | Lente gravitacional    | La gravedad desvía la luz y deforma lo que se observa (el disco lejano se ve curvado sobre el agujero).      |
-| Chorros relativistas   | Haces de partículas lanzados casi a la velocidad de la luz que se observan en muchos cuásares.               |
 
 ---
 
@@ -84,7 +83,7 @@ Principio de la SPEC 02: la imagen aporta realismo; el SVG/HTML/CSS aporta inter
 
 - Agujero negro en el centro (500, 500 en un viewBox de 1000), mismo estilo, ángulo (~75°) y paleta que `ton618-blackhole-1024.webp` del Hero.
 - El conjunto agujero + disco ocupa ~32 % del ancho (el agujero ~8,4 %), con la proporción disco/agujero de la imagen del Hero (≈ 3,9). Esto hace que, escalada ×2,5 (`$zoomOut`), el agujero coincida con el del último nivel de Exploración (21 % de su capa).
-- Dos chorros casi verticales hacia arriba y abajo que llegan hasta ~±46 % del alto y quedan dentro del círculo del mapa. Sin estrellas ni nebulosas de fondo, sin texto.
+- Sin chorros, sin estrellas ni nebulosas de fondo, sin texto: solo agujero, disco y lente, dentro del círculo del mapa.
 - La lente gravitacional (arco del disco lejano sobre y bajo la sombra) forma parte de la imagen.
 
 **Capas** (de atrás hacia delante), dentro de un «visor» circular (`clip-path: circle(50%)` estático, igual que el nivel 4 de Exploración, de modo que el primer fotograma sea idéntico):
@@ -94,7 +93,7 @@ Principio de la SPEC 02: la imagen aporta realismo; el SVG/HTML/CSS aporta inter
 | Estrellas           | Capa persistente (`_starfield.scss`) fija en la escala final de Exploración (1,15) + puntos SVG centelleantes en **un solo grupo** (solo `opacity`).                    |
 | Capa de entrada     | `TonLayer` de Exploración (agujero negro de la imagen del Hero con su campo estelar), reutilizado o extraído a un componente compartido; sin duplicar imagen ni estrellas. |
 | Cámara              | `div` único con `transform` (`translate` + `scale`) que contiene la imagen del cuásar y las superposiciones de cada punto. Estado por `data-point` y CSS, sin estilos en línea. |
-| Superposiciones     | Una por punto, visibles solo con ese punto activo (`opacity`): horizonte (anillo discontinuo sobre la sombra), disco (flujo de partículas), lente (rayos curvados), chorros (pulsos que recorren el eje). |
+| Superposiciones     | Una por punto, visibles solo con ese punto activo (`opacity`): horizonte (anillo discontinuo sobre la sombra), disco (flujo de partículas), lente (rayos curvados). |
 | Marcadores y UI     | Marcadores, `PointNav` y tarjeta fuera de la cámara (no escalan).                                                                                                     |
 
 **Animación del disco (explicativa):** como máximo ~24 partículas HTML/SVG repartidas en 3 anillos concéntricos (frío ámbar tenue en el exterior, ámbar brillante en el medio, blanco-dorado en el interior). Cada anillo rota (`rotate`) y se contrae (`scale`) hacia el agujero, y el brillo crece hacia dentro por `opacity` de anillos superpuestos; ninguna partícula entra en la sombra del horizonte, que queda negra. Solo `transform` y `opacity`; sin `offset-path`, `stroke-dashoffset` ni `filter` (decisiones de la SPEC 02). Se anima solo con el punto «Disco» activo y la sección en vista.
@@ -109,7 +108,7 @@ Principio de la SPEC 02: la imagen aporta realismo; el SVG/HTML/CSS aporta inter
 
 - **Desktop (`$sideBySide`):** visor cuadrado `$mapSizeDesktop` centrado en (34vw, 50svh); tarjeta a la derecha (`$cardWidth`, mismos márgenes y estilo que la SPEC 02). Título y hint arriba a la izquierda sobre el visor o debajo del visor, sin tapar la sombra del horizonte.
 - **Móvil y tablet:** visor `$mapSizeMobile` con centro a 34svh del borde superior; tarjeta abajo; `--viewportExtra` como en Exploración.
-- `PointNav` (visible solo con un punto activo): 4 botones (uno por punto, el activo con `aria-pressed="true"`) y «Vista completa»; áreas ≥ 44 px.
+- `PointNav` (visible solo con un punto activo): 3 botones (uno por punto, el activo con `aria-pressed="true"`) y «Vista completa»; áreas ≥ 44 px.
 
 ### Track e intro
 
@@ -128,7 +127,7 @@ Es el cruce de niveles de la SPEC 02 al revés (zoom-out): nunca hay dos capas c
 ### Interacción
 
 - **Estado:** un único `useState<SciencePointId | null>` en `Science`. Un clic = un render; las capas pesadas van en `memo`.
-- **Cámara:** `data-point` en el contenedor; el CSS define `translate`/`scale` por punto desde `$sciPoints` y anima con `transition: transform 1100ms $easeCinematic`. Valores iniciales, a calibrar con la imagen real: horizonte ×3 al centro; disco ×2 al centro; lente ×2,2 desplazada hacia el arco superior; chorros ×1,8 desplazada hacia el chorro superior. Cada objetivo coloca la parte elegida en el centro del visor, lejos de la tarjeta.
+- **Cámara:** `data-point` en el contenedor; el CSS define `translate`/`scale` por punto desde `$sciPoints` y anima con `transition: transform 1100ms $easeCinematic`. Valores iniciales, a calibrar con la imagen real: horizonte ×3 al centro; disco ×2 al centro; lente ×2,2 desplazada hacia el arco superior. Cada objetivo coloca la parte elegida en el centro del visor, lejos de la tarjeta.
 - **Marcadores:** `<button>` con nombre accesible = `title` del punto; se atenúan (`opacity`) mientras hay un punto activo; el cambio entre puntos se hace con `PointNav`.
 - **Tarjeta:** entra con `opacity` + `translate` ($cardShift); una sola visible; con el cambio de punto se intercambian sin que haya dos a la vez.
 - **Teclado y foco:** al abrir un punto el foco pasa al título de su tarjeta (`tabindex="-1"`); `Esc` o «Vista completa» cierran el punto y devuelven el foco al marcador; Tab recorre marcadores → `PointNav`.
@@ -149,12 +148,12 @@ Es el cruce de niveles de la SPEC 02 al revés (zoom-out): nunca hay dos capas c
 Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researcher` (pasos 2), `web-motion-designer` (pasos 3, 5, 7 y 8), `section-verifier` (paso 11).
 
 1. **Tokens y base.** En `_variables.scss`: `$scienceTravel: 200`, `$scienceReady: 110`, `$quasarIntroScale: 2.5`, `$motionCamera: 1100ms`, mapa `$sciPoints` (posición del marcador y objetivo de cámara por punto), mixin/función de altura y rango del track de Ciencia (análogos a `explorationTrackHeight` y `exploRange`, con `--explUnit`). Generalizar el comentario y la firma de `useTrackProgress` si hace falta.
-2. **Datos.** `src/interfaces/science.ts` y `src/data/science.json` con textos verificados (agente `cosmic-data-researcher`): cuatro puntos, `title`, `hint` y `summary`. Incluir en el informe qué afirmaciones se pueden hacer sobre chorros en TON 618 y cuáles no.
+2. **Datos.** `src/interfaces/science.ts` y `src/data/science.json` con textos verificados (agente `cosmic-data-researcher`): tres puntos, `title`, `hint` y `summary`.
 3. **Imagen y prompts.** `web-motion-designer` redacta el prompt de la imagen del cuásar (con las restricciones de composición de «Ilustración») y las superposiciones; el autor la genera; se procesa el fondo a alfa y se guarda como `src/assets/images/science/quasar-1536.webp` (≤ 220 KB).
 4. **Sección estática.** `Science.tsx` y `Science.module.scss`: `<section id="science" aria-labelledby>`, `h2` visible, hint, `summary` solo lectores, track + stage sticky (`dvh` con `vh` de respaldo), tarjetas como `<article>`; montada en `App.tsx` tras `Exploration`. El stage usa `$scene2Bg` y la capa de estrellas a escala 1,15.
 5. **Escena e intro.** Visor circular con `TonLayer` (reutilizado/extraído) y la imagen del cuásar dentro de la cámara; animaciones de la tabla «Track e intro» con `animation-timeline: view()` sobre el track de Ciencia. Verificar que el fotograma en x = 0 coincide con el final de Exploración.
 6. **Puntos, cámara y tarjetas.** `PointMarkers`, `PointCard` y `PointNav`; estado, `data-point`, transiciones de la cámara, tarjeta única, `Esc`, foco y `data-ready`.
-7. **Superposiciones.** Horizonte, disco (animación explicativa), lente y chorros, cada una activa solo con su punto y con la sección en vista (`useInView` y `data-inview`).
+7. **Superposiciones.** Horizonte, disco (animación explicativa) y lente, cada una activa solo con su punto y con la sección en vista (`useInView` y `data-inview`).
 8. **Fallback y reduced-motion.** `useTrackProgress` para navegadores sin timeline nativo; reglas de reduced-motion.
 9. **Estilo y limpieza.** Prettier, lint, sin `!important`, sin `style={{}}` salvo valores dinámicos; revisar `science.json` e interfaces (ningún campo sin uso).
 10. **Revisión visual y de contenido.** Capturas en los 8 viewports de referencia; comprobar solapes con la sombra del horizonte y con la tarjeta; calibrar objetivos de cámara.
@@ -183,7 +182,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 - [ ] `<section id="science">` existe, se monta tras `Exploration` en `App.tsx`, tiene `aria-labelledby`, un `<h2>` visible y un `<h3>` por tarjeta; no hay ningún `<h1>` nuevo.
 - [ ] Todos los textos visibles salen de `science.json` (salvo los fijos de `PointNav`); ninguno está escrito en el TSX.
-- [ ] Hay 4 puntos en el orden horizonte → disco → lente → chorros; cada respuesta tiene ≤ 40 palabras y ≤ 220 caracteres.
+- [ ] Hay 3 puntos en el orden horizonte → disco → lente; cada respuesta tiene ≤ 40 palabras y ≤ 220 caracteres.
 - [ ] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni en pantalla ni en `summary`; ningún texto afirma un rasgo de TON 618 sin fuente verificada.
 - [ ] Los JSON e interfaces no contienen campos que ningún componente use.
 - [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
@@ -212,7 +211,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 **Accesibilidad**
 
 - [ ] axe/Lighthouse: 0 violaciones; todo texto ≥ 4,5:1 (incluidas las etiquetas de los marcadores sobre la imagen).
-- [ ] Visor e imágenes `aria-hidden`; `summary` accesible; los 4 marcadores tienen nombre accesible y se alcanzan con Tab con `:focus-visible` visible y áreas ≥ 44 px.
+- [ ] Visor e imágenes `aria-hidden`; `summary` accesible; los 3 marcadores tienen nombre accesible y se alcanzan con Tab con `:focus-visible` visible y áreas ≥ 44 px.
 - [ ] El cambio de punto se anuncia (`aria-live`) sin ruido durante el scroll.
 - [ ] Con `prefers-reduced-motion: reduce`: `document.getAnimations()` de la sección devuelve 0, `.track` no es sticky, la ilustración se ve completa y la cámara cambia sin transición.
 - [ ] Ningún destello supera 1 evento cada ~2 s; el centelleo es lento (≥ 4,2 s por ciclo).
@@ -237,7 +236,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 **Tomadas**
 
 - **Ilustración con IA + SVG/CSS.** Mismo balance que la SPEC 02: la imagen da impacto; las superposiciones dan interactividad. SVG puro se vio demasiado esquemático.
-- **Cuatro puntos, con chorros relativistas.** Los chorros son el rasgo más espectacular de un cuásar; el toro de polvo queda fuera para no saturar de texto.
+- **Tres puntos: horizonte, disco y lente.** Son los rasgos que se pueden explicar sin afirmar nada no verificado sobre TON 618; el contenido se mantiene mínimo.
 - **Mecánica de clic con la cámara, no scroll guiado.** Es lo que describe la idea original, evita sumar más scroll tras 500svh de Exploración y es accesible con teclado. El único tramo guiado por scroll es la intro.
 - **Intro pegada en Ciencia (continuidad de zoom).** Ciencia toma el relevo con el mismo fotograma que el final de Exploración y hace zoom-out. No modifica la SPEC 02 ni acopla ambas secciones. Es el cruce de niveles de Exploración al revés, así que reutiliza sus reglas de zoom y de opacidad.
 - **Mismo visor circular y misma geometría que el nivel 4.** Garantiza que el primer fotograma coincida y respeta la decisión de ilustraciones circulares de la SPEC 02.
@@ -256,6 +255,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 - **Ampliar el track de Exploración con una quinta capa.** Modificaría la SPEC 02 (capas, tabla de scroll, `LevelNav`) y acoplaría ambas secciones.
 - **Superposición del stage de Ciencia sobre el de Exploración (`margin-top` negativo) para una costura perfecta.** El stage de Ciencia taparía el de Exploración antes de pegarse y obligaría a desvanecer la tarjeta 4 y `LevelNav`; se acepta el efecto «transportador» (dos escenas que suben juntas) y que la continuidad empiece al pegarse el sticky.
+- **Chorros relativistas como cuarto punto.** TON 618 es radiofuente, pero no hay evidencia verificada de chorros observados; la web trata de TON 618 y no debe mostrarlos.
 - **Scroll guiado de punto en punto.** Más cinematográfico, pero suma scroll y complejidad.
 - **Popover anclado al punto.** Problemas de colisión y de tapar la ilustración en móvil.
 - **Animación explicativa como intro automática o como botón aparte.** Fuerza a verla o añade un control extra.
@@ -267,9 +267,9 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 ## Riesgos identificados
 
-- **Acierto de la imagen generada.** La composición (agujero pequeño con disco al 32 %, chorros dentro del círculo, mismo estilo que el Hero) es exigente. Si el generador no la cumple, se compone el chorro en SVG/CSS con degradados o se regenera; el calibrado de `$quasarIntroScale` y de los objetivos de cámara depende de la imagen final.
+- **Acierto de la imagen generada.** La composición (agujero pequeño con disco al 32 %, mismo estilo que el Hero) es exigente. Si el generador no la cumple, se regenera; el calibrado de `$quasarIntroScale` y de los objetivos de cámara depende de la imagen final.
 - **Nitidez al ampliar.** Con la cámara ×3 y un visor de ~806 px, una imagen de 1536 px rinde ~1,6 px por px de pantalla; en pantallas 2× puede verse blanda. Mitigar con un máximo de cámara menor, o más resolución si el generador lo permite (la versión gratuita limita a 1024 px: valorar entonces ×2,5 y 1024 px).
-- **Rigor científico de los chorros.** TON 618 es radiofuente (B2 1225+31), pero no hay evidencia de chorros resueltos documentada en este proyecto; el texto debe hablar de los cuásares en general. El investigador debe confirmar cada afirmación antes de escribirla.
+- **Rigor científico del texto.** Los textos hablan de los cuásares en general y no afirman rasgos de TON 618 sin verificar; el investigador debe confirmar cada afirmación antes de escribirla.
 - **Efecto «transportador» en la unión.** Al pasar de Exploración a Ciencia, los dos agujeros negros suben a la vez (100dvh de separación) antes de que Ciencia se pegue. Si resulta feo en pantalla, valorar la superposición (descartada) en otro spec.
 - **Scroll en móvil.** La intro y el hold suman 200 unidades (≈ 120svh en móvil vertical): si la persona pasa de largo, la sección se va sin haber explorado. El hint y los marcadores pulsantes deben estar visibles desde x = 110.
 - **Márgenes de la ilustración ampliada.** Con la cámara cerca, parte de la imagen puede quedar bajo la tarjeta en pantallas estrechas; los objetivos de cámara deben calibrarse por viewport.
@@ -283,7 +283,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 - Cambios en Hero o Exploración.
 - Zoom libre y scroll guiado de punto en punto.
-- Toro de polvo, corona y otros elementos del cuásar; datos numéricos destacados.
+- Chorros relativistas, toro de polvo, corona y otros elementos del cuásar; datos numéricos destacados.
 - Masa, luminosidad y secciones 4 en adelante.
 - Navegación completa, Navbar y Footer, audio e imágenes astronómicas reales.
 
