@@ -1,6 +1,6 @@
-## **6. Un mensaje del pasado — Más de 10 mil millones de años**
+## **5. Un mensaje del pasado — Más de 10 mil millones de años**
 
-06 — TIEMPO
+05 — TIEMPO
 
 [Gamla stjärnor har blivit yngre | Forskning & Framsteg](https://images.openai.com/static-rsc-4/tLZZC1MhFhIydex-vDm9BGW7YnXqR4QIZaiKnha4MfEd7wr8KvXzyOaOc7JPYvI-nAp7J6CltVg4C2jLQuME32YeRZoLgZdEXAv7Cc-yOTqgwwrOmaG4AEC60kfjjRfQQ8gqj3mw6rK2Z6I6gphuRf-MTZcCHeGNBhWCKdNKfLE?purpose=inline)
 
