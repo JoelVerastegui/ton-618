@@ -1,6 +1,6 @@
 # SPEC 04 — Escala / Una escala inimaginable
 
-**Estado:** Draft
+**Estado:** Approved
 **Depende de:** SPEC 03 (y, por ella, SPEC 02 y SPEC 01)
 **Fecha:** 2026-11-21
 **Objetivo:** Implementar la sección Escala como cuarta escena de la web: una escena a escala real con un control deslizante que hace zoom-out continuo desde la Tierra, pasando por el Sol y el Sistema solar, hasta el tamaño de TON 618.
