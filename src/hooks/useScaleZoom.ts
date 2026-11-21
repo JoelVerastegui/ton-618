@@ -11,9 +11,13 @@ const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2,
  * Convierte la posición del deslizante (0…1000) en la variable CSS `--zoom` del visor.
  * El valor continuo no es estado de React: se escribe por `ref` con `requestAnimationFrame`.
  * Solo la parada activa es estado, así que hay un render únicamente al cruzar el umbral.
+ * Con `inputRef` escribe también el `value` del deslizante (no controlado).
  * Mientras se mueve, el visor lleva `data-moving='true'` (el CSS usa `will-change` solo entonces).
  */
-export function useScaleZoom(targetRef: RefObject<HTMLElement | null>) {
+export function useScaleZoom(
+  targetRef: RefObject<HTMLElement | null>,
+  inputRef?: RefObject<HTMLInputElement | null>
+) {
   const [activeStop, setActiveStop] = useState<ScaleStopId>(STOP_ORDER[0]);
 
   const valueRef = useRef(0);
@@ -36,10 +40,12 @@ export function useScaleZoom(targetRef: RefObject<HTMLElement | null>) {
   const apply = useCallback(
     (value: number) => {
       valueRef.current = value;
+      // Deslizante no controlado: se sincroniza por ref (animaciones de los botones)
+      if (inputRef?.current) inputRef.current.value = String(Math.round(value));
       setActiveStop(STOP_ORDER[stopIndexAt(value)]); // mismo valor: React no renderiza
       if (!frameRef.current) frameRef.current = requestAnimationFrame(write);
     },
-    [write]
+    [write, inputRef]
   );
 
   const cancelAnimation = useCallback(() => {

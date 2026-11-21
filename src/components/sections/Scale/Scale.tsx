@@ -4,6 +4,8 @@ import { useScaleZoom } from '@/hooks/useScaleZoom';
 import scaleJson from '@/data/scale.json';
 import type { ScaleData } from '@/interfaces/scale';
 import { Viewer } from '@/components/sections/Scale/Viewer';
+import { StopCard } from '@/components/sections/Scale/StopCard';
+import { ScaleSlider } from '@/components/sections/Scale/ScaleSlider';
 import styles from '@/components/sections/Scale/Scale.module.scss';
 
 const scale = scaleJson as ScaleData;
@@ -15,24 +17,47 @@ export function Scale() {
   const sectionRef = useRef<HTMLElement>(null);
   useInView(sectionRef);
 
-  // El Paso 6 conecta `setValue`, `animateTo` y `activeStop` al deslizante, botones y tarjetas.
+  // El valor continuo vive en refs (visor e input); el único estado es la parada activa.
   const viewerRef = useRef<HTMLDivElement>(null);
-  useScaleZoom(viewerRef);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { setValue, animateTo, activeStop } = useScaleZoom(viewerRef, inputRef);
+  const stop = scale.stops.find((item) => item.id === activeStop) ?? scale.stops[0];
 
   return (
-    <section ref={sectionRef} id='scale' aria-labelledby={TITLE_ID} className={styles.section}>
+    <section
+      ref={sectionRef}
+      id='scale'
+      aria-labelledby={TITLE_ID}
+      className={styles.section}
+      data-stop={activeStop}
+    >
       <div className={styles.stage}>
-        <header className={styles.header}>
-          <h2 id={TITLE_ID} className={styles.title}>
-            {scale.title}
-          </h2>
-          <p className={styles.hint}>{scale.hint}</p>
-        </header>
-
         {/* Equivalente textual de la escena (el visor es aria-hidden) */}
         <p className={styles.summary}>{scale.summary}</p>
 
         <Viewer viewerRef={viewerRef} />
+
+        {/* Anuncio del cambio de parada: solo al cruzar el umbral, no durante el arrastre */}
+        <p className={styles.summary} aria-live='polite'>
+          {stop.title}
+        </p>
+
+        <div className={styles.panel}>
+          <header className={styles.header}>
+            <h2 id={TITLE_ID} className={styles.title}>
+              {scale.title}
+            </h2>
+            <p className={styles.hint}>{scale.hint}</p>
+          </header>
+          <StopCard key={stop.id} stop={stop} />
+          <ScaleSlider
+            stops={scale.stops}
+            activeStop={activeStop}
+            inputRef={inputRef}
+            onValue={setValue}
+            onStop={animateTo}
+          />
+        </div>
       </div>
     </section>
   );

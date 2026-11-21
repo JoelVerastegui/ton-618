@@ -1,5 +1,8 @@
 @import '@/styles/variables';
 
+// Altura reservada abajo (móvil vertical) para título, tarjeta y control.
+$scalePanelReserve: 21rem;
+
 // Texto solo para lectores de pantalla
 %srOnly {
   position: absolute;
@@ -15,8 +18,16 @@
 
 // Sin track de scroll: el avance lo da el control, no el scroll. Empieza donde termina
 // el track de Ciencia, sobre el mismo fondo negro.
+// Geometría del visor y del panel (variables locales):
+// · móvil vertical: visor arriba, panel (título, tarjeta, control) abajo; el visor se encoge en
+//   pantallas bajas para dejar sitio al panel;
+// · side-by-side: visor a la izquierda (34vw) y panel a la derecha;
+// · móvil apaisado estrecho: visor más pequeño y centrado más a la izquierda para dar ancho al panel.
 .section {
   --viewportExtra: 0px;
+  --viewSize: min(100vw, 60svh, 100svh - #{$scalePanelReserve} - 1rem);
+  --viewCx: 50%;
+  --panelRight: 1rem;
   position: relative;
 
   @supports (height: 100dvh) {
@@ -25,6 +36,15 @@
 
   @media #{$sideBySide} {
     --viewportExtra: 0px;
+    --viewSize: #{$scaleViewSizeDesktop};
+    --viewCx: 34vw;
+    --panelRight: max(3vw, 1rem);
+  }
+
+  @media (max-width: 991px) and (max-height: $shortHeight) and (orientation: landscape) {
+    --viewSize: min(100svh - 1rem, 40vw);
+    --viewCx: 26vw;
+    --panelRight: 0.5rem;
   }
 }
 
@@ -46,8 +66,24 @@
 // en el rango donde importa, con rampas continuas; el `scale` se acota fuera de ese rango
 // para no manejar capas gigantes o diminutas cuando ya es invisible.
 .viewer {
-  @include sciViewerBox;
+  position: absolute;
+  // Centro a 34svh, pero siempre por encima del panel (que ocupa la reserva inferior)
+  top: calc(
+    max(
+        0.5rem,
+        min(34svh - var(--viewSize) / 2, 100svh - #{$scalePanelReserve} - var(--viewSize))
+      ) +
+      var(--viewportExtra, 0px)
+  );
+  left: calc(var(--viewCx) - var(--viewSize) / 2);
   z-index: 1;
+  width: var(--viewSize);
+  height: var(--viewSize);
+
+  @media #{$sideBySide} {
+    top: calc(50svh - var(--viewSize) / 2);
+  }
+
   pointer-events: none;
   clip-path: circle(50%);
   container-type: size; // las unidades cqw de los sprites son relativas al visor
@@ -153,26 +189,18 @@
 }
 
 // --- Título y hint --------------------------------------------------------------
+// Va dentro del panel (encima de la tarjeta), así nunca invade el visor.
 .header {
-  position: absolute;
-  top: calc(34svh + #{$mapSizeMobile} / 2 + 1rem + var(--viewportExtra, 0px));
-  right: 1rem;
-  left: 1rem;
-  z-index: 2;
   text-align: center;
 
   @media #{$sideBySide} {
-    top: max(2rem, 4svh);
-    right: auto;
-    left: max(2rem, 3vw);
-    max-width: min(18rem, 24vw);
     text-align: left;
   }
 }
 
 .title {
-  margin: 0 0 0.5rem;
-  font-size: clamp(1.5rem, 6vw, 2rem);
+  margin: 0 0 0.125rem;
+  font-size: clamp(1.125rem, 5vw, 1.5rem);
   font-weight: 300;
   line-height: 1.15;
   text-wrap: balance;
@@ -180,6 +208,46 @@
   @media #{$sideBySide} {
     font-size: clamp(1.25rem, 2vw, 1.75rem);
   }
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    font-size: min(clamp(1.25rem, 2vw, 1.75rem), 5.6svh);
+  }
+}
+
+// Panel de la parada: tarjeta y debajo el control. Abajo en móvil; a la derecha del visor
+// en side-by-side (nunca invade el visor, que acaba en 34vw + mitad de su ancho).
+.panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(max(0.5rem, env(safe-area-inset-bottom)) + var(--viewportExtra, 0px));
+  left: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(34rem, calc(100% - 2rem));
+  margin-inline: auto;
+  pointer-events: none;
+
+  @media #{$sideBySide} {
+    top: 0;
+    right: var(--panelRight);
+    bottom: 0;
+    left: auto;
+    gap: 0.75rem;
+    width: min(
+      $cardWidth,
+      calc(100% - var(--viewCx) - var(--viewSize) / 2 - var(--panelRight) - 1rem)
+    );
+    // Alto fijo: el control no salta cuando cambia el alto de la tarjeta
+    height: min(100svh - 1rem, 30rem);
+    margin: auto 0;
+  }
+}
+
+// El hint solo invita al gesto en el estado inicial; después no reserva altura
+.section:not([data-stop='earth']) .hint {
+  display: none;
 }
 
 .hint {
