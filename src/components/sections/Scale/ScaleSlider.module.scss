@@ -6,7 +6,6 @@ $trackHeight: 4px;
 // Deslizante y botones de parada. Áreas táctiles ≥ 44 px.
 .control {
   display: flex;
-  margin-top: auto; // pegado al fondo del panel
   flex-direction: column;
   gap: 0;
   padding: 0 0.5rem 0.375rem;
@@ -103,6 +102,7 @@ $trackHeight: 4px;
 
 @media #{$sideBySide} {
   .control {
+    margin-top: auto; // pegado al fondo del panel (alto fijo)
     padding: 0.5rem 1rem 0.75rem;
   }
 
@@ -117,7 +117,7 @@ $trackHeight: 4px;
   }
 }
 
-// Móvil apaisado: control compacto (sin perder los 44 px de área táctil).
+// Móvil apaisado: control compacto (sin perder los 44 px de área táctil ni bajar de 14 px).
 @media (max-height: $shortHeight) and (orientation: landscape) {
   .control {
     gap: 0;
@@ -125,6 +125,7 @@ $trackHeight: 4px;
   }
 
   .stop {
-    font-size: min(0.75rem, 3.6svh);
+    padding: 0.125rem;
+    font-size: 0.875rem;
   }
 }

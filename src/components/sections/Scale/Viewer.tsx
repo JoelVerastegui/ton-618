@@ -48,7 +48,14 @@ export const Viewer = memo(function Viewer({ viewerRef }: ViewerProps) {
 
       <svg className={styles.orbits} viewBox='0 0 100 100' focusable='false'>
         {PLANET_ORBIT_RATIOS.map((ratio, i) => (
-          <circle key={i} className={styles.orbit} cx={50} cy={50} r={50 * ratio} />
+          <circle
+            key={i}
+            className={styles.orbit}
+            style={{ '--orbit': 50 * ratio } as CSSProperties}
+            cx={50}
+            cy={50}
+            r={50 * ratio}
+          />
         ))}
       </svg>
 

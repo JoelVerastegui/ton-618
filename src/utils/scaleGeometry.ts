@@ -37,8 +37,10 @@ export const STOP_ANIMATION_MS = 1200;
 
 // Diámetro de la Tierra en la parada de la Tierra, en diámetros del visor (V).
 const EARTH_STOP_SIZE = 0.6;
-// Parte de la imagen de TON 618 que ocupa el horizonte (zona oscura central), en V.
-const HORIZON_IN_IMAGE = 0.22;
+// Parte de la imagen de TON 618 que ocupa su horizonte (zona oscura central: ≈ 214 de 1024 px,
+// medido sobre `ton618-blackhole-1024.webp`). Con ello la imagen completa mide 0,22 / 0,209 ≈ 1,05 V
+// en su parada y el horizonte 0,22 V.
+const HORIZON_IN_IMAGE = 0.209;
 
 // Diámetro de cada elemento en V por unidad de zoom (`tamaño = zoom · k`). Todos se dibujan
 // en una caja de 1 V y se escalan con `scale`; `ton618` es el factor de la imagen entera.
