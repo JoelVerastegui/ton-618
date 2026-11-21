@@ -144,6 +144,42 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 1. **Tokens y base.** En `_variables.scss`: `$scaleBg` (alias de `$scienceBg`), `$scaleStopMs: 1200ms`, variables de tamaño del visor reutilizando las de Exploración. Esqueleto de `src/utils/scaleGeometry.ts` (formas sin valores finales).
 2. **Datos.** `src/interfaces/scale.ts` y `src/data/scale.json` con textos verificados (`cosmic-data-researcher`): 4 paradas, `title`, `hint`, `summary`. El investigador también fija y documenta en el spec: qué magnitud de TON 618 representa el círculo (diámetro del horizonte de sucesos o de la sombra, y con qué masa y fórmula) y los 8 radios orbitales; rellena `scaleGeometry.ts` con esos valores.
 3. **Recursos.** (a) El autor entrega la imagen de la Tierra, el GIF del Sol y los 8 planetas generados; (b) `web-motion-designer` redacta los prompts de apoyo para los planetas; (c) conversión con `sharp`/`ffmpeg` desde un directorio temporal a `earth.webp`, `planets/*.webp`, `sun.webm`, `sun.mp4` y `sun-poster.webp`; se confirma que el borde alfa no deja halos negros.
+
+   **Estado (hecho):** recursos convertidos en `src/assets/images/scale/` (`earth.webp`, `planets/*.webp`) y `src/assets/videos/scale/` (`sun.webm`, `sun.mp4`, `sun-poster.webp`). Fuentes y licencia:
+
+   - **Tierra:** NASA Science, «As the World Turns» (cámara EPIC de DSCOVR); 560 px con alfa circular. Confirmar la nota de crédito de la página antes de publicar.
+   - **Planetas (provisional):** una sola imagen sobre gris claro tomada de Pinterest, sin autor ni licencia verificables; recortada con `sharp` (círculo para los redondos; círculo en el cuerpo más recorte por color en los anillos de Saturno). **Sustituir por sprites con licencia clara (generados con los prompts de abajo o de NASA) antes de publicar**; mantener los nombres para no tocar código. Se nombran `mercury.webp` … `neptune.webp` (tamaño nativo ≈ 180–270 px, sin reescalar; no `-256`).
+   - **Sol (provisional):** GIF de Pinterest sin autor ni licencia verificables; recortado a 400×400 (elimina su marca de agua), WebM VP9 y MP4 H.264 sin audio, 1,8 s en bucle. **Sustituir o licenciar antes de publicar.**
+   - **Presupuesto:** WebM 215 KB y MP4 90 KB (≤ 0,3 MB); póster del Sol 8,8 KB (300 px) + Tierra 29 KB = 38 KB (≤ 40 KB); 8 planetas 50 KB (≤ 120 KB). La Tierra a 560 px es el límite del presupuesto: a 2× la parada de la Tierra puede verse algo suave (revisar en el Paso 9).
+
+#### Prompts de apoyo para los planetas
+
+Apoyo al Paso 3(b); el autor puede ajustarlos al generador que use. Generar a 1024×1024 (1:1) y reducir a **256×256 px** al convertir: 8 sprites × ~10–15 KB en WebP con alfa (calidad 80, `alphaQuality` 90) caben en ≤ 120 KB. Se muestran como marcadores de ≤ ~64 px CSS, así que 256 px cubre pantallas 2×–3× con margen.
+
+**Bloque común** (se antepone a cada prompt):
+
+```
+Photorealistic astronomical render of a single planet, perfectly centered, full disk seen head-on (frontal view), occupying about 80% of a square 1:1 frame. Lighting from the upper-left, one fixed direction, soft terminator fading into shade on the lower-right, same exposure and contrast for every planet in the series. Sharp limb, fine surface detail, natural colors. Background: pure solid black (#000000), completely empty and flat. Edges of the frame stay pure black.
+```
+
+**Restricciones comunes** (prompt negativo): no stars, no background glow, no halo, no atmosphere haze outside the limb, no lens flare, no diffraction spikes, no moons, no text, no labels, no orbit lines, no border, no vignette, no gradient or gray background, no cartoon style, no tilt or perspective.
+
+**Sufijo por planeta** (se añade tras el bloque común):
+
+1. Mercurio: `Mercury, gray-brown cratered surface, heavily pitted with small impact craters, subtle bright ray streaks, no atmosphere.`
+2. Venus: `Venus, thick unbroken pale yellow-cream cloud deck, faint soft swirling cloud bands, featureless smooth surface, no continents visible.`
+3. Marte: `Mars, rusty orange-red surface, darker basalt regions, small white polar cap at the top, faint canyon system, thin dusty look.`
+4. Júpiter: `Jupiter, horizontal cream, tan and rust-brown cloud bands with turbulent swirls, the Great Red Spot visible in the lower-right area, slightly flattened disk.`
+5. Saturno: `Saturn with its ring system, rings seen almost edge-open at a gentle 25 degree tilt, thin and elegant, pale gold globe with subtle bands, fine ring divisions, the planet's shadow on the rings. IMPORTANT: planet body only about 40% of the frame width, the full ring ellipse spans about 92% of the frame width, whole system centered with generous pure black margin on all sides.`
+6. Urano: `Uranus, smooth featureless pale cyan-aquamarine globe, very faint lighter polar haze, no visible bands, no rings.`
+7. Neptuno: `Neptune, deep azure-blue globe, faint darker storm oval and a few thin bright white high-altitude cloud streaks, subtle banding, no rings.`
+8. (Opcional, variante si salen con fondo gris o halo) Repetir el prompt añadiendo `pure black #000000 void, nothing outside the planet`.
+
+**Anillos de Saturno:** lienzo cuadrado igual que el resto (256 px) para que todos compartan caja y centrado. El cuerpo ocupa ~40 % del ancho (~100 px) y el anillo exterior ~92 % (~235 px), con margen negro de ≥ 4 % por lado; el eje del sistema es el centro del lienzo (el planeta, no el anillo, queda en el centro). Si el generador descentra los anillos, recentrar en `sharp` sobre el cuerpo y no recortar el borde. En CSS el sprite de Saturno se puede mostrar más grande (~×1,8 de ancho) para que su cuerpo iguale visualmente al de los demás; el resto de planetas rellenan ~80 % del lienzo.
+
+**Conversión negro→alfa con `sharp`** (script en el directorio temporal, sin dependencia nueva): leer RGBA crudo con `.raw()`; para cada píxel `a = max(R, G, B)`; aplicar umbral suave (`a' = clamp((a − 6) / (40 − 6), 0, 1)` para eliminar el ruido cercano a negro); y **des-premultiplicar** el color (`C = C / a'` con `a' > 0`, limitado a 255) para evitar el borde oscuro. Después `.resize(256, 256, { kernel: 'lanczos3' })` (redimensionar *después* de calcular alfa, o con alfa premultiplicado, para no mezclar negro en el borde), `.webp({ quality: 80, alphaQuality: 90 })`. Revisar cada sprite **sobre `#000` y sobre un gris medio (`#444`)**: si hay aro oscuro, subir el umbral inferior (6 → 10) o erosionar el alfa 1 px; si el limbo se ve duro, bajar el umbral superior. Nombrar `mercury-256.webp`, `venus-256.webp`, …, `neptune-256.webp` en `src/assets/images/scale/planets/`.
+
+**Lista de verificación al recibir las imágenes:** fondo realmente negro (#000, sin gris ni neblina); sin estrellas ni halo; planeta centrado y nítido; luz desde la misma dirección en los 8; sin texto; Saturno con margen negro suficiente; ningún planeta con lunas.
 4. **Sección estática.** `Scale.tsx` y `Scale.module.scss`: `<section id="scale" aria-labelledby>`, `h2` visible, hint, `summary` solo para lectores, stage de 100dvh con visor circular y la imagen de TON 618; montada en `App.tsx` tras `Science`. Fondo `$scaleBg`.
 5. **Escena y zoom.** Capas del visor (Tierra, Sol en vídeo, órbitas con sprites, círculo de TON 618) a escala real con `--zoom`; hook `useScaleZoom` (valor → `--zoom` por `ref` + rAF, interpolación exponencial, parada activa); visibilidad por rangos de zoom.
 6. **Control y tarjetas.** `ScaleSlider` (deslizante + 4 botones de parada con animación), `StopCard` (una a la vez), `data-stop`, `aria-live`, teclado completo.
@@ -185,7 +221,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 - [ ] Ni el control, ni la tarjeta ni el texto tapan el visor en los 8 viewports de referencia.
 - [ ] No hay archivos `.scss` sueltos (solo `.module.scss`, salvo los parciales de `src/styles/`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; el código pasa `prettier --check`.
 - [ ] `npm run build` termina sin errores de TypeScript ni de lint.
-- [ ] La autoría y la licencia del GIF del Sol y de la imagen de la Tierra están confirmadas y, si se exige, el crédito aparece.
+- [ ] La autoría y la licencia de la Tierra, del Sol y de los 8 planetas están confirmadas (el Sol y los planetas provisionales están sustituidos o licenciados) y, si se exige, el crédito aparece.
 
 **Escala y zoom**
 
@@ -260,7 +296,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 - **Rango extremo de escalas.** De la Tierra a TON 618 hay unos 10⁷ de factor; escalas ≈ 10⁻⁸ en elementos ocultos pueden dar imprecisión o capas enormes. Mitigar con visibilidad por rangos y elementos ocultos fuera de su zona; medir en el Paso 10.
 - **Definición del tamaño de TON 618.** El círculo puede ser el horizonte de sucesos o la sombra (≈ 2,6× mayor); la imagen del Hero incluye el disco, así que hay que calibrar qué parte de la imagen es el círculo. El investigador fija la magnitud y el método en el Paso 2, y el cambio de masa (40–66 mil millones de M☉) puede alterar la cifra.
-- **Licencia y autoría del GIF del Sol y de la imagen de la Tierra.** No se han comprobado; no publicar sin confirmarlo.
+- **Licencia y autoría.** La Tierra es de NASA (confirmar crédito); el GIF del Sol y la imagen de los planetas vienen de Pinterest, sin autor ni licencia verificables, y son provisionales: no publicar sin sustituirlos o licenciarlos.
 - **Sprites de planetas.** El tamaño fijo en px no es a escala; si se percibe como error, reducirlos a puntos o mostrarlos solo en la parada del Sistema solar.
 - **Rendimiento en móviles de gama media.** Escena con muchos elementos en capas distintas y un vídeo; medir en dispositivo real.
 - **Peso de los recursos.** 8 sprites + Sol + Tierra; el presupuesto es ajustado y se mide en el Paso 3.
