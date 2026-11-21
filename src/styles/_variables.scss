@@ -394,3 +394,14 @@ $explNavStops: (0, 110, 240, 375, $explorationTravel);
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Sección Escala (SPEC 04)
+// ---------------------------------------------------------------------------
+// Mismo fondo negro que Ciencia: la unión entre secciones no tiene costura.
+$scaleBg: $scienceBg;
+// Duración de la animación de los botones de parada
+$scaleStopMs: 1200ms;
+// El visor reutiliza `$mapSizeDesktop` y `$mapSizeMobile` de Exploración.
+$scaleViewSizeDesktop: $mapSizeDesktop;
+$scaleViewSizeMobile: $mapSizeMobile;
