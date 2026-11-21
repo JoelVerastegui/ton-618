@@ -96,6 +96,11 @@
   }
 }
 
+// Fuera de vista la entrada queda en pausa (sin animaciones en marcha)
+:global([data-inview='false']) .card {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card {
     animation: none;

@@ -49,6 +49,12 @@ export const LAYER_K = {
   ton618: (EARTH_STOP_SIZE * SCALE_KM.ton618) / SCALE_KM.earth / HORIZON_IN_IMAGE,
 };
 
+// El Sol se ve (opacity > 0) mientras mide entre 0,006 V y 4 V (mismas cotas que el SCSS).
+export function sunVisible(zoom: number) {
+  const size = zoom * LAYER_K.sun;
+  return size > 0.006 && size < 4;
+}
+
 // Radio de cada órbita relativo a la de Neptuno (1 = borde de la caja del SVG a 0,5 V).
 export const PLANET_ORBIT_RATIOS = PLANET_ORBITS_AU.map(
   (au) => au / PLANET_ORBITS_AU[PLANET_ORBITS_AU.length - 1]

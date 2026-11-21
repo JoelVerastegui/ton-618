@@ -39,7 +39,8 @@ interface ViewerProps {
 // `--zoom` (escrita por ref), de modo que arrastrar el control no lo vuelve a renderizar.
 export const Viewer = memo(function Viewer({ viewerRef }: ViewerProps) {
   const sunRef = useRef<HTMLVideoElement>(null);
-  useVideoPlayback(sunRef);
+  // Reproduce solo con el vídeo en pantalla y la capa del Sol visible (`data-sun` del visor)
+  useVideoPlayback(sunRef, viewerRef, 'sun');
 
   return (
     <div ref={viewerRef} className={styles.viewer} style={layerStyle} aria-hidden='true'>

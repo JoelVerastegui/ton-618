@@ -111,6 +111,12 @@ $trackHeight: 4px;
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .stop {
+    transition: none;
+  }
+}
+
 // Móvil apaisado: control compacto (sin perder los 44 px de área táctil).
 @media (max-height: $shortHeight) and (orientation: landscape) {
   .control {

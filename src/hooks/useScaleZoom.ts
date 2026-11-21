@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import type { ScaleStopId } from '@/interfaces/scale';
-import { STOP_ANIMATION_MS, STOP_ORDER, stopIndexAt, zoomAt } from '@/utils/scaleGeometry';
+import {
+  STOP_ANIMATION_MS,
+  STOP_ORDER,
+  stopIndexAt,
+  sunVisible,
+  zoomAt,
+} from '@/utils/scaleGeometry';
 
 // Tiempo sin escrituras tras el que se considera que el zoom dejó de moverse.
 const IDLE_MS = 160;
@@ -29,7 +35,10 @@ export function useScaleZoom(
     frameRef.current = 0;
     const el = targetRef.current;
     if (!el) return;
-    el.style.setProperty('--zoom', String(zoomAt(valueRef.current)));
+    const zoom = zoomAt(valueRef.current);
+    el.style.setProperty('--zoom', String(zoom));
+    // Capa del Sol visible o no (su vídeo solo se reproduce si lo es); sin estado de React
+    el.dataset.sun = String(sunVisible(zoom));
     el.dataset.moving = 'true';
     window.clearTimeout(idleRef.current);
     idleRef.current = window.setTimeout(() => {
