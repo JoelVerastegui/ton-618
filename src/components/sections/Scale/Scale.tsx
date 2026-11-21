@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { useScaleZoom } from '@/hooks/useScaleZoom';
 import scaleJson from '@/data/scale.json';
 import type { ScaleData } from '@/interfaces/scale';
 import { Viewer } from '@/components/sections/Scale/Viewer';
@@ -14,6 +15,10 @@ export function Scale() {
   const sectionRef = useRef<HTMLElement>(null);
   useInView(sectionRef);
 
+  // El Paso 6 conecta `setValue`, `animateTo` y `activeStop` al deslizante, botones y tarjetas.
+  const viewerRef = useRef<HTMLDivElement>(null);
+  useScaleZoom(viewerRef);
+
   return (
     <section ref={sectionRef} id='scale' aria-labelledby={TITLE_ID} className={styles.section}>
       <div className={styles.stage}>
@@ -27,7 +32,7 @@ export function Scale() {
         {/* Equivalente textual de la escena (el visor es aria-hidden) */}
         <p className={styles.summary}>{scale.summary}</p>
 
-        <Viewer />
+        <Viewer viewerRef={viewerRef} />
       </div>
     </section>
   );

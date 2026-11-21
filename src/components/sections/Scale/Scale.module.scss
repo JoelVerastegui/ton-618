@@ -39,18 +39,117 @@
 // --- Visor ----------------------------------------------------------------------
 // Misma geometría que Exploración y Ciencia: clip circular centrado en (50 %, 34svh)
 // en móvil y (34vw, 50svh) en side-by-side.
+//
+// Escala real: `--zoom` (escrita por `useScaleZoom`) son los píxeles por km relativos a la
+// parada de la Tierra. Cada capa mide 1 V (diámetro del visor) y se escala con `scale`:
+// tamaño en V = --zoom · k (los k vienen de `LAYER_K`). Cada elemento solo se ve (opacity)
+// en el rango donde importa, con rampas continuas; el `scale` se acota fuera de ese rango
+// para no manejar capas gigantes o diminutas cuando ya es invisible.
 .viewer {
   @include sciViewerBox;
   z-index: 1;
   pointer-events: none;
   clip-path: circle(50%);
+  container-type: size; // las unidades cqw de los sprites son relativas al visor
+
+  --zoom: 1;
+  // Tamaño actual de cada elemento en V
+  --dEarth: calc(var(--zoom) * var(--kEarth));
+  --dSun: calc(var(--zoom) * var(--kSun));
+  --dOrbits: calc(var(--zoom) * var(--kOrbits)); // diámetro de la órbita de Neptuno
+  --sTon: calc(var(--zoom) * var(--kTon)); // escala de la imagen completa (1 = llena el visor)
 }
 
-.blackHole {
+%layer {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
+  transform-origin: 50% 50%;
+
+  // Solo mientras el zoom se mueve (el hook marca `data-moving`)
+  .viewer[data-moving='true'] & {
+    will-change: scale, opacity;
+  }
+}
+
+// TON 618: la imagen del Hero llena el visor en su parada; su zona oscura central (0,22 de la
+// imagen) es el horizonte. Aparece (fundido) cuando ya solo se ve ese centro oscuro.
+.blackHole {
+  @extend %layer;
   object-fit: cover;
+  scale: clamp(0.5, var(--sTon), 40);
+  opacity: clamp(0, calc((30 - var(--sTon)) / 20), 1);
+}
+
+// Órbitas: caja de 1 V cuyo borde es la órbita de Neptuno (r = 50). Visible mientras haya
+// anillos legibles: se funde al entrar en rango y desaparece cuando Neptuno mide < ~0,01 V.
+%orbitsVisibility {
+  opacity: min(
+    clamp(0, calc((400 - var(--dOrbits)) / 200), 1),
+    clamp(0, calc((var(--dOrbits) - 0.012) / 0.028), 1)
+  );
+}
+
+.orbits {
+  @extend %layer;
+  @extend %orbitsVisibility;
+  overflow: visible;
+  scale: clamp(0.005, var(--dOrbits), 500);
+}
+
+.orbit {
+  fill: none;
+  stroke: rgba($starlight, 0.35);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+// Planetas: tamaño fijo en px (marcadores); solo su posición orbital es a escala. El radio
+// en cqw = (radio relativo · 50) · (diámetro de la órbita de Neptuno en V), igual que el SVG.
+.planets {
+  @extend %layer;
+  @extend %orbitsVisibility;
+  --dOrbitsClamped: clamp(0.005, var(--dOrbits), 400);
+}
+
+.planet,
+.saturn {
+  --size: clamp(1rem, 3.4cqw, 2.5rem);
+  --radius: calc(var(--orbit) * var(--dOrbitsClamped) * 1cqw);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--size);
+  height: var(--size);
+  translate: calc(-50% + cos(var(--angle)) * var(--radius))
+    calc(-50% + sin(var(--angle)) * var(--radius));
+}
+
+// Los anillos hacen que el cuerpo de Saturno se vea menor en su caja
+.saturn {
+  width: calc(var(--size) * 1.8);
+  height: calc(var(--size) * 1.8);
+}
+
+// Sol: fundido de entrada cuando llena el visor (< 4 V) y de salida cuando ya es un punto.
+.sun {
+  @extend %layer;
+  object-fit: cover;
+  clip-path: circle(50%);
+  scale: clamp(0.003, var(--dSun), 6);
+  opacity: min(
+    clamp(0, calc((4 - var(--dSun)) / 2), 1),
+    clamp(0, calc((var(--dSun) - 0.006) / 0.014), 1)
+  );
+}
+
+// Tierra: se funde cuando mide < ~0,04 V (ya detrás del Sol no aporta).
+.earth {
+  @extend %layer;
+  scale: max(var(--dEarth), 0.005);
+  opacity: clamp(0, calc((var(--dEarth) - 0.01) / 0.03), 1);
 }
 
 // --- Título y hint --------------------------------------------------------------
