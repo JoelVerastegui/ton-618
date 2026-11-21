@@ -1,0 +1,96 @@
+@import '@/styles/variables';
+
+// Texto solo para lectores de pantalla
+%srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Sin track de scroll: el avance lo da el control, no el scroll. Empieza donde termina
+// el track de Ciencia, sobre el mismo fondo negro.
+.section {
+  --viewportExtra: 0px;
+  position: relative;
+
+  @supports (height: 100dvh) {
+    --viewportExtra: calc((100dvh - 100svh) / 2);
+  }
+
+  @media #{$sideBySide} {
+    --viewportExtra: 0px;
+  }
+}
+
+.stage {
+  position: relative;
+  height: 100vh;
+  height: 100dvh; // sigue las barras del navegador
+  overflow: clip;
+  background-color: $scaleBg;
+}
+
+// --- Visor ----------------------------------------------------------------------
+// Misma geometría que Exploración y Ciencia: clip circular centrado en (50 %, 34svh)
+// en móvil y (34vw, 50svh) en side-by-side.
+.viewer {
+  @include sciViewerBox;
+  z-index: 1;
+  pointer-events: none;
+  clip-path: circle(50%);
+}
+
+.blackHole {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// --- Título y hint --------------------------------------------------------------
+.header {
+  position: absolute;
+  top: calc(34svh + #{$mapSizeMobile} / 2 + 1rem + var(--viewportExtra, 0px));
+  right: 1rem;
+  left: 1rem;
+  z-index: 2;
+  text-align: center;
+
+  @media #{$sideBySide} {
+    top: max(2rem, 4svh);
+    right: auto;
+    left: max(2rem, 3vw);
+    max-width: min(18rem, 24vw);
+    text-align: left;
+  }
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  font-weight: 300;
+  line-height: 1.15;
+  text-wrap: balance;
+
+  @media #{$sideBySide} {
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+  }
+}
+
+.hint {
+  margin: 0;
+  color: $amberText;
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.summary {
+  @extend %srOnly;
+}
