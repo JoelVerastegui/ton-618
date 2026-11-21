@@ -2,7 +2,6 @@ export type ScaleStopId = 'earth' | 'sun' | 'solar-system' | 'ton618';
 
 export interface ScaleStop {
   id: ScaleStopId;
-  order: number;
   kicker: string; // p. ej. «Nuestro hogar»
   title: string; // «La Tierra», «El Sol», «El Sistema solar», «TON 618»
   size: string; // medida mostrada: «12 742 km de diámetro», etc.

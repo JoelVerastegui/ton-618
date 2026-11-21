@@ -5,7 +5,6 @@
   "stops": [
     {
       "id": "earth",
-      "order": 0,
       "kicker": "Nuestro hogar",
       "title": "La Tierra",
       "size": "12 742 km de diámetro",
@@ -13,7 +12,6 @@
     },
     {
       "id": "sun",
-      "order": 1,
       "kicker": "Nuestra estrella",
       "title": "El Sol",
       "size": "1,39 millones de km de diámetro",
@@ -21,7 +19,6 @@
     },
     {
       "id": "solar-system",
-      "order": 2,
       "kicker": "Nuestro vecindario",
       "title": "El Sistema solar",
       "size": "9 000 millones de km hasta Neptuno y de vuelta",
@@ -29,7 +26,6 @@
     },
     {
       "id": "ton618",
-      "order": 3,
       "kicker": "El monstruo",
       "title": "TON 618",
       "size": "Unos 390 000 millones de km de diámetro",
