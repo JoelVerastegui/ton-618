@@ -46,6 +46,8 @@ $easeCinematic: cubic-bezier(0.5, 0, 0.75, 0);
 // Color final de la transición por scroll. Debe coincidir con el fondo de la
 // sección 2 (Exploración).
 $scene2Bg: $spaceVoid;
+// Fondo de Ciencia: negro puro (el vídeo es negro y se mezcla con `screen`)
+$scienceBg: #000;
 
 // Ámbar legible como texto (kickers, años): contraste ≥ 4,5:1 sobre $spaceVoid
 $amberText: color-mix(in oklab, $solarAmber 55%, $starlight);
@@ -234,6 +236,117 @@ $crossInEnd: 0.6;
   @return unquote(
     'calc(1 - clamp(0, calc((var(#{$tVar}) - #{$crossInEnd}) / #{1 - $crossInEnd}), 1))'
   );
+}
+
+// ---------------------------------------------------------------------------
+// Sección Ciencia (SPEC 03)
+// ---------------------------------------------------------------------------
+// Recorrido del sticky (misma unidad `--explUnit` que Exploración) y paradas:
+// la escena queda lista (`data-ready`) en `$scienceReady` y se mantiene hasta
+// `$scienceTravel`.
+$scienceTravel: 200;
+$scienceReady: 110;
+// Escala inicial del vídeo del cuásar: con los párpados abiertos se asienta de ×1,12 a ×1.
+$quasarIntroScale: 1.12;
+// Duración del movimiento de la cámara entre puntos
+$motionCamera: 1100ms;
+
+// Puntos interactivos. Coordenadas en % del lienzo del vídeo (50, 50 = centro de la
+// sombra): `marker` = posición del botón; `focus` = parte que la cámara centra con `scale`.
+// `extent` = radio de la parte (fracción del lado del visor a escala 1): sombra 0,09, disco
+// 0,33, arcos de la lente 0,2 (la fuente mide 986 px: más zoom se ve blando).
+// `scaleCompact` = escala en móvil apaisado estrecho (`$sciCompact`), donde el disco
+// ×1,5 quedaría bajo la tarjeta. Presentación: no van en el JSON.
+$sciPoints: (
+  'horizon': (
+    'marker': (
+      50,
+      50,
+    ),
+    'focus': (
+      50,
+      50,
+    ),
+    'scale': 2.2,
+    'extent': 0.09,
+  ),
+  'disk': (
+    'marker': (
+      74,
+      51,
+    ),
+    'focus': (
+      58,
+      50,
+    ),
+    'scale': 1.5,
+    'scaleCompact': 1.15,
+    'extent': 0.33,
+  ),
+  'lens': (
+    'marker': (
+      50,
+      34,
+    ),
+    'focus': (
+      50,
+      38,
+    ),
+    'scale': 2,
+    'extent': 0.2,
+  ),
+);
+
+// Móvil apaisado estrecho (p. ej. 640×360, 568×320): visor pequeño con la tarjeta pegada.
+$sciCompact: '(max-width: 700px) and (orientation: landscape)';
+
+// Fracción del lado del visor que ocupa, desde su centro, la parte ampliada más ancha
+// (`extent` × escala). La tarjeta de side-by-side empieza después de ella.
+@function sciClear($compact: false) {
+  $max: 0;
+  @each $id, $cfg in $sciPoints {
+    $scale: map-get($cfg, 'scale');
+    @if $compact and map-has-key($cfg, 'scaleCompact') {
+      $scale: map-get($cfg, 'scaleCompact');
+    }
+    $max: max($max, map-get($cfg, 'extent') * $scale);
+  }
+  @return $max;
+}
+
+// Altura del track de Ciencia: `vh` de fallback y `dvh`.
+@mixin scienceTrackHeight {
+  height: calc(100vh + #{$scienceTravel} * var(--explUnit, 1svh));
+  height: calc(100dvh + #{$scienceTravel} * var(--explUnit, 1svh));
+}
+
+// Rango de animación entre dos puntos de recorrido (svh desde el sticky), igual
+// que `exploRange`.
+@mixin sciRange($from, $to) {
+  animation-range: exploRangeOf($from, $to);
+}
+
+// Caja cuadrada del visor (y de la capa de marcadores): centrada en (50 %, 34svh) en
+// móvil y (34vw, 50svh) en side-by-side. Misma geometría que el mapa de Exploración.
+@mixin sciViewerBox {
+  position: absolute;
+  top: calc(34svh - #{$mapSizeMobile} / 2 + var(--viewportExtra, 0px));
+  left: calc(50% - #{$mapSizeMobile} / 2);
+  width: $mapSizeMobile;
+  height: $mapSizeMobile;
+
+  @media #{$sideBySide} {
+    top: calc(50svh - #{$mapSizeDesktop} / 2);
+    left: calc(34vw - #{$mapSizeDesktop} / 2);
+    width: $mapSizeDesktop;
+    height: $mapSizeDesktop;
+  }
+}
+
+// Desplazamiento de cámara (% del tamaño de la imagen) que lleva el punto `$focus`
+// (x, y en % de la imagen) al centro con la escala `$scale`.
+@function sciCameraShift($focus, $scale) {
+  @return (50 - list.nth($focus, 1)) * $scale * 1%, (50 - list.nth($focus, 2)) * $scale * 1%;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,36 @@
+@import '@/styles/variables';
+
+// Navegación entre puntos: flecha anterior, vista completa (binoculares) y flecha siguiente.
+// Áreas ≥ 44 px.
+.nav {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.button {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  color: $starlight;
+  cursor: pointer;
+  background-color: rgba($cosmicBlue, 0.82);
+  border: 1px solid rgba($starlight, 0.3);
+  border-radius: 999px;
+  transition:
+    background-color $motionFast,
+    border-color $motionFast;
+
+  &:hover {
+    border-color: $solarAmber;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 2px;
+  }
+}

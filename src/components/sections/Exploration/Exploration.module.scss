@@ -1,4 +1,5 @@
 @import '@/styles/variables';
+@import '@/styles/eyelids';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -301,7 +302,57 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
   }
 }
 
+// Párpados: tras leer la última tarjeta se cierran (x = 440 → 500, hasta soltar el stage);
+// Ciencia empieza con ellos cerrados y los abre.
+@keyframes lidTopClose {
+  from {
+    translate: 0 -#{$lidOpen};
+  }
+
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes lidBottomClose {
+  from {
+    translate: 0 $lidOpen;
+  }
+
+  to {
+    translate: 0 0;
+  }
+}
+
+.lid {
+  @include lid;
+}
+
+.lidTop {
+  @include lidTop;
+}
+
+.lidBottom {
+  @include lidBottom;
+}
+
 @supports (animation-timeline: view()) {
+  .lid {
+    animation-duration: 1ms;
+    animation-timing-function: ease-in;
+    animation-fill-mode: both;
+    animation-timeline: --explorationTrack;
+    @include exploRange(440, $explorationTravel);
+  }
+
+  .lidTop {
+    animation-name: lidTopClose;
+  }
+
+  .lidBottom {
+    animation-name: lidBottomClose;
+  }
+
   .card {
     animation-name: cardLife;
     animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
@@ -344,6 +395,7 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
 
 // Pausa fuera de vista (data-inview lo marca useInView)
 :global([data-inview='false']) {
+  .lid,
   .card,
   .blackout,
   .scrim::after {
@@ -379,6 +431,14 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
       opacity: var(--t);
       translate: 0 calc(#{$cardShift} * (1 - var(--t)));
     }
+  }
+
+  .lidTop {
+    translate: 0 calc(-#{$lidOpen} * (1 - #{explProgress(440, $explorationTravel)}));
+  }
+
+  .lidBottom {
+    translate: 0 calc(#{$lidOpen} * (1 - #{explProgress(440, $explorationTravel)}));
   }
 
   .blackout,
@@ -471,5 +531,12 @@ $levelStops: 'l1', 'l2', 'l3', 'l4';
     .card:nth-of-type(#{$i}) {
       order: explReadOrder($i, 2);
     }
+  }
+}
+
+// Sin movimiento no hay transición de párpados.
+@media (prefers-reduced-motion: reduce) {
+  .lid {
+    display: none;
   }
 }

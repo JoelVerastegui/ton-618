@@ -1,0 +1,27 @@
+// Párpados de la transición Exploración → Ciencia (SPEC 03): se cierran al final de
+// Exploración y se abren al principio de Ciencia. Cada módulo pone sus keyframes y su
+// timeline; aquí solo la forma. Más anchos que la escena y con el borde curvo hacia el
+// centro, para que al cerrarse no queden rendijas en las esquinas.
+$lidOpen: 101%; // desplazamiento que deja cada párpado fuera de la escena
+
+@mixin lid {
+  position: absolute;
+  left: -20%;
+  z-index: 10;
+  width: 140%;
+  height: 60%;
+  pointer-events: none;
+  background-color: $scene2Bg;
+}
+
+@mixin lidTop {
+  top: 0;
+  border-radius: 0 0 50% 50% / 0 0 14% 14%;
+  translate: 0 -#{$lidOpen};
+}
+
+@mixin lidBottom {
+  bottom: 0;
+  border-radius: 50% 50% 0 0 / 14% 14% 0 0;
+  translate: 0 $lidOpen;
+}

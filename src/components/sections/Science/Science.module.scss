@@ -1,0 +1,419 @@
+@import '@/styles/variables';
+@import '@/styles/eyelids';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Texto solo para lectores de pantalla
+%srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Misma geometría que Exploración (`--explUnit`, `--viewportExtra`) para que el
+// primer fotograma de la intro coincida con el final del nivel 4.
+.section {
+  --explUnit: #{$explUnitMobile};
+  position: relative;
+  // Solapa a Exploración (ver «Intro con el scroll»): no intercepta clics; solo el stage.
+  pointer-events: none;
+  --viewportExtra: 0px;
+
+  @supports (height: 100dvh) {
+    --viewportExtra: calc((100dvh - 100svh) / 2);
+  }
+
+  @media #{$sideBySide} {
+    --explUnit: 1svh;
+    --viewportExtra: 0px;
+  }
+}
+
+// `view-timeline`: la intro por scroll cuelga de este timeline. El sticky empieza en
+// `cover 100svh` y termina en `cover (100svh + $scienceTravel unidades)`.
+.track {
+  position: relative;
+  @include scienceTrackHeight;
+  view-timeline: --scienceTrack block;
+}
+
+.stage {
+  position: sticky;
+  pointer-events: auto;
+  top: 0;
+  height: 100vh;
+  height: 100dvh; // sigue las barras del navegador; sin hueco bajo las tarjetas
+  overflow: clip;
+  background-color: $scienceBg;
+}
+
+// --- Visor y cámara -----------------------------------------------------------
+// Cuadrado centrado en (50 %, 34svh) en móvil y (34vw, 50svh) en side-by-side, con
+// el mismo clip circular que el nivel 4 de Exploración.
+.viewer {
+  @include sciViewerBox;
+  z-index: 1;
+  pointer-events: none;
+  clip-path: circle(50%);
+  // El vídeo tiene fondo negro: con `screen` el negro deja ver las estrellas de detrás.
+  mix-blend-mode: screen;
+}
+
+.camera {
+  position: absolute;
+  inset: 0;
+}
+
+// Cámara: un solo `transform` por punto (`data-point` en la sección). Parte de la
+// vista completa; el cambio entre puntos anima desde el valor actual.
+.camera {
+  transition: transform $motionCamera ease-out;
+}
+
+@each $id, $cfg in $sciPoints {
+  $scale: map-get($cfg, 'scale');
+
+  .section[data-point='#{$id}'] .camera {
+    transform: translate(#{sciCameraShift(map-get($cfg, 'focus'), $scale)}) scale($scale);
+  }
+
+  @if map-has-key($cfg, 'scaleCompact') {
+    $compact: map-get($cfg, 'scaleCompact');
+
+    @media #{$sciCompact} {
+      .section[data-point='#{$id}'] .camera {
+        transform: translate(#{sciCameraShift(map-get($cfg, 'focus'), $compact)}) scale($compact);
+      }
+    }
+  }
+}
+
+.quasar {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+// --- Título, invitación y resumen ---------------------------------------------
+// Móvil: bajo el visor. Side-by-side: arriba a la izquierda, en la esquina libre
+// del cuadrado (fuera del círculo del visor).
+.header {
+  position: absolute;
+  top: calc(34svh + #{$mapSizeMobile} / 2 + 1rem + var(--viewportExtra, 0px));
+  right: 1rem;
+  left: 1rem;
+  z-index: 2;
+  text-align: center;
+  pointer-events: none;
+
+  @media #{$sideBySide} {
+    top: max(2rem, 4svh);
+    right: auto;
+    left: max(2rem, 3vw);
+    max-width: min(18rem, 24vw);
+    text-align: left;
+  }
+}
+
+// En móvil el título cae donde se abre la tarjeta: se oculta con un punto activo. En móvil
+// apaisado bajo (`$sciCompact`) también: el hint quedaría sobre el disco con poco contraste.
+.section[data-point] .header {
+  visibility: hidden;
+
+  @media #{$sideBySide} {
+    visibility: visible;
+  }
+
+  @media #{$sciCompact} {
+    visibility: hidden;
+  }
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  font-weight: 300;
+  line-height: 1.15;
+  text-wrap: balance;
+
+  @media #{$sideBySide} {
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+  }
+}
+
+.hint {
+  margin: 0;
+  color: $amberText;
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.summary {
+  @extend %srOnly;
+}
+
+// --- Panel (tarjeta + navegación entre puntos) ---------------------------------
+// Abajo en móvil y a la derecha en side-by-side. Vacío (y sin pointer-events) con la
+// vista completa; la tarjeta y `PointNav` solo existen con un punto activo.
+.panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--viewportExtra, 0px));
+  left: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(34rem, calc(100% - 2rem));
+  margin-inline: auto;
+  pointer-events: none;
+
+  @media #{$sideBySide} {
+    top: 0;
+    right: max(4vw, 3rem);
+    bottom: 0;
+    left: auto;
+    // Nunca invade la parte ampliada más ancha (centro del visor a 34vw; ver `sciClear`).
+    width: min(
+      $cardWidth,
+      calc(66vw - max(4vw, 3rem) - #{$mapSizeDesktop} * #{sciClear()} - 0.5rem)
+    );
+    height: fit-content;
+    margin: auto 0;
+  }
+
+  @media #{$sciCompact} {
+    width: min(
+      $cardWidth,
+      calc(66vw - max(4vw, 3rem) - #{$mapSizeDesktop} * #{sciClear(true)} - 0.5rem)
+    );
+  }
+}
+
+// --- Intro con el scroll (parpadeo) --------------------------------------------
+// Exploración cierra los párpados al final de su recorrido (ver `Exploration.module.scss`)
+// y esta sección empieza con ellos cerrados: justo en x = 0 el stage pasa a ser visible
+// (con el ojo cerrado, sin que se vea el cambio) y los párpados se abren sobre el vídeo.
+// Solo `translate`, `scale` y `opacity`. El timeline `--scienceTrack` lo define el
+// `.track`; x = 0 es cuando el sticky se pega.
+//
+//   x 0 → 55     los párpados suben (se abre el ojo)
+//   x 0 → 110    el vídeo pasa de `$quasarIntroScale` a 1
+//   x 70 → 110   entran título e invitación; x 90 → 110, los marcadores
+@keyframes stageShow {
+  0%,
+  99% {
+    visibility: hidden;
+  }
+
+  100% {
+    visibility: visible;
+  }
+}
+
+// Va en `.camera` y no en el `<video>`: un `<video>` animado no se compone en Chrome y repinta en cada paso de scroll.
+@keyframes quasarIn {
+  from {
+    scale: $quasarIntroScale;
+  }
+
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes lidTopOpen {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: 0 -#{$lidOpen};
+  }
+}
+
+@keyframes lidBottomOpen {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: 0 $lidOpen;
+  }
+}
+
+// Título y hint entran al final de la intro (x = 70 → 110).
+@keyframes headerIn {
+  from {
+    opacity: 0;
+    translate: 0 $cardShift;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.lid {
+  @include lid;
+}
+
+.lidTop {
+  @include lidTop;
+}
+
+.lidBottom {
+  @include lidBottom;
+}
+
+@supports (animation-timeline: view()) {
+  // El track solapa los últimos 100dvh de Exploración: su stage se pega justo cuando el de
+  // Exploración se suelta (mismo scroll), sin tramo intermedio que repita el gráfico.
+  .section {
+    margin-top: -100vh;
+    margin-top: -100dvh;
+  }
+
+  .stage,
+  .camera,
+  .header,
+  .lid {
+    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --scienceTrack;
+  }
+
+  // Oculto (sin foco ni clics) hasta que se pega; así no tapa a Exploración debajo.
+  .stage {
+    animation-name: stageShow;
+    @include sciRange(-1, 0);
+  }
+
+  .camera {
+    animation-name: quasarIn;
+    @include sciRange(0, $scienceReady);
+  }
+
+  .lid {
+    animation-timing-function: ease-out;
+    @include sciRange(0, 55);
+  }
+
+  .lidTop {
+    animation-name: lidTopOpen;
+  }
+
+  .lidBottom {
+    animation-name: lidBottomOpen;
+  }
+
+  .header {
+    animation-name: headerIn;
+    @include sciRange(70, $scienceReady);
+  }
+}
+
+// Sin `animation-timeline`: `useTrackProgress` escribe `--progress` (0–1 sobre el
+// recorrido del sticky); `--x` lo pasa a unidades de recorrido y las mismas fases salen
+// de él con `clamp` (sin solape con Exploración ni curva de aceleración).
+@supports not (animation-timeline: view()) {
+  .section {
+    --x: calc(var(--progress, 0) * #{$scienceTravel});
+    --open: #{explProgress(0, 55)};
+  }
+
+  .camera {
+    --t: #{explProgress(0, $scienceReady)};
+    scale: calc(1 + (#{$quasarIntroScale} - 1) * (1 - var(--t)));
+  }
+
+  .lidTop {
+    translate: 0 calc(-#{$lidOpen} * var(--open));
+  }
+
+  .lidBottom {
+    translate: 0 calc(#{$lidOpen} * var(--open));
+  }
+
+  .header {
+    --t: #{explProgress(70, $scienceReady)};
+    opacity: var(--t);
+    translate: 0 calc(#{$cardShift} * (1 - var(--t)));
+  }
+}
+
+// Pausa fuera de vista (data-inview lo marca useInView)
+:global([data-inview='false']) {
+  .camera,
+  .header,
+  .lid {
+    animation-play-state: paused;
+  }
+}
+
+// Línea de la parada «lista» (`$scienceReady`) hasta el final del track: `useSceneReady`
+// la observa para marcar `data-ready` y cerrar el punto activo al volver atrás.
+.sentinel {
+  position: absolute;
+  top: explLen($scienceReady);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+// --- prefers-reduced-motion: reduce --------------------------------------------
+// Sin intro: el track mide 100dvh y no hay sticky, la ilustración se ve completa (sin
+// capa de entrada) y la cámara cambia al instante al pulsar un punto (acción de la
+// persona, no animación automática). Va al final: gana por orden a las reglas de arriba
+// y al fallback con `--x`.
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    height: 100vh;
+    height: 100dvh;
+    view-timeline: none;
+  }
+
+  .stage {
+    position: relative;
+  }
+
+  .section {
+    margin-top: 0;
+  }
+
+  .sentinel,
+  .lid {
+    display: none;
+  }
+
+  .stage,
+  .camera,
+  .header {
+    animation: none;
+  }
+
+  .camera,
+  .header {
+    opacity: 1;
+    translate: none;
+    scale: none;
+  }
+
+  .camera {
+    transition: none;
+  }
+}

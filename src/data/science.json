@@ -1,0 +1,28 @@
+{
+  "title": "Anatomía de un monstruo",
+  "hint": "Toca un punto para explorar",
+  "summary": "Un cuásar: en el centro, un agujero negro oscuro rodeado por un disco de gas incandescente que la gravedad curva como un arco sobre y bajo su sombra.",
+  "points": [
+    {
+      "id": "horizon",
+      "order": 1,
+      "kicker": "El límite",
+      "title": "Horizonte de sucesos",
+      "answer": "Es la frontera a partir de la cual nada puede escapar, ni siquiera la luz. No es una superficie sólida: es un punto sin retorno."
+    },
+    {
+      "id": "disk",
+      "order": 2,
+      "kicker": "La luz",
+      "title": "Disco de acreción",
+      "answer": "En un cuásar, el gas que gira hacia el agujero negro se comprime y se calienta hasta brillar con enorme intensidad. El agujero no emite luz; su entorno sí."
+    },
+    {
+      "id": "lens",
+      "order": 3,
+      "kicker": "La ilusión",
+      "title": "Lente gravitacional",
+      "answer": "La gravedad extrema curva el espacio y desvía la luz. Por eso el disco que queda detrás se ve deformado, como un arco sobre y bajo la sombra del agujero."
+    }
+  ]
+}

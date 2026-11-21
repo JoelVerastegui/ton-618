@@ -1,0 +1,139 @@
+@import '@/styles/variables';
+
+// Capa de marcadores: misma caja que el visor, sin recorte (los marcadores del borde
+// no se cortan) y fuera de la cámara.
+.markers {
+  @include sciViewerBox;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+}
+
+// Marcador: botón de 44 px con un punto central y dos anillos que laten desfasados
+// (1 evento cada 1800 ms). Posición en % de la caja, de `$sciPoints`.
+.marker {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity $motionBase;
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 0;
+  }
+}
+
+@each $id, $cfg in $sciPoints {
+  .marker[data-point-id='#{$id}'] {
+    left: nth(map-get($cfg, 'marker'), 1) * 1%;
+    top: nth(map-get($cfg, 'marker'), 2) * 1%;
+  }
+}
+
+.dot,
+.ring,
+.ringLate {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+}
+
+.dot {
+  background-color: $starlight;
+  box-shadow: 0 0 0 2px rgba($spaceVoid, 0.6);
+}
+
+.ring,
+.ringLate {
+  border: 1.5px solid $starlight;
+  opacity: 0;
+}
+
+// Con un punto abierto los marcadores se atenúan (no están en la posición de la cámara).
+:global([data-point]) .marker {
+  opacity: 0;
+}
+
+@keyframes markerPulse {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+
+// Solo laten con la escena lista, sin punto abierto y con la sección en vista.
+:global([data-ready='true']:not([data-point]):not([data-inview='false'])) {
+  .ring,
+  .ringLate {
+    animation: markerPulse $motionPulse ease-out infinite;
+  }
+
+  .ringLate {
+    animation-delay: #{-$motionPulseOffset};
+  }
+}
+
+// Aparición al final de la intro (x = 90 → 110); sin timeline nativo, al estar listos.
+@keyframes markersIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .markers {
+    animation: markersIn 1ms linear both;
+    animation-timeline: --scienceTrack;
+    @include sciRange(90, $scienceReady);
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  :global([data-ready='true']) .markers {
+    opacity: 1;
+  }
+}
+
+:global([data-inview='false']) .markers {
+  animation-play-state: paused;
+}
+
+// Reduced-motion: marcadores visibles desde el inicio y sin pulso; los cambios de
+// opacidad son instantáneos.
+@media (prefers-reduced-motion: reduce) {
+  .markers {
+    animation: none;
+    opacity: 1;
+  }
+
+  .marker {
+    transition: none;
+  }
+
+  :global([data-ready='true']:not([data-point]):not([data-inview='false'])) {
+    .ring,
+    .ringLate {
+      animation: none;
+    }
+  }
+}
