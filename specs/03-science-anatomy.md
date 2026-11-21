@@ -1,6 +1,6 @@
 # SPEC 03 — Ciencia / Anatomía de un monstruo
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** SPEC 02 (y, por ella, SPEC 01)
 **Fecha:** 2026-11-20
 **Objetivo:** Implementar la sección Ciencia como tercera escena de la web: tras la última tarjeta de Exploración, un parpadeo guiado por scroll (los párpados se cierran al final de Exploración y se abren al empezar Ciencia) da paso a una simulación en vídeo de un cuásar, con tres puntos interactivos (horizonte de sucesos, disco de acreción y lente gravitacional) que acercan la cámara a esa parte del mismo vídeo y muestran su tarjeta.
