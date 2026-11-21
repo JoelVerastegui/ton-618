@@ -1,0 +1,39 @@
+{
+  "title": "Una escala inimaginable",
+  "hint": "Desliza para alejarte",
+  "summary": "Zoom-out desde la Tierra hasta TON 618: más de cien Tierras alineadas cruzan el Sol, el Sistema solar cabe en un círculo de unos 9 000 millones de km y el horizonte de TON 618 es más de 40 veces más ancho que la órbita de Neptuno.",
+  "stops": [
+    {
+      "id": "earth",
+      "order": 0,
+      "kicker": "Nuestro hogar",
+      "title": "La Tierra",
+      "size": "12 742 km de diámetro",
+      "answer": "Todo lo que conoces cabe en este punto. Aléjate: la Tierra es solo el primer escalón."
+    },
+    {
+      "id": "sun",
+      "order": 1,
+      "kicker": "Nuestra estrella",
+      "title": "El Sol",
+      "size": "1,39 millones de km de diámetro",
+      "answer": "Unas 109 Tierras alineadas cruzarían el Sol de lado a lado. Y aun así es una estrella corriente."
+    },
+    {
+      "id": "solar-system",
+      "order": 2,
+      "kicker": "Nuestro vecindario",
+      "title": "El Sistema solar",
+      "size": "9 000 millones de km hasta Neptuno y de vuelta",
+      "answer": "Neptuno, el último planeta, orbita a unos 4 500 millones de km del Sol. Todo nuestro vecindario cabe en un círculo de 9 000 millones de km."
+    },
+    {
+      "id": "ton618",
+      "order": 3,
+      "kicker": "El monstruo",
+      "title": "TON 618",
+      "size": "Unos 390 000 millones de km de diámetro",
+      "answer": "El horizonte de sucesos de TON 618 es más de 40 veces más ancho que la órbita de Neptuno. Nuestro Sistema solar entero cabría dentro, con espacio de sobra."
+    }
+  ]
+}

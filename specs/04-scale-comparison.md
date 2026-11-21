@@ -80,6 +80,15 @@ Convenciones:
 - Posición del deslizante: `0…1000`, entero. La parada `i` está en `i / 3 × 1000` (0, 333, 667, 1000). Entre paradas el zoom se interpola de forma **exponencial** (lineal en el logaritmo del zoom), para que el movimiento se sienta uniforme.
 - «Escala lineal real» significa que los tamaños relativos son los reales en cada instante; la interpolación del zoom es lo único logarítmico.
 
+### Datos físicos verificados
+
+- **Magnitud de TON 618:** el círculo representa el **horizonte de sucesos** (no la sombra, que es ≈ 2,6× mayor y sería 2 · 2,598 · R_s = 1,01·10¹² km). Es la definición física del «tamaño» del agujero negro y la coherente con Ciencia («El límite»).
+- **Masa:** 6,6·10¹⁰ M☉ (Shemmer et al. 2004, línea Hβ; coherente con «más de 60 mil millones» del Hero y el rango 40–66 mil millones de Exploración).
+- **Fórmula:** R_s = 2GM/c² = 2,95325 km · (M/M☉) → R_s = 1,949·10¹¹ km; diámetro = **3,898·10¹¹ km** (≈ 2 606 UA ≈ 0,0412 años luz). Cociente con la órbita de Neptuno (8,99·10⁹ km): ≈ 43,4. Con 4·10¹⁰ M☉ (Ge et al. 2019) serían 2,36·10¹¹ km de diámetro (cociente ≈ 26).
+- **Radios orbitales medios (UA):** Mercurio 0,387; Venus 0,723; Tierra 1,000; Marte 1,524; Júpiter 5,205; Saturno 9,582; Urano 19,20; Neptuno 30,05 (NASA/NSSDC Planetary Fact Sheet, semiejes mayores). 1 UA = 149 597 870,7 km (IAU 2012).
+- **Tierra:** 12 742 km (diámetro medio, NASA). **Sol:** 1 392 700 km (la constante nominal IAU 2015 da 1 391 400 km; diferencia 0,1 %, irrelevante en pantalla).
+- **Zoom de las paradas** (`STOP_ZOOM` = píxeles por km relativos a la parada de la Tierra): con V = diámetro del visor, Tierra 0,6·V, Sol 1,0·V, órbita de Neptuno 0,9·V y horizonte de TON 618 0,22·V. **Ambigüedad resuelta:** «el círculo llena el visor» y «el Sistema solar < 6 px» son incompatibles con un círculo = horizonte (Neptuno mide 1/43,4 del horizonte: <6 px en V = 1080 exige horizonte ≤ 0,24·V). Se interpreta que la **imagen** de TON 618 (disco incluido) llena el visor y su zona oscura central es el horizonte a 0,22·V; el Paso 9 calibra el recorte de la imagen para que así sea.
+
 ---
 
 ## Recursos visuales
