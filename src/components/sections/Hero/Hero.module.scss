@@ -47,7 +47,7 @@
 }
 
 .title {
-  animation: fadeUp $motionBase $easeOutExpo 500ms both;
+  animation: fadeUp $motionBase $easeOutExpo both;
   display: flex;
   flex-direction: column;
   align-items: center;

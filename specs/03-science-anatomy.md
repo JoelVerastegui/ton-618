@@ -249,7 +249,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
-- [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0.
+- [x] Lighthouse móvil: Performance ≥ 90, CLS = 0.
 - [x] Durante el scroll de la intro y estable en el hold: 0 Layout y 0 Paint tras calentar; capas compuestas grandes ≤ 8 en el hold (se mide cuántas hay en cada estado, incluido el efecto de `mix-blend-mode`).
 - [x] ≥ 95 % de los frames por debajo de 20 ms durante la intro y el movimiento de cámara (en dispositivo real si el entorno no tiene GPU).
 - [x] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución y el vídeo está en pausa.
@@ -309,6 +309,7 @@ Resueltos tras la verificación (decisión del autor): 2 (título e hint ocultos
 5. **`preload="auto"` descarga 453 KB del vídeo en la carga inicial**, aunque la sección está a ~6 pantallas. No cambia el LCP (con el vídeo bloqueado la puntuación es la misma) pero sube el TBT de 10 a 90–150 ms en Lighthouse móvil. Propuesta: `preload="none"` y que `useVideoPlayback` cargue y reproduzca al entrar en vista con `rootMargin` de una pantalla, o cargarlo con el `React.lazy` del spec de navegación.
 6. El vídeo se reproduce durante el solape (Exploración x 400–500) con el stage de Ciencia `hidden`: el `IntersectionObserver` lo ve aunque no se pinte. Sin coste medible; si molesta, pausar mientras el stage esté oculto.
 7. Lighthouse Performance 0,74–0,76 por el LCP de 4,9 s del `h1` del Hero; no es de esta sección (misma puntuación sin el vídeo). Anotarlo para la verificación global.
+   - Ejecución del autor (2026-11-20, `localhost:5173`, es decir, el servidor de desarrollo de Vite, móvil, CPU ×4): Performance **0,51**, CLS 0, accesibilidad 1, buenas prácticas 0,96, SEO 0,82. FCP 13 s, LCP 25,5 s, TBT 240 ms, 4,7 MiB transferidos. No es representativa: el modo de desarrollo sirve JS sin minificar (ahorro estimado de 2,9 MiB, `react-dom` de desarrollo de 3,1 MB, `@vite/client`, `@react-refresh`) y cada módulo y SCSS por separado. La medición válida es sobre `npm run build` + `npm run preview` en una ventana sin extensiones (0,74–0,76 en el build). Ni así se llega a 90: el cuello de botella es el LCP del Hero, fuera del alcance de esta SPEC; actualización: con `preload='none'` (hallazgo 5) el build ya daba 0,92–0,93 (FCP 1,4–1,5 s, LCP 3,2–3,3 s, TBT 30–80 ms, CLS 0; `vite preview`, Lighthouse 12, móvil, 2 ejecuciones). Se quitó además el retraso de 500 ms de la animación del `h1` del Hero (`Hero.module.scss`, fuera del alcance de esta SPEC, a petición del autor): 0,92 en 3 ejecuciones (LCP 3,2–3,3 s, TBT 0–10 ms, CLS 0), sin cambio apreciable. La precarga del `.woff2` ya existía en `index.html` y Vite la reescribe al archivo con hash en el build. Criterio cumplido.
 
 ### No medido
 
