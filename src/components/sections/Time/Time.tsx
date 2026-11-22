@@ -1,4 +1,5 @@
-import type { CSSProperties } from 'react';
+import { useRef, type CSSProperties } from 'react';
+import { useTrackProgress } from '@/hooks/useTrackProgress';
 import timeJson from '@/data/time.json';
 import type { TimeData } from '@/interfaces/time';
 import blackHole from '@/assets/images/hero/ton618-blackhole-1024.webp';
@@ -21,9 +22,14 @@ const LABELS: { id: TimeLabelId; label: string; when: string; pos: number }[] = 
 ];
 
 export function Time() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  // Sin `animation-timeline` escribe `--progress` en la sección (sin estado de React)
+  useTrackProgress(sectionRef, trackRef);
+
   return (
-    <section id='time' aria-labelledby={TITLE_ID} className={styles.section}>
-      <div className={styles.track}>
+    <section id='time' ref={sectionRef} aria-labelledby={TITLE_ID} className={styles.section}>
+      <div ref={trackRef} className={styles.track}>
         <div className={styles.stage}>
           <p className={styles.summary}>{time.summary}</p>
 

@@ -23,6 +23,8 @@
 // · side-by-side: línea 72vw;
 // · móvil apaisado bajo: todo más compacto.
 .section {
+  // Progreso total del track (0-1); el fallback sin timeline lo reescribe al hacer scroll
+  --progress: 1;
   position: relative;
 
   @media (prefers-reduced-motion: reduce) {
@@ -42,8 +44,6 @@
 }
 
 .stage {
-  // Progreso del viaje (0 = en TON 618, 1 = en la Tierra); escena base = estado final
-  --progress: 1;
   --lineW: 84vw;
   --lineY: 56%;
   --endSize: 3rem;
@@ -214,6 +214,9 @@
   letter-spacing: 0.24em;
   text-align: center;
   text-transform: uppercase;
+  // En la escena base (reduced-motion) no hay viaje que invitar a seguir y ocuparía la banda del
+  // mensaje; con timeline o con el fallback por scroll se anima desde 1
+  opacity: 0;
 
   // Apaisado bajo: a la izquierda, bajo la salida, para no tapar las etiquetas de la derecha
   @media (max-height: $shortHeight) and (orientation: landscape) {
@@ -786,6 +789,85 @@
         animation: labelIn 1ms linear both;
         animation-timeline: --timeTrack;
         animation-range: cover var(--from) cover var(--to);
+      }
+    }
+  }
+}
+
+// --- Sin `animation-timeline` ------------------------------------------------------------
+// `useTrackProgress` escribe `--progress` (0-1 sobre todo el recorrido del sticky) en la sección.
+// Sin intro (no hay fundido con Escala: el cielo ya está presente) el recorrido es viaje + hold.
+// De `--progress` salen `--travel` (viaje 0-1) y `--hold` (pausa 0-1), y con `clamp` las mismas
+// fases que el timeline nativo. Solo `transform`, `scale`, `translate` y `opacity`. Reversible.
+@media (prefers-reduced-motion: no-preference) {
+  @supports not (animation-timeline: view()) {
+    .section {
+      --timeIntro: 0;
+      --progress: 0; // antes de la primera medición
+      --run: calc(var(--progress) * #{$timeTravel + $timeHold});
+      --travel: clamp(0, calc(var(--run) / #{$timeTravel}), 1);
+      --hold: clamp(0, calc((var(--run) - #{$timeTravel}) / #{$timeHold}), 1);
+      // Llegada (0,96 → 1) y mensaje (primera mitad del hold), 0-1
+      --lit: clamp(0, calc((var(--travel) - 0.96) / 0.04), 1);
+      --msg: clamp(0, calc(var(--hold) / 0.5), 1);
+    }
+
+    .fill {
+      scale: var(--travel) 1;
+    }
+
+    .particle {
+      transform: translateX(calc(var(--lineW) * var(--travel)));
+      opacity: calc(1 - var(--lit));
+    }
+
+    .destination {
+      opacity: calc(0.5 + 0.5 * var(--lit));
+      scale: calc(0.92 + 0.08 * var(--lit));
+    }
+
+    .halo {
+      opacity: var(--lit);
+      scale: calc(0.6 + 0.4 * var(--lit));
+    }
+
+    .hint {
+      opacity: calc(1 - clamp(0, calc(var(--travel) / 0.04), 1));
+    }
+
+    .message {
+      opacity: var(--msg);
+      translate: 0 calc(1rem * (1 - var(--msg)));
+    }
+
+    .items,
+    .bar {
+      opacity: calc(1 - 0.4 * var(--msg));
+    }
+
+    @media (max-height: $shortHeight) and (orientation: landscape) {
+      .header {
+        opacity: calc(1 - var(--msg));
+      }
+    }
+
+    // Cada hito aparece al cruzar su ancla `--pos` (mismas anclas que el timeline: -0,03 → +0,02;
+    // la llegada termina en 1)
+    .item:not([data-id='departure']) {
+      --span: 0.05;
+      --appear: clamp(0, calc((var(--travel) - var(--pos) + 0.03) / var(--span)), 1);
+      opacity: var(--appear);
+
+      &[data-id='arrival'] {
+        --span: 0.03;
+      }
+
+      .dot {
+        scale: var(--appear);
+      }
+
+      .label {
+        transform: translateY(calc(var(--drift) * (1 - var(--appear))));
       }
     }
   }
