@@ -464,3 +464,16 @@ $motionContemplative: 2400ms;
       1svh
   );
 }
+
+// Punto del viaje (`$t` 0 → 1, fracción de `$timeTravel`) como posición del timeline `cover` del
+// track de Tiempo: tras el viewport inicial y la intro. `$t` puede ser una expresión CSS (p. ej.
+// `(var(--pos) - 0.03)`): así cada hito se ancla a su `--pos` (`MILESTONE_POS` en `timeScale.ts`)
+// sin duplicar sus valores aquí.
+@function timeTravelAt($t) {
+  @return calc(100svh + var(--timeIntro, #{$timeIntro}) * 1svh + #{$t} * #{$timeTravel} * 1svh);
+}
+
+// Rango de animación dentro del viaje (fracciones 0 → 1 del recorrido de la partícula).
+@function timeRangeOf($from: 0, $to: 1) {
+  @return cover timeTravelAt($from) cover timeTravelAt($to);
+}

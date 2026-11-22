@@ -17,7 +17,7 @@
 }
 
 // Track de scroll con stage sticky (como Escala). En este paso la escena está ya compuesta y
-// estática; el viaje por scroll llega después.
+// estática (estado de reduced-motion y de navegadores sin timeline); el viaje por scroll la anima.
 // Geometría de la línea (variables locales, por viewport):
 // · móvil vertical: línea ~84vw a 56 % del alto, etiquetas de 14 px alternadas arriba y abajo;
 // · side-by-side: línea 72vw;
@@ -42,7 +42,7 @@
 }
 
 .stage {
-  // Progreso del viaje (0 = en TON 618, 1 = en la Tierra); en este paso, el estado final
+  // Progreso del viaje (0 = en TON 618, 1 = en la Tierra); escena base = estado final
   --progress: 1;
   --lineW: 84vw;
   --lineY: 56%;
@@ -254,7 +254,7 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, rgba($solarAmber, 0.6), $amberText);
-  transform: scaleX(var(--progress));
+  scale: var(--progress) 1;
   transform-origin: left;
 }
 
@@ -292,7 +292,7 @@
 .particle {
   position: absolute;
   top: 0;
-  left: calc(var(--progress) * 100%);
+  left: 0;
   z-index: 2;
   width: 2.25rem;
   height: 2.25rem;
@@ -305,6 +305,7 @@
     transparent 70%
   );
   translate: -50% -50%;
+  transform: translateX(calc(var(--lineW) * var(--progress)));
 }
 
 // --- Hitos y etiquetas ---------------------------------------------------------------
@@ -321,6 +322,7 @@
 
 .item {
   --stem: var(--stemNear);
+  --drift: 0.5rem;
   position: absolute;
   top: 0;
   left: calc(var(--pos) * 100%);
@@ -329,6 +331,11 @@
 
   &[data-lane='far'] {
     --stem: var(--stemFar);
+  }
+
+  // La etiqueta llega desde la línea
+  &[data-side='down'] {
+    --drift: -0.5rem;
   }
 
   // Raya hacia la etiqueta
@@ -423,5 +430,118 @@
 
   @media (max-height: $shortHeight) and (orientation: landscape) {
     font-size: 0.75rem;
+  }
+}
+
+// --- Viaje por scroll ----------------------------------------------------------------
+// El timeline cuelga del track (como Ciencia): el viaje ocupa los `$timeTravel` svh que siguen a
+// la intro. Solo `transform`, `scale`, `translate` y `opacity`; todo `both` para que antes y
+// después del rango la escena esté en su estado de partida o de llegada, reversible al subir.
+// Sin `prefers-reduced-motion: no-preference` o sin `animation-timeline` queda la escena base.
+@keyframes particleTravel {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(var(--lineW));
+  }
+}
+
+@keyframes fillGrow {
+  from {
+    scale: 0 1;
+  }
+
+  to {
+    scale: 1 1;
+  }
+}
+
+@keyframes hintOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes itemIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dotIn {
+  from {
+    scale: 0;
+  }
+
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes labelIn {
+  from {
+    transform: translateY(var(--drift));
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .track {
+      view-timeline: --timeTrack block;
+    }
+
+    .particle {
+      animation: particleTravel 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeRangeOf(0, 1)};
+    }
+
+    .fill {
+      animation: fillGrow 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeRangeOf(0, 1)};
+    }
+
+    .hint {
+      animation: hintOut 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeRangeOf(0, 0.04)};
+    }
+
+    // Cada hito (y la llegada) se muestra al cruzar su ancla `--pos`; la salida ya está visible.
+    // El rango sale de `--pos`, así no se duplican las anclas de `timeScale.ts`.
+    .item:not([data-id='departure']) {
+      --from: #{timeTravelAt('(var(--pos) - 0.03)')};
+      --to: #{timeTravelAt('(var(--pos) + 0.02)')};
+      animation: itemIn 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: cover var(--from) cover var(--to);
+
+      .dot {
+        animation: dotIn 1ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        animation-timeline: --timeTrack;
+        animation-range: cover var(--from) cover var(--to);
+      }
+
+      .label {
+        animation: labelIn 1ms linear both;
+        animation-timeline: --timeTrack;
+        animation-range: cover var(--from) cover var(--to);
+      }
+    }
   }
 }
