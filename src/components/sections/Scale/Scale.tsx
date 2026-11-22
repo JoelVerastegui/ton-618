@@ -62,6 +62,7 @@ export function Scale() {
             />
           </div>
         </div>
+        <div className={styles.introSpan} aria-hidden='true' />
       </div>
     </section>
   );

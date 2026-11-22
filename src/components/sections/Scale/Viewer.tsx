@@ -13,6 +13,7 @@ import neptune from '@/assets/images/scale/planets/neptune.webp';
 import sunPoster from '@/assets/videos/scale/sun-poster.webp';
 import sunMp4 from '@/assets/videos/scale/sun.mp4';
 import sunWebm from '@/assets/videos/scale/sun.webm';
+import { Sky } from '@/components/sections/Scale/Sky';
 import { LAYER_K, SYSTEM_PLANETS, type PlanetId } from '@/utils/scaleGeometry';
 import styles from '@/components/sections/Scale/Scale.module.scss';
 
@@ -48,7 +49,15 @@ export const Viewer = memo(function Viewer({ viewerRef }: ViewerProps) {
   useVideoPlayback(sunRef, viewerRef, 'sun');
 
   return (
-    <div ref={viewerRef} className={styles.viewer} style={layerStyle} aria-hidden='true'>
+    <div
+      ref={viewerRef}
+      className={styles.viewer}
+      style={layerStyle}
+      aria-hidden='true'
+      data-intro='true'
+    >
+      <Sky />
+
       <img className={styles.blackHole} src={blackHole} alt='' width={1024} height={1024} />
 
       {/* Fila de planetas a la escala del Sol: x y tamaño en lados de la caja del Sol */}

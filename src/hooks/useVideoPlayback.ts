@@ -9,12 +9,15 @@ const LOAD_MARGIN = '100% 0px';
  * Con `gateRef` y `gateAttr`, además exige que `data-<gateAttr>` de ese elemento valga
  * `'true'` (p. ej. capa visible según el zoom); se observa con `MutationObserver`, sin
  * renders de React.
+ * Con `blockAttr`, además se pausa mientras `data-<blockAttr>` de ese mismo elemento valga
+ * `'true'` (p. ej. el escenario ya está oculto); al dejar de valerlo se reanuda.
  * El `<video>` debe llevar `preload='none'`.
  */
 export function useVideoPlayback(
   ref: RefObject<HTMLVideoElement | null>,
   gateRef?: RefObject<HTMLElement | null>,
-  gateAttr?: string
+  gateAttr?: string,
+  blockAttr?: string
 ) {
   useEffect(() => {
     const video = ref.current;
@@ -23,7 +26,11 @@ export function useVideoPlayback(
 
     const gate = gateRef?.current;
     const gateName = gateAttr ? `data-${gateAttr}` : '';
-    const gateOpen = () => !gate || !gateName || gate.getAttribute(gateName) === 'true';
+    const blockName = blockAttr ? `data-${blockAttr}` : '';
+    const gateOpen = () =>
+      !gate ||
+      ((!gateName || gate.getAttribute(gateName) === 'true') &&
+        (!blockName || gate.getAttribute(blockName) !== 'true'));
 
     let visible = false; // en pantalla
     const sync = () => {
@@ -51,8 +58,9 @@ export function useVideoPlayback(
     if (!reduced) player.observe(video);
 
     const gateObserver = new MutationObserver(sync);
-    if (!reduced && gate && gateName) {
-      gateObserver.observe(gate, { attributes: true, attributeFilter: [gateName] });
+    const watched = [gateName, blockName].filter(Boolean);
+    if (!reduced && gate && watched.length) {
+      gateObserver.observe(gate, { attributes: true, attributeFilter: watched });
     }
 
     return () => {
@@ -60,5 +68,5 @@ export function useVideoPlayback(
       player.disconnect();
       gateObserver.disconnect();
     };
-  }, [ref, gateRef, gateAttr]);
+  }, [ref, gateRef, gateAttr, blockAttr]);
 }

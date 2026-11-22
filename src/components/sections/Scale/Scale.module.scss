@@ -14,8 +14,9 @@
 }
 
 // Track de scroll con stage sticky (como Exploración y Ciencia): mientras dura, el scroll
-// nativo mueve el zoom y el deslizante y los botones solo hacen scroll. Empieza donde termina
-// el track de Ciencia, sobre el mismo fondo negro.
+// nativo mueve el zoom y el deslizante y los botones solo hacen scroll. Empieza `$scienceFade`
+// antes de que Ciencia suelte su stage (Ciencia lleva z-index mayor y queda encima hasta
+// desvanecerse), sobre el mismo fondo negro.
 // Geometría del visor y del panel (variables locales):
 // · móvil vertical: visor arriba, título justo debajo, tarjeta y control abajo; el visor se
 //   encoge en pantallas bajas para dejar sitio al panel (`--panelReserve`);
@@ -34,10 +35,24 @@
       var(--viewportExtra, 0px)
   );
   --panelRight: 1rem;
+  // Scroll de la intro (svh) antes del valor 0; sin movimiento no hay intro
+  --scaleIntro: #{$scaleIntro};
   position: relative;
 
   @supports (height: 100dvh) {
     --viewportExtra: calc((100dvh - 100svh) / 2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    --scaleIntro: 0;
+  }
+
+  // El track solapa el fundido final de Ciencia (`$scienceFade`): su stage se pega mientras el
+  // de Ciencia sigue pegado encima, que se desvanece sobre el cielo de la intro. Sin esto, Ciencia
+  // se soltaría y subiría antes de empezar. Con reduced-motion no hay solape: corte directo.
+  @media (prefers-reduced-motion: no-preference) {
+    margin-top: calc(-100vh - #{$scienceFade}svh);
+    margin-top: calc(-100dvh - #{$scienceFade}svh);
   }
 
   @media (min-width: 360px) {
@@ -66,7 +81,19 @@
   @include scaleTrackHeight;
 }
 
+// Marcador vacío del tramo de la intro: el hook mide su alto (el offset del zoom en el track).
+.introSpan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: calc(var(--scaleIntro) * 1svh);
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .stage {
+  // Progreso de la intro (0 al llegar desde Ciencia, 1 al terminar); lo escribe `useScaleZoom`
+  --intro: 1;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -100,6 +127,13 @@
   --dEarth: calc(var(--zoom) * var(--kEarth));
   --dSun: calc(var(--zoom) * var(--kSun));
   --sTon: calc(var(--zoom) * var(--kTon)); // escala de la imagen completa (1 = llena el visor)
+  // La Tierra emerge desde un punto en la segunda mitad de la intro (ease-out)
+  --earthIn: clamp(0, calc((var(--intro) - 0.45) / 0.55), 1);
+  --earthE: calc(1 - (1 - var(--earthIn)) * (1 - var(--earthIn)));
+
+  @media (prefers-reduced-motion: reduce) {
+    --earthE: 1;
+  }
 }
 
 %layer {
@@ -110,9 +144,19 @@
   height: 100%;
   transform-origin: 50% 50%;
 
-  // Solo mientras el zoom se mueve (el hook marca `data-moving`)
-  .viewer[data-moving='true'] & {
+  // Solo mientras el zoom se mueve (el hook marca `data-moving`); durante la intro, las capas
+  // invisibles (todas menos la Tierra) no se promueven.
+  .viewer[data-moving='true'][data-intro='false'] & {
     will-change: scale, opacity;
+  }
+}
+
+// Durante la intro solo se ven el cielo y la Tierra: el resto no se pinta ni se compone.
+.blackHole,
+.planets,
+.sun {
+  .viewer[data-intro='true'] & {
+    visibility: hidden;
   }
 }
 
@@ -167,8 +211,15 @@
 // Tierra: se funde cuando mide < ~0,04 V (ya detrás del Sol no aporta).
 .earth {
   @extend %layer;
-  scale: max(var(--dEarth), 0.005);
-  opacity: clamp(0, calc((var(--dEarth) - 0.01) / 0.03), 1);
+  scale: max(calc(var(--dEarth) * var(--earthE)), 0.005);
+  opacity: min(
+    clamp(0, calc((var(--dEarth) - 0.01) / 0.03), 1),
+    clamp(0, calc(var(--earthE) * 12), 1)
+  );
+
+  .viewer[data-moving='true'][data-intro='true'] & {
+    will-change: scale, opacity;
+  }
 }
 
 // --- Título y hint --------------------------------------------------------------
@@ -227,6 +278,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  // Entra con la Tierra, en la segunda mitad de la intro
+  opacity: clamp(0, calc((var(--intro) - 0.45) / 0.45), 1);
   justify-content: flex-end;
   width: min(34rem, calc(100% - 2rem));
   margin-inline: auto;

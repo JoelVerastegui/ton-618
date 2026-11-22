@@ -246,6 +246,16 @@ $crossInEnd: 0.6;
 // `$scienceTravel`.
 $scienceTravel: 200;
 $scienceReady: 110;
+// Fundido final (svh reales, no `--explUnit`): al terminar el recorrido, el visor del cuásar se
+// encoge hacia su centro y el escenario se desvanece, pegado en pantalla. Escala solapa su
+// track con este tramo (ver `Scale.module.scss`), así que su intro empieza mientras Ciencia se
+// desvanece. Es scroll extra al final del track de Ciencia, no un hueco: ambos stages están
+// fijos a la vez.
+$scienceFade: 50;
+// `--explUnit` de móvil vertical en svh (para el fallback sin `animation-timeline`)
+$explUnitRatioMobile: math.div($explUnitMobile, 1svh);
+// Escala final del visor (se pierde en el centro)
+$quasarOutScale: 0.02;
 // Escala inicial del vídeo del cuásar: con los párpados abiertos se asienta de ×1,12 a ×1.
 $quasarIntroScale: 1.12;
 // Duración del movimiento de la cámara entre puntos
@@ -316,8 +326,18 @@ $sciCompact: '(max-width: 700px) and (orientation: landscape)';
 
 // Altura del track de Ciencia: `vh` de fallback y `dvh`.
 @mixin scienceTrackHeight {
-  height: calc(100vh + #{$scienceTravel} * var(--explUnit, 1svh));
-  height: calc(100dvh + #{$scienceTravel} * var(--explUnit, 1svh));
+  height: calc(100vh + #{$scienceTravel} * var(--explUnit, 1svh) + #{$scienceFade}svh);
+  height: calc(100dvh + #{$scienceTravel} * var(--explUnit, 1svh) + #{$scienceFade}svh);
+}
+
+// Punto del fundido final (`$t` 0 → 1) como posición del timeline `cover`.
+@function sciFadeAt($t) {
+  @return calc(100svh + #{$scienceTravel} * var(--explUnit, 1svh) + #{$t * $scienceFade}svh);
+}
+
+// Rango de animación dentro del fundido final (fracciones 0 → 1 de `$scienceFade`).
+@function sciFadeRangeOf($from: 0, $to: 1) {
+  @return cover sciFadeAt($from) cover sciFadeAt($to);
 }
 
 // Rango de animación entre dos puntos de recorrido (svh desde el sticky), igual
@@ -403,10 +423,13 @@ $scaleBg: $scienceBg;
 // Recorrido del sticky en svh (el track mide 100svh de viewport + recorrido): el scroll de
 // ese tramo mueve el zoom de 0 a 1000. ≈ 1 200 px por tramo entre paradas a 900 px de alto.
 $scaleTravel: 400;
+// Introducción al inicio del track (svh de scroll antes del valor 0 del zoom): el cielo se abre
+// desde el negro de Ciencia y la Tierra emerge. Con `prefers-reduced-motion` vale 0 (`--scaleIntro`).
+$scaleIntro: 120;
 // Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
 @mixin scaleTrackHeight {
-  height: calc(100vh + #{$scaleTravel} * 1svh);
-  height: calc(100dvh + #{$scaleTravel} * 1svh);
+  height: calc(100vh + (#{$scaleTravel} + var(--scaleIntro, #{$scaleIntro})) * 1svh);
+  height: calc(100dvh + (#{$scaleTravel} + var(--scaleIntro, #{$scaleIntro})) * 1svh);
 }
 // El visor reutiliza `$mapSizeDesktop` de Exploración en side-by-side.
 $scaleViewSizeDesktop: $mapSizeDesktop;

@@ -21,7 +21,10 @@
 // primer fotograma de la intro coincida con el final del nivel 4.
 .section {
   --explUnit: #{$explUnitMobile};
+  --explRatio: #{$explUnitRatioMobile};
   position: relative;
+  // Por encima de Escala, que solapa su inicio con el fundido final (ver «Fundido final»)
+  z-index: 1;
   // Solapa a Exploración (ver «Intro con el scroll»): no intercepta clics; solo el stage.
   pointer-events: none;
   --viewportExtra: 0px;
@@ -32,6 +35,7 @@
 
   @media #{$sideBySide} {
     --explUnit: 1svh;
+    --explRatio: 1;
     --viewportExtra: 0px;
   }
 }
@@ -253,6 +257,33 @@
   }
 }
 
+// --- Fundido final ---------------------------------------------------------------
+// Tras el recorrido (x = 200) el stage sigue pegado `$scienceFade` svh más: el visor se encoge
+// hacia su centro y el escenario se desvanece (`opacity`) dejando ver el cielo de Escala, que
+// ya está pegado debajo (su track solapa este tramo). Al terminar el stage queda oculto, así
+// que al soltarse y subir no se ve nada de Ciencia moverse. Solo `scale` y `opacity`.
+@keyframes stageFade {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes viewerOut {
+  from {
+    scale: 1;
+  }
+
+  to {
+    scale: $quasarOutScale;
+  }
+}
+
 // Título y hint entran al final de la intro (x = 70 → 110).
 @keyframes headerIn {
   from {
@@ -287,6 +318,7 @@
   }
 
   .stage,
+  .viewer,
   .camera,
   .header,
   .lid {
@@ -296,10 +328,21 @@
     animation-timeline: --scienceTrack;
   }
 
-  // Oculto (sin foco ni clics) hasta que se pega; así no tapa a Exploración debajo.
+  // Oculto (sin foco ni clics) hasta que se pega; así no tapa a Exploración debajo. Al final,
+  // fundido a oculto (`forwards`: antes de su rango no actúa).
   .stage {
-    animation-name: stageShow;
-    @include sciRange(-1, 0);
+    animation-name: stageShow, stageFade;
+    animation-range:
+      #{exploRangeOf(-1, 0)},
+      #{sciFadeRangeOf()};
+    animation-fill-mode: both, forwards;
+  }
+
+  .viewer {
+    animation-name: viewerOut;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+    animation-range: sciFadeRangeOf();
   }
 
   .camera {
@@ -331,8 +374,22 @@
 // de él con `clamp` (sin solape con Exploración ni curva de aceleración).
 @supports not (animation-timeline: view()) {
   .section {
-    --x: calc(var(--progress, 0) * #{$scienceTravel});
+    // El recorrido incluye el fundido final (svh reales; `--explRatio` = `--explUnit` en svh)
+    --x: calc(var(--progress, 0) * (#{$scienceTravel} + #{$scienceFade} / var(--explRatio)));
     --open: #{explProgress(0, 55)};
+    // Fundido final 0 → 1 y su versión suavizada (ease-in-out)
+    --fade: clamp(0, calc((var(--x) - #{$scienceTravel}) * var(--explRatio) / #{$scienceFade}), 1);
+    --fadeE: calc(var(--fade) * var(--fade) * (3 - 2 * var(--fade)));
+  }
+
+  .stage {
+    opacity: calc(1 - var(--fade));
+    // Terminado el fundido, el stage no ocupa área: no intercepta clics sobre Escala
+    scale: calc(1 - clamp(0, calc((var(--fade) - 0.99) * 100), 1));
+  }
+
+  .viewer {
+    scale: calc(1 - (1 - #{$quasarOutScale}) * var(--fadeE));
   }
 
   .camera {
@@ -364,14 +421,29 @@
   }
 }
 
-// Línea de la parada «lista» (`$scienceReady`) hasta el final del track: `useSceneReady`
-// la observa para marcar `data-ready` y cerrar el punto activo al volver atrás.
+// Línea de la parada «lista» (`$scienceReady`) hasta el inicio del fundido final: `useSceneReady`
+// la observa para marcar `data-ready` y cerrar el punto activo al volver atrás; al empezar el
+// fundido deja de estar lista (marcadores inertes y sin pulso) y al volver atrás se restablece.
 .sentinel {
   position: absolute;
   top: explLen($scienceReady);
   right: 0;
-  bottom: 0;
+  bottom: calc(100vh + #{$scienceFade}svh);
+  bottom: calc(100dvh + #{$scienceFade}svh);
   left: 0;
+  pointer-events: none;
+}
+
+// Desde el final del track (el fundido terminó y el stage está oculto) hacia abajo: mientras
+// intersecta, `useSectionFaded` marca `data-faded` y el vídeo del cuásar se pausa. Mide un
+// viewport para seguir intersectando hasta que el stage sale de pantalla.
+.fadedSentinel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: 100vh;
+  height: 100dvh;
   pointer-events: none;
 }
 
@@ -396,14 +468,22 @@
   }
 
   .sentinel,
+  .fadedSentinel,
   .lid {
     display: none;
   }
 
   .stage,
+  .viewer,
   .camera,
   .header {
     animation: none;
+  }
+
+  .stage,
+  .viewer {
+    opacity: 1;
+    scale: none;
   }
 
   .camera,
