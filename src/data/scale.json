@@ -1,10 +1,11 @@
 {
   "title": "Una escala inimaginable",
   "hint": "Desliza para alejarte",
-  "summary": "Zoom-out desde la Tierra hasta TON 618: más de cien Tierras alineadas cruzan el Sol, el Sistema solar cabe en un círculo de unos 9 000 millones de km y el horizonte de TON 618 es más de 40 veces más ancho que la órbita de Neptuno.",
+  "summary": "Zoom-out desde la Tierra hasta TON 618: más de cien Tierras alineadas cruzan el Sol, los ocho planetas puestos en fila no cubren ni un tercio de su ancho y el horizonte de TON 618 es unas 280 000 veces más ancho que el Sol.",
   "stops": [
     {
       "id": "earth",
+      "label": "Tierra",
       "kicker": "Nuestro hogar",
       "title": "La Tierra",
       "size": "12 742 km de diámetro",
@@ -12,6 +13,7 @@
     },
     {
       "id": "sun",
+      "label": "Sol",
       "kicker": "Nuestra estrella",
       "title": "El Sol",
       "size": "1,39 millones de km de diámetro",
@@ -19,17 +21,19 @@
     },
     {
       "id": "solar-system",
+      "label": "Sistema solar",
       "kicker": "Nuestro vecindario",
       "title": "El Sistema solar",
-      "size": "9 000 millones de km hasta Neptuno y de vuelta",
-      "answer": "Neptuno, el último planeta, orbita a unos 4 500 millones de km del Sol. Todo nuestro vecindario cabe en un círculo de 9 000 millones de km."
+      "size": "Planetas de 4 879 a 139 820 km de diámetro",
+      "answer": "Júpiter, el mayor planeta, es diez veces más pequeño que el Sol. Puestos en fila, los ocho planetas no cubrirían ni un tercio de su ancho."
     },
     {
       "id": "ton618",
+      "label": "TON 618",
       "kicker": "El monstruo",
       "title": "TON 618",
       "size": "Unos 390 000 millones de km de diámetro",
-      "answer": "El horizonte de sucesos de TON 618 es más de 40 veces más ancho que la órbita de Neptuno. Nuestro Sistema solar entero cabría dentro, con espacio de sobra."
+      "answer": "El horizonte de sucesos de TON 618 es unas 280 000 veces más ancho que el Sol. A lo ancho, nuestro Sistema solar cabría dentro más de 40 veces."
     }
   ]
 }

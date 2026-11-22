@@ -82,7 +82,7 @@ export function ScaleSlider({ stops, activeStop, inputRef, onValue, onStop }: Sc
             aria-current={stop.id === activeStop ? 'step' : undefined}
             onClick={() => onStop(stopValue(stop.id))}
           >
-            {stop.title}
+            {stop.label}
           </button>
         ))}
       </div>

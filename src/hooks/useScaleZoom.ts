@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import type { ScaleStopId } from '@/interfaces/scale';
 import {
+  SLIDER_MAX,
   STOP_ANIMATION_MS,
   STOP_ORDER,
   stopIndexAt,
@@ -14,91 +15,163 @@ const IDLE_MS = 160;
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
 /**
- * Convierte la posición del deslizante (0…1000) en la variable CSS `--zoom` del visor.
- * El valor continuo no es estado de React: se escribe por `ref` con `requestAnimationFrame`.
- * Solo la parada activa es estado, así que hay un render únicamente al cruzar el umbral.
- * Con `inputRef` escribe también el `value` del deslizante (no controlado).
- * Mientras se mueve, el visor lleva `data-moving='true'` (el CSS usa `will-change` solo entonces).
+ * Convierte el scroll del track de la sección (0 al pegarse el stage, 1 al soltarse) en el zoom
+ * 0…1000 y lo vuelca en la variable CSS `--zoom` del visor. La fuente de verdad es el scroll: el
+ * deslizante y los botones solo hacen scroll (`scrollToValue`, `animateTo`).
+ * El valor continuo no es estado de React: se escribe por `ref` con `requestAnimationFrame`, y
+ * con `inputRef` también el `value` del deslizante (no controlado). Solo la parada activa es
+ * estado, así que hay un render únicamente al cruzar el umbral entre paradas.
+ * El `scroll` solo se escucha mientras el track está en vista; su recorrido se mide en `resize`
+ * y al cambiar la visibilidad. Mientras se mueve, el visor lleva `data-moving='true'` (el CSS
+ * usa `will-change` solo entonces). El primer hijo del track es el stage sticky.
  */
 export function useScaleZoom(
-  targetRef: RefObject<HTMLElement | null>,
-  inputRef?: RefObject<HTMLInputElement | null>
+  trackRef: RefObject<HTMLElement | null>,
+  viewerRef: RefObject<HTMLElement | null>,
+  inputRef: RefObject<HTMLInputElement | null>
 ) {
   const [activeStop, setActiveStop] = useState<ScaleStopId>(STOP_ORDER[0]);
 
-  const valueRef = useRef(0);
-  const frameRef = useRef(0); // rAF de escritura
-  const animationRef = useRef(0); // rAF de la animación entre paradas
-  const idleRef = useRef(0);
+  const travelRef = useRef(1); // recorrido del sticky en px
+  const animationRef = useRef<(() => void) | null>(null); // cancela la animación en curso
 
-  const write = useCallback(() => {
-    frameRef.current = 0;
-    const el = targetRef.current;
-    if (!el) return;
-    const zoom = zoomAt(valueRef.current);
-    el.style.setProperty('--zoom', String(zoom));
-    // Capa del Sol visible o no (su vídeo solo se reproduce si lo es); sin estado de React
-    el.dataset.sun = String(sunVisible(zoom));
-    el.dataset.moving = 'true';
-    window.clearTimeout(idleRef.current);
-    idleRef.current = window.setTimeout(() => {
-      el.dataset.moving = 'false';
-    }, IDLE_MS);
-  }, [targetRef]);
-
-  const apply = useCallback(
+  // Posición de scroll (px de documento) de un valor del zoom.
+  const scrollTop = useCallback(
     (value: number) => {
-      valueRef.current = value;
-      // Deslizante no controlado: se sincroniza por ref (animaciones de los botones)
-      if (inputRef?.current) inputRef.current.value = String(Math.round(value));
-      setActiveStop(STOP_ORDER[stopIndexAt(value)]); // mismo valor: React no renderiza
-      if (!frameRef.current) frameRef.current = requestAnimationFrame(write);
+      const track = trackRef.current;
+      if (!track) return window.scrollY;
+      const top = track.getBoundingClientRect().top + window.scrollY;
+      return Math.round(top + (value / SLIDER_MAX) * travelRef.current);
     },
-    [write, inputRef]
+    [trackRef]
   );
 
-  const cancelAnimation = useCallback(() => {
-    cancelAnimationFrame(animationRef.current);
-    animationRef.current = 0;
-  }, []);
+  const cancelAnimation = useCallback(() => animationRef.current?.(), []);
 
-  // Salto a una posición; cancela cualquier animación en curso.
-  const setValue = useCallback(
+  // Salto instantáneo; cancela cualquier animación en curso.
+  const scrollToValue = useCallback(
     (value: number) => {
       cancelAnimation();
-      apply(value);
+      window.scrollTo({ top: scrollTop(value), behavior: 'instant' });
     },
-    [apply, cancelAnimation]
+    [cancelAnimation, scrollTop]
   );
 
-  // Animación ease-in-out hasta una posición (instantánea con reduced-motion).
+  // Scroll animado ease-in-out hasta un valor (instantáneo con reduced-motion). La persona lo
+  // cancela al tomar el control (rueda, táctil o teclado).
   const animateTo = useCallback(
-    (target: number) => {
+    (value: number) => {
       cancelAnimation();
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        apply(target);
+      const from = window.scrollY;
+      const to = scrollTop(value);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || from === to) {
+        window.scrollTo({ top: to, behavior: 'instant' });
         return;
       }
-      const from = valueRef.current;
+
       const start = performance.now();
+      let frame = 0;
+      const stop = () => {
+        cancelAnimationFrame(frame);
+        window.removeEventListener('wheel', stop);
+        window.removeEventListener('touchstart', stop);
+        window.removeEventListener('keydown', stop);
+        if (animationRef.current === stop) animationRef.current = null;
+      };
       const step = (now: number) => {
         const t = Math.min(1, (now - start) / STOP_ANIMATION_MS);
-        apply(from + (target - from) * easeInOut(t));
-        animationRef.current = t < 1 ? requestAnimationFrame(step) : 0;
+        window.scrollTo({ top: from + (to - from) * easeInOut(t), behavior: 'instant' });
+        if (t < 1) frame = requestAnimationFrame(step);
+        else stop();
       };
-      animationRef.current = requestAnimationFrame(step);
+
+      window.addEventListener('wheel', stop, { passive: true });
+      window.addEventListener('touchstart', stop, { passive: true });
+      window.addEventListener('keydown', stop);
+      animationRef.current = stop;
+      frame = requestAnimationFrame(step);
     },
-    [apply, cancelAnimation]
+    [cancelAnimation, scrollTop]
   );
 
   useEffect(() => {
-    write(); // valor inicial
-    return () => {
-      cancelAnimation();
-      cancelAnimationFrame(frameRef.current);
-      window.clearTimeout(idleRef.current);
-    };
-  }, [write, cancelAnimation]);
+    const track = trackRef.current;
+    const stage = track?.firstElementChild as HTMLElement | null | undefined;
+    if (!track || !stage) return;
 
-  return { setValue, animateTo, activeStop };
+    let frame = 0;
+    let idle = 0;
+    let listening = false;
+    let last = NaN; // último valor escrito
+
+    const measure = () => {
+      travelRef.current = Math.max(1, track.offsetHeight - stage.offsetHeight);
+    };
+
+    const render = () => {
+      frame = 0;
+      const progress = -track.getBoundingClientRect().top / travelRef.current;
+      const value = Math.min(1, Math.max(0, progress)) * SLIDER_MAX;
+      if (value === last) return;
+      last = value;
+
+      setActiveStop(STOP_ORDER[stopIndexAt(value)]); // mismo valor: React no renderiza
+      const input = inputRef.current;
+      // Tolera < 1 de diferencia: al arrastrar, el scroll redondea y no debe mover el pulgar
+      if (input && Math.abs(Number(input.value) - value) >= 1) {
+        input.value = String(Math.round(value));
+      }
+
+      const viewer = viewerRef.current;
+      if (!viewer) return;
+      const zoom = zoomAt(value);
+      viewer.style.setProperty('--zoom', String(zoom));
+      // Capa del Sol visible o no (su vídeo solo se reproduce si lo es); sin estado de React
+      viewer.dataset.sun = String(sunVisible(zoom));
+      viewer.dataset.moving = 'true';
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => {
+        viewer.dataset.moving = 'false';
+      }, IDLE_MS);
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(render);
+    };
+
+    const onResize = () => {
+      measure();
+      last = NaN;
+      schedule();
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries[entries.length - 1].isIntersecting;
+      measure();
+      schedule(); // también al salir: deja el valor final exacto (0 o 1000)
+      if (visible && !listening) {
+        window.addEventListener('scroll', schedule, { passive: true });
+        listening = true;
+      } else if (!visible && listening) {
+        window.removeEventListener('scroll', schedule);
+        listening = false;
+      }
+    });
+
+    measure();
+    render(); // valor inicial (la página puede cargarse ya desplazada)
+    window.addEventListener('resize', onResize, { passive: true });
+    observer.observe(track);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(frame);
+      window.clearTimeout(idle);
+      cancelAnimation();
+    };
+  }, [trackRef, viewerRef, inputRef, cancelAnimation]);
+
+  return { scrollToValue, animateTo, activeStop };
 }

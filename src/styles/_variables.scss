@@ -400,8 +400,13 @@ $explNavStops: (0, 110, 240, 375, $explorationTravel);
 // ---------------------------------------------------------------------------
 // Mismo fondo negro que Ciencia: la unión entre secciones no tiene costura.
 $scaleBg: $scienceBg;
-// Duración de la animación de los botones de parada
-$scaleStopMs: 1200ms;
-// El visor reutiliza `$mapSizeDesktop` y `$mapSizeMobile` de Exploración.
+// Recorrido del sticky en svh (el track mide 100svh de viewport + recorrido): el scroll de
+// ese tramo mueve el zoom de 0 a 1000. ≈ 1 200 px por tramo entre paradas a 900 px de alto.
+$scaleTravel: 400;
+// Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
+@mixin scaleTrackHeight {
+  height: calc(100vh + #{$scaleTravel} * 1svh);
+  height: calc(100dvh + #{$scaleTravel} * 1svh);
+}
+// El visor reutiliza `$mapSizeDesktop` de Exploración en side-by-side.
 $scaleViewSizeDesktop: $mapSizeDesktop;
-$scaleViewSizeMobile: $mapSizeMobile;
