@@ -433,3 +433,34 @@ $scaleIntro: 120;
 }
 // El visor reutiliza `$mapSizeDesktop` de Exploración en side-by-side.
 $scaleViewSizeDesktop: $mapSizeDesktop;
+
+// Fundido final de Escala (svh de scroll tras su último estado, SPEC 05): el visor de TON 618 se
+// encoge hacia su centro y el escenario se desvanece, pegado en pantalla, mientras entra el cielo
+// de Tiempo. Es scroll extra al final del track de Escala (ver `Time.module.scss`).
+$scaleFade: 50;
+
+// ---------------------------------------------------------------------------
+// Sección Tiempo (SPEC 05)
+// ---------------------------------------------------------------------------
+// Fondo: azul cósmico muy oscuro bajo la nebulosa del Hero y las estrellas (no es negro).
+$timeBg: #0a1226;
+// Tramos del track en svh de scroll (valores iniciales; se calibran en el Paso 9):
+// intro (cielo, título, línea; solapa con el fundido de Escala), viaje de la partícula y pausa
+// con el mensaje visible. Con `prefers-reduced-motion` la intro y la pausa valen 0 (`--timeIntro`,
+// `--timeHold`) y el track no es sticky.
+$timeIntro: 100;
+$timeTravel: 450;
+$timeHold: 80;
+// Transiciones lentas y contemplativas (más que `$motionSlow`).
+$motionContemplative: 2400ms;
+// Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
+@mixin timeTrackHeight {
+  height: calc(
+    100vh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+      1svh
+  );
+  height: calc(
+    100dvh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+      1svh
+  );
+}
