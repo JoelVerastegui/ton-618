@@ -18,7 +18,7 @@ export const MILESTONE_AGO_MA: Record<TimeMilestoneId, number> = {
 // mano, monótonas en el orden cronológico (compresión suave, SPEC 05). Valores provisionales,
 // se fijan en el Paso 9.
 export const MILESTONE_POS: Record<TimeMilestoneId, number> = {
-  sun: 0.3,
+  sun: 0.22,
   earth: 0.4,
   life: 0.55,
   dinosaurs: 0.78,
@@ -31,6 +31,20 @@ export const MIN_GAP = 0.08;
 
 // Orden cronológico de los hitos (de más antiguo a más reciente).
 export const MILESTONE_ORDER: TimeMilestoneId[] = ['sun', 'earth', 'life', 'dinosaurs', 'humans'];
+
+// Carril de cada etiqueta (presentación): lado de la línea y altura (`near` pegada a la línea,
+// `far` más lejos). Los extremos y los hitos vecinos se reparten para que no se solapen.
+export type TimeLabelId = TimeMilestoneId | 'departure' | 'arrival';
+
+export const LABEL_LANE: Record<TimeLabelId, { side: 'up' | 'down'; lane: 'near' | 'far' }> = {
+  departure: { side: 'down', lane: 'far' },
+  sun: { side: 'up', lane: 'near' },
+  earth: { side: 'down', lane: 'near' },
+  life: { side: 'up', lane: 'far' },
+  dinosaurs: { side: 'down', lane: 'far' },
+  humans: { side: 'up', lane: 'near' },
+  arrival: { side: 'up', lane: 'far' },
+};
 
 // Verdadero si las posiciones están en orden y separadas al menos `MIN_GAP`.
 export function hasMinGap(pos: Record<TimeMilestoneId, number> = MILESTONE_POS): boolean {
