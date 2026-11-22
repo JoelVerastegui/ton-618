@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
 import { useTrackProgress } from '@/hooks/useTrackProgress';
 import { useSceneReady } from '@/hooks/useSceneReady';
+import { useSectionFaded } from '@/hooks/useSectionFaded';
 import scienceJson from '@/data/science.json';
 import type { ScienceData, SciencePointId } from '@/interfaces/science';
 import { PointCard } from '@/components/sections/Science/PointCard';
@@ -32,6 +33,9 @@ export function Science() {
   const [point, setPoint] = useState<SciencePointId | null>(null);
   useInView(sectionRef);
   useTrackProgress(sectionRef, trackRef);
+
+  const fadedRef = useRef<HTMLSpanElement>(null);
+  useSectionFaded(sectionRef, fadedRef);
 
   const closeSilently = useCallback(() => setPoint(null), []);
   const ready = useSceneReady(sentinelRef, closeSilently);
@@ -98,7 +102,7 @@ export function Science() {
           {/* Equivalente textual de la ilustración (el visor es aria-hidden) */}
           <p className={styles.summary}>{science.summary}</p>
 
-          <Viewer />
+          <Viewer sectionRef={sectionRef} />
 
           <PointMarkers points={points} inert={!ready || point !== null} onSelect={open} />
 
@@ -116,6 +120,9 @@ export function Science() {
 
         {/* Desde la parada «lista» hasta el final del track (ver `useSceneReady`) */}
         <span ref={sentinelRef} className={styles.sentinel} aria-hidden='true' />
+
+        {/* Desde el final del track hacia abajo: el fundido terminó (ver `useSectionFaded`) */}
+        <span ref={fadedRef} className={styles.fadedSentinel} aria-hidden='true' />
       </div>
     </section>
   );

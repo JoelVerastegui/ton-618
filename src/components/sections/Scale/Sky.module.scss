@@ -1,0 +1,104 @@
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Cielo de la intro (`--intro`: 0 al llegar desde Ciencia, 1 con la Tierra en su parada).
+// Solo `scale` y `opacity`; al terminar la intro las estrellas quedan fijas como fondo y la
+// nebulosa ya se ha desvanecido (y no se pinta).
+.sky {
+  position: absolute;
+  inset: 0;
+}
+
+// Velo radial fijo: la nebulosa se desvanece hacia el borde del visor (sin un disco con canto).
+.nebulaMask {
+  position: absolute;
+  inset: 0;
+  mask-image: radial-gradient(closest-side, #000 45%, transparent);
+}
+
+// Nebulosa del Hero (versión vertical en móvil, horizontal desde md). Pasa por detrás: sube
+// hasta ~0,9 hacia el 30 % de la intro, se desvanece hacia el 95 % y crece despacio todo el rato.
+.nebula {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  background: url('../../../assets/images/hero/nebula-mobile.webp') center / cover no-repeat;
+  scale: calc(0.9 + 0.8 * var(--intro));
+  opacity: calc(
+    min(clamp(0, calc(var(--intro) / 0.3), 1), clamp(0, calc((0.95 - var(--intro)) / 0.6), 1)) * 0.9
+  );
+
+  @include media-breakpoint-up(md) {
+    background-image: url('../../../assets/images/hero/nebula.webp');
+  }
+
+  [data-intro='true'] & {
+    visibility: visible;
+  }
+
+  [data-moving='true'][data-intro='true'] & {
+    will-change: scale, opacity;
+  }
+}
+
+// Estrellas: cada capa parte de `--s0` (concentrada hacia el centro) y se abre hasta ×1 con
+// ease-out; `--alpha` es su brillo final.
+.stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  --t: clamp(0, calc(var(--intro) / 0.8), 1);
+  scale: calc(var(--s0) + (1 - var(--s0)) * (1 - (1 - var(--t)) * (1 - var(--t))));
+  opacity: calc(var(--alpha) * clamp(0, calc(var(--intro) * 5), 1));
+
+  path {
+    fill: none;
+    stroke: var(--tint);
+    stroke-width: var(--stroke);
+    stroke-linecap: round;
+  }
+
+  // Solo mientras se mueve la intro
+  [data-moving='true'][data-intro='true'] & {
+    will-change: scale, opacity;
+  }
+}
+
+.far {
+  --s0: 0.78;
+  --alpha: 0.5;
+  --stroke: 2.6;
+  --tint: #bcd0ff;
+}
+
+.mid {
+  --s0: 0.42;
+  --alpha: 0.75;
+  --stroke: 3.4;
+  --tint: #{$starlight};
+}
+
+.near {
+  --s0: 0.08;
+  --alpha: 0.95;
+  --stroke: 5;
+  --tint: #fff;
+}
+
+// Cielo estático: estrellas ya asentadas y nebulosa tenue, sin movimiento.
+@media (prefers-reduced-motion: reduce) {
+  .nebula {
+    visibility: visible;
+    scale: 1;
+    opacity: 0.16;
+  }
+
+  .stars {
+    scale: 1;
+    opacity: calc(var(--alpha) * 0.7);
+  }
+}

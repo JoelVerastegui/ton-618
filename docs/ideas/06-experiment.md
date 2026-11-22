@@ -1,6 +1,6 @@
-## **5. Dentro de su gravedad — El espacio deformado**
+## **6. Dentro de su gravedad — El espacio deformado**
 
-05 — EXPERIMENTO
+06 — EXPERIMENTO
 
 [Vizualizace černých děr](https://images.openai.com/static-rsc-4/0LkWZShdqGMC6xL_iVJeFW3G0Utmbrzt31A4Io7OI9qtDthmQpXY9zDEbaup_7zOM1uH3QgHFORSH6z5D69JeFxNmDX9XvpfkqF-UrkIyKGubmjo0Fg3aUIAbzoqSIoAmAWIOmRVnzQBxQz0ONWh9Wd6JBRNV5eB8aNpN8KCj2U?purpose=inline)
 

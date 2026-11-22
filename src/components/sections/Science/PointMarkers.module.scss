@@ -100,17 +100,46 @@
   }
 }
 
+// Salida al empezar el fundido final (primer 40 %): los puntos no se encogen con el visor, así
+// que desaparecen antes de que este se aparte de ellos. Al terminar quedan `visibility: hidden`
+// para que la capa deje de componerse mientras Escala corre debajo.
+@keyframes markersOut {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
 @supports (animation-timeline: view()) {
   .markers {
-    animation: markersIn 1ms linear both;
+    animation:
+      markersIn 1ms linear both,
+      markersOut 1ms linear forwards;
     animation-timeline: --scienceTrack;
-    @include sciRange(90, $scienceReady);
+    animation-range:
+      #{exploRangeOf(90, $scienceReady)},
+      #{sciFadeRangeOf(0, 0.4)};
   }
 }
 
 @supports not (animation-timeline: view()) {
   :global([data-ready='true']) .markers {
     opacity: 1;
+    visibility: visible;
+  }
+
+  // Al empezar el fundido final la escena deja de estar lista y desaparecen (y dejan de
+  // componerse al terminar la transición de `visibility`)
+  .markers {
+    visibility: hidden;
+    transition:
+      opacity $motionBase,
+      visibility $motionBase;
   }
 }
 
@@ -124,6 +153,8 @@
   .markers {
     animation: none;
     opacity: 1;
+    visibility: visible;
+    transition: none;
   }
 
   .marker {

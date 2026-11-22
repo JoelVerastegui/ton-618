@@ -1,0 +1,131 @@
+@import '@/styles/variables';
+
+$thumb: 1.25rem;
+$trackHeight: 4px;
+
+// Deslizante y botones de parada. Áreas táctiles ≥ 44 px.
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 0.5rem 0.375rem;
+  pointer-events: auto;
+  background-color: rgba($cosmicBlue, 0.82);
+  border: 1px solid rgba($starlight, 0.14);
+  border-radius: 0.75rem;
+}
+
+@mixin track {
+  height: $trackHeight;
+  background: rgba($starlight, 0.35);
+  border: 0;
+  border-radius: 999px;
+}
+
+@mixin thumb {
+  width: $thumb;
+  height: $thumb;
+  background: $starlight;
+  border: 2px solid $solarAmber;
+  border-radius: 50%;
+}
+
+.slider {
+  width: 100%;
+  height: 44px; // área táctil
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
+  appearance: none;
+  touch-action: pan-y;
+
+  &::-webkit-slider-runnable-track {
+    @include track;
+  }
+
+  &::-moz-range-track {
+    @include track;
+  }
+
+  &::-webkit-slider-thumb {
+    @include thumb;
+    margin-top: calc((#{$trackHeight} - #{$thumb}) / 2);
+    appearance: none;
+  }
+
+  &::-moz-range-thumb {
+    @include thumb;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 2px;
+  }
+}
+
+.stops {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+}
+
+.stop {
+  min-height: 44px;
+  padding: 0.25rem;
+  color: rgba($starlight, 0.82);
+  font-size: 0.75rem;
+  line-height: 1.15;
+  text-wrap: balance;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid rgba($starlight, 0.3);
+  border-radius: 0.5rem;
+  transition:
+    background-color $motionFast,
+    border-color $motionFast;
+
+  &:hover {
+    border-color: $solarAmber;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 2px;
+  }
+}
+
+.active {
+  color: $starlight;
+  background-color: rgba($solarAmber, 0.28);
+  border-color: $solarAmber;
+}
+
+@media #{$sideBySide} {
+  .control {
+    margin-top: auto; // pegado al fondo del panel (alto fijo)
+    padding: 0.5rem 1rem 0.75rem;
+  }
+
+  .stop {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stop {
+    transition: none;
+  }
+}
+
+// Móvil apaisado: control compacto (sin perder los 44 px de área táctil ni bajar de 14 px).
+@media (max-height: $shortHeight) and (orientation: landscape) {
+  .control {
+    gap: 0;
+    padding: 0 0.5rem 0.25rem;
+  }
+
+  .stop {
+    padding: 0.125rem;
+    font-size: 0.875rem;
+  }
+}

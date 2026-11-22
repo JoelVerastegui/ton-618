@@ -1,0 +1,39 @@
+{
+  "title": "Una escala inimaginable",
+  "hint": "Desliza para alejarte",
+  "summary": "Zoom-out desde la Tierra hasta TON 618: más de cien Tierras alineadas cruzan el Sol, los ocho planetas puestos en fila no cubren ni un tercio de su ancho y el horizonte de TON 618 es unas 280 000 veces más ancho que el Sol.",
+  "stops": [
+    {
+      "id": "earth",
+      "label": "Tierra",
+      "kicker": "Nuestro hogar",
+      "title": "La Tierra",
+      "size": "12 742 km de diámetro",
+      "answer": "Todo lo que conoces cabe en este punto. Aléjate: la Tierra es solo el primer escalón."
+    },
+    {
+      "id": "sun",
+      "label": "Sol",
+      "kicker": "Nuestra estrella",
+      "title": "El Sol",
+      "size": "1,39 millones de km de diámetro",
+      "answer": "Unas 109 Tierras alineadas cruzarían el Sol de lado a lado. Y aun así es una estrella corriente."
+    },
+    {
+      "id": "solar-system",
+      "label": "Sistema solar",
+      "kicker": "Nuestro vecindario",
+      "title": "El Sistema solar",
+      "size": "Planetas de 4 879 a 139 820 km de diámetro",
+      "answer": "Júpiter, el mayor planeta, es diez veces más pequeño que el Sol. Puestos en fila, los ocho planetas no cubrirían ni un tercio de su ancho."
+    },
+    {
+      "id": "ton618",
+      "label": "TON 618",
+      "kicker": "El monstruo",
+      "title": "TON 618",
+      "size": "Unos 390 000 millones de km de diámetro",
+      "answer": "El horizonte de sucesos de TON 618 es unas 280 000 veces más ancho que el Sol. A lo ancho, nuestro Sistema solar cabría dentro más de 40 veces."
+    }
+  ]
+}

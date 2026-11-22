@@ -1,0 +1,354 @@
+@import '@/styles/variables';
+
+// Texto solo para lectores de pantalla
+%srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Track de scroll con stage sticky (como Exploración y Ciencia): mientras dura, el scroll
+// nativo mueve el zoom y el deslizante y los botones solo hacen scroll. Empieza `$scienceFade`
+// antes de que Ciencia suelte su stage (Ciencia lleva z-index mayor y queda encima hasta
+// desvanecerse), sobre el mismo fondo negro.
+// Geometría del visor y del panel (variables locales):
+// · móvil vertical: visor arriba, título justo debajo, tarjeta y control abajo; el visor se
+//   encoge en pantallas bajas para dejar sitio al panel (`--panelReserve`);
+// · side-by-side: visor a la izquierda (34vw) y panel a la derecha;
+// · móvil apaisado bajo: visor pegado arriba a la izquierda con el título debajo y todo el
+//   panel para la tarjeta y el control.
+.section {
+  --viewportExtra: 0px;
+  // Altura reservada abajo (móvil vertical) para tarjeta y control (algo mayor en 320 px)
+  --panelReserve: 21rem;
+  --viewSize: min(100vw, 60svh, 100svh - var(--panelReserve) - 1rem);
+  --viewCx: 50%;
+  // Borde superior del visor: centro a 34svh, pero siempre por encima del panel
+  --viewTop: calc(
+    max(0.5rem, min(34svh - var(--viewSize) / 2, 100svh - var(--panelReserve) - var(--viewSize))) +
+      var(--viewportExtra, 0px)
+  );
+  --panelRight: 1rem;
+  // Scroll de la intro (svh) antes del valor 0; sin movimiento no hay intro
+  --scaleIntro: #{$scaleIntro};
+  position: relative;
+
+  @supports (height: 100dvh) {
+    --viewportExtra: calc((100dvh - 100svh) / 2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    --scaleIntro: 0;
+  }
+
+  // El track solapa el fundido final de Ciencia (`$scienceFade`): su stage se pega mientras el
+  // de Ciencia sigue pegado encima, que se desvanece sobre el cielo de la intro. Sin esto, Ciencia
+  // se soltaría y subiría antes de empezar. Con reduced-motion no hay solape: corte directo.
+  @media (prefers-reduced-motion: no-preference) {
+    margin-top: calc(-100vh - #{$scienceFade}svh);
+    margin-top: calc(-100dvh - #{$scienceFade}svh);
+  }
+
+  @media (min-width: 360px) {
+    --panelReserve: 19.75rem;
+  }
+
+  @media #{$sideBySide} {
+    --viewportExtra: 0px;
+    --viewSize: #{$scaleViewSizeDesktop};
+    --viewCx: 34vw;
+    --viewTop: calc(50svh - var(--viewSize) / 2);
+    --panelRight: max(3vw, 1rem);
+  }
+
+  // Deja 3,75 rem bajo el visor para el título
+  @media (max-width: 991px) and (max-height: $shortHeight) and (orientation: landscape) {
+    --viewSize: min(100svh - 3.75rem, 45vw);
+    --viewCx: calc(var(--viewSize) / 2 + 0.5rem);
+    --viewTop: 0.5rem;
+    --panelRight: 0.5rem;
+  }
+}
+
+.track {
+  position: relative;
+  @include scaleTrackHeight;
+}
+
+// Marcador vacío del tramo de la intro: el hook mide su alto (el offset del zoom en el track).
+.introSpan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: calc(var(--scaleIntro) * 1svh);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.stage {
+  // Progreso de la intro (0 al llegar desde Ciencia, 1 al terminar); lo escribe `useScaleZoom`
+  --intro: 1;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh; // sigue las barras del navegador
+  overflow: clip;
+  background-color: $scaleBg;
+}
+
+// --- Visor ----------------------------------------------------------------------
+// Misma geometría que Exploración y Ciencia: clip circular centrado en (50 %, 34svh)
+// en móvil y (34vw, 50svh) en side-by-side.
+//
+// Escala real: `--zoom` (escrita por `useScaleZoom`) son los píxeles por km relativos a la
+// parada de la Tierra. Cada capa mide 1 V (diámetro del visor) y se escala con `scale`:
+// tamaño en V = --zoom · k (los k vienen de `LAYER_K`). Cada elemento solo se ve (opacity)
+// en el rango donde importa, con rampas continuas; el `scale` se acota fuera de ese rango
+// para no manejar capas gigantes o diminutas cuando ya es invisible.
+.viewer {
+  position: absolute;
+  top: var(--viewTop);
+  left: calc(var(--viewCx) - var(--viewSize) / 2);
+  z-index: 1;
+  width: var(--viewSize);
+  height: var(--viewSize);
+  pointer-events: none;
+  clip-path: circle(50%);
+  container-type: size; // las unidades cqw de los sprites son relativas al visor
+
+  --zoom: 1;
+  // Tamaño actual en V: Tierra, y caja del vídeo del Sol (con la fila de planetas)
+  --dEarth: calc(var(--zoom) * var(--kEarth));
+  --dSun: calc(var(--zoom) * var(--kSun));
+  --sTon: calc(var(--zoom) * var(--kTon)); // escala de la imagen completa (1 = llena el visor)
+  // La Tierra emerge desde un punto en la segunda mitad de la intro (ease-out)
+  --earthIn: clamp(0, calc((var(--intro) - 0.45) / 0.55), 1);
+  --earthE: calc(1 - (1 - var(--earthIn)) * (1 - var(--earthIn)));
+
+  @media (prefers-reduced-motion: reduce) {
+    --earthE: 1;
+  }
+}
+
+%layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+
+  // Solo mientras el zoom se mueve (el hook marca `data-moving`); durante la intro, las capas
+  // invisibles (todas menos la Tierra) no se promueven.
+  .viewer[data-moving='true'][data-intro='false'] & {
+    will-change: scale, opacity;
+  }
+}
+
+// Durante la intro solo se ven el cielo y la Tierra: el resto no se pinta ni se compone.
+.blackHole,
+.planets,
+.sun {
+  .viewer[data-intro='true'] & {
+    visibility: hidden;
+  }
+}
+
+// TON 618: la imagen del Hero llena el visor en su parada (`LAYER_K.ton618` la dibuja a
+// 1/0,209 de su horizonte) y su zona oscura central es el horizonte, de 0,22 V. Aparece
+// (fundido) cuando ya solo se ve ese centro oscuro; las cotas son de escala de imagen
+// (`--sTon`), independientes del factor `kTon`.
+.blackHole {
+  @extend %layer;
+  object-fit: cover;
+  scale: clamp(0.5, var(--sTon), 40);
+  opacity: clamp(0, calc((30 - var(--sTon)) / 20), 1);
+}
+
+// Fila de planetas: capa de 1 V con la misma escala que la caja del Sol, así que los tamaños y
+// las posiciones (en lados de esa caja) son relativos al Sol. Fuera del visor mientras el Sol lo
+// llena: no se pinta con la caja > 1,2 V. Se funde de salida con el Sol: las cotas de ese fundido
+// (0,003 V y 0,01 V) están también en `sunVisible` de `scaleGeometry.ts`; cámbialas a la vez.
+.planets {
+  @extend %layer;
+  scale: clamp(0.0015, var(--dSun), 6);
+  opacity: min(
+    clamp(0, calc((1.2 - var(--dSun)) / 0.1), 1),
+    clamp(0, calc((var(--dSun) - 0.003) / 0.007), 1)
+  );
+}
+
+.planet {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + var(--x) * 100%);
+  width: calc(var(--size) * 100%);
+  height: auto;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+}
+
+// Sol: fundido de entrada cuando llena el visor (< 4 V) y de salida cuando ya es un punto.
+.sun {
+  @extend %layer;
+  // Los bordes del vídeo no son negro puro: un velo radial en lugar de un recorte duro conserva
+  // las llamaradas y no deja ver el rectángulo.
+  mask-image: radial-gradient(closest-side, #000 90%, transparent);
+  scale: clamp(0.0015, var(--dSun), 6);
+  opacity: min(
+    clamp(0, calc((4 - var(--dSun)) / 2), 1),
+    clamp(0, calc((var(--dSun) - 0.003) / 0.007), 1)
+  );
+}
+
+// Caja entre la capa del Sol y su `<video>`: un `<video>` cuyo estilo se recalcula repinta el stage
+// en cada paso de scroll (medido en Chrome sin GPU). Las variables que `useScaleZoom` escribe se
+// heredan y lo recalculan, así que aquí se fijan y el vídeo no las ve cambiar. Si el hook o la
+// escena escriben otra variable por frame, hay que añadirla a esta lista.
+.sunBox {
+  position: absolute;
+  inset: 0;
+  --zoom: 0;
+  --dEarth: 0;
+  --dSun: 0;
+  --sTon: 0;
+  --intro: 0;
+  --earthIn: 0;
+  --earthE: 0;
+}
+
+.sunVideo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Tierra: se funde cuando mide < ~0,04 V (ya detrás del Sol no aporta).
+.earth {
+  @extend %layer;
+  scale: max(calc(var(--dEarth) * var(--earthE)), 0.005);
+  opacity: min(
+    clamp(0, calc((var(--dEarth) - 0.01) / 0.03), 1),
+    clamp(0, calc(var(--earthE) * 12), 1)
+  );
+
+  .viewer[data-moving='true'][data-intro='true'] & {
+    will-change: scale, opacity;
+  }
+}
+
+// --- Título y hint --------------------------------------------------------------
+// Móvil vertical: fuera del flujo del panel, pegado bajo el visor, así que su posición no
+// depende de la altura de la tarjeta (no salta al cambiar de parada). En side-by-side va
+// dentro del flujo, encima de la tarjeta; en móvil apaisado bajo, a la izquierda del panel,
+// bajo el visor.
+.header {
+  position: absolute;
+  top: calc(var(--viewTop) + var(--viewSize) + 0.25rem);
+  right: 0;
+  left: 0;
+  text-align: center;
+
+  @media #{$sideBySide} {
+    position: static;
+    text-align: left;
+  }
+
+  @media (max-width: 991px) and (max-height: $shortHeight) and (orientation: landscape) {
+    position: absolute;
+    top: calc(var(--viewSize) + 0.25rem);
+    right: calc(100% + 1rem);
+    left: auto;
+    width: var(--viewSize);
+    text-align: center;
+  }
+}
+
+.title {
+  margin: 0 0 0.125rem;
+  font-size: clamp(1.125rem, 5vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.15;
+  text-wrap: balance;
+
+  @media #{$sideBySide} {
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+  }
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    font-size: min(clamp(1.25rem, 2vw, 1.75rem), 5.6svh);
+  }
+}
+
+// Panel de la parada: tarjeta y debajo el control. Abajo en móvil; a la derecha del visor
+// en side-by-side (nunca invade el visor, que acaba en 34vw + mitad de su ancho).
+// En móvil vertical ocupa todo el escenario (sin eventos) para que el título se ancle al visor.
+.panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: calc(max(0.5rem, env(safe-area-inset-bottom)) + var(--viewportExtra, 0px));
+  left: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  // Entra con la Tierra, en la segunda mitad de la intro
+  opacity: clamp(0, calc((var(--intro) - 0.45) / 0.45), 1);
+  justify-content: flex-end;
+  width: min(34rem, calc(100% - 2rem));
+  margin-inline: auto;
+  pointer-events: none;
+
+  @media #{$sideBySide} {
+    right: var(--panelRight);
+    bottom: 0;
+    left: auto;
+    gap: 0.75rem;
+    justify-content: flex-start;
+    width: min(
+      $cardWidth,
+      calc(100% - var(--viewCx) - var(--viewSize) / 2 - var(--panelRight) - 1rem)
+    );
+    // Alto fijo: el control no salta cuando cambia el alto de la tarjeta
+    height: min(100svh - 1rem, 30rem);
+    margin: auto 0;
+  }
+
+  // Todo el ancho libre a la derecha del visor
+  @media (max-width: 991px) and (max-height: $shortHeight) and (orientation: landscape) {
+    left: calc(var(--viewCx) + var(--viewSize) / 2 + 1rem);
+    gap: 0.375rem;
+    width: auto;
+  }
+}
+
+// El hint solo invita al gesto en el estado inicial; en side-by-side conserva su sitio
+// (oculto) para que la tarjeta no suba al desaparecer.
+.section:not([data-stop='earth']) .hint {
+  display: none;
+
+  @media #{$sideBySide} {
+    display: block;
+    visibility: hidden;
+  }
+}
+
+.hint {
+  margin: 0;
+  color: $amberText;
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.summary {
+  @extend %srOnly;
+}
