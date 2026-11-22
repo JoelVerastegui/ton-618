@@ -473,8 +473,6 @@ $timeBg: #0a1226;
 $timeIntro: 100;
 $timeTravel: 450;
 $timeHold: 80;
-// Transiciones lentas y contemplativas (más que `$motionSlow`).
-$motionContemplative: 2400ms;
 // Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
 @mixin timeTrackHeight {
   height: calc(

@@ -77,33 +77,32 @@ export interface TimeData {
 La posición de cada hito en la línea y las cotas del scroll **no** van en el JSON (son presentación): viven en `src/utils/timeScale.ts` y en tokens SCSS.
 
 ```ts
-// src/utils/timeScale.ts (forma orientativa; los valores los fija el Paso 9)
-export const TRAVEL_MA = 10800; // tiempo de viaje de la luz, millones de años (lo verifica el investigador)
-export const MILESTONE_AGO_MA = { sun: 4600, earth: 4540, life: 3700, dinosaurs: 230, humans: 0.3 };
-// Anclas de posición 0…1 en la línea (0 = salida, 1 = llegada), monótonas y separadas ≥ MIN_GAP:
+// src/utils/timeScale.ts (los valores finales los fija el Paso 9)
+// Anclas de posición 0…1 en la línea (0 = salida, 1 = llegada), monótonas en el orden cronológico:
 export const MILESTONE_POS = { sun: …, earth: …, life: …, dinosaurs: …, humans: … };
-export const MIN_GAP = …; // separación mínima entre marcadores consecutivos
+// Carril de cada etiqueta (lado de la línea y altura) para que no se solapen:
+export const LABEL_LANE = { departure: …, sun: …, earth: …, life: …, dinosaurs: …, humans: …, arrival: … };
 ```
 
 Convenciones:
 
 - Progreso del viaje: `0…1`, entero a `0…1000` solo si hace falta para depurar. La fuente de verdad es la posición de scroll dentro del track.
 - La partícula avanza a **velocidad constante en el scroll**: su posición es `progreso × longitud de la línea`. La compresión del tiempo se aplica **solo a los marcadores** (su posición en la línea), no al movimiento. Una etiqueta aparece cuando la partícula pasa por el ancla de su hito.
-- Las fechas (`when`) y `TRAVEL_MA` los verifica `cosmic-data-researcher` (referencia: corrimiento al rojo z ≈ 2,219 de TON 618 ⇒ ≈ 10 800 Ma de tiempo de viaje; NASA: «más de 10 mil millones de años»; Sol ≈ 4 600 Ma, Tierra ≈ 4 540 Ma, vida ≈ 3 500–3 800 Ma, dinosaurios ≈ 230 Ma, *Homo sapiens* ≈ 300 000 años).
+- Las fechas (`when`) y el tiempo de viaje los verifica `cosmic-data-researcher` (referencia: corrimiento al rojo z ≈ 2,219 de TON 618 ⇒ ≈ 10 800 Ma de tiempo de viaje; NASA: «más de 10 mil millones de años»; Sol ≈ 4 600 Ma, Tierra ≈ 4 540 Ma, vida ≈ 3 500–3 800 Ma, dinosaurios ≈ 230 Ma, *Homo sapiens* ≈ 300 000 años).
 
 ### Datos físicos verificados
 
 Consulta: 2026-11-22.
 
-- **Tiempo de viaje de la luz:** z = 2,219 (NED). Tiempo de retrospección (*lookback time*) en ΛCDM plano: `t = (1/H₀) ∫₀^z dz' / [(1+z') √(Ωm(1+z')³ + ΩΛ)]`. Con Planck 2018 (H₀ = 67,4 km/s/Mpc, Ωm = 0,315) da 10,84 Ga; con H₀ = 67,7 y Ωm = 0,31, 10,84 Ga; con H₀ = 70 y Ωm = 0,3, 10,56 Ga. Se usa `TRAVEL_MA = 10800` y en pantalla «hace más de 10 mil millones de años» (cierto en toda la horquilla 10,5–10,9 Ga). No es la distancia actual (comóvil ≈ 18 Gal), que no se muestra. No se halló una página de NASA que dé la cifra; el «más de 10 mil millones» de la idea original queda respaldado por el cálculo.
-- **Hitos** (`MILESTONE_AGO_MA`, en Ma): Sol 4 600 (NASA: se formó hace ≈ 4,6 mil millones de años); Tierra 4 540 (edad radiométrica clásica, Patterson 1956 / USGS); vida 3 500 (evidencia más aceptada: microfósiles y estromatolitos del Pilbara, ≈ 3,47–3,5 Ga; las del Isua, ≈ 3,7 Ga, son discutidas, por eso «hace unos»); dinosaurios 230 (primeros dinosaurios del Triásico, Ischigualasto, ≈ 228–231 Ma); humanos 0,3 (*Homo sapiens* de Jebel Irhoud, ≈ 300 000 años, Hublin et al., *Nature*, 2017).
+- **Tiempo de viaje de la luz:** z = 2,219 (NED). Tiempo de retrospección (*lookback time*) en ΛCDM plano: `t = (1/H₀) ∫₀^z dz' / [(1+z') √(Ωm(1+z')³ + ΩΛ)]`. Con Planck 2018 (H₀ = 67,4 km/s/Mpc, Ωm = 0,315) da 10,84 Ga; con H₀ = 67,7 y Ωm = 0,31, 10,84 Ga; con H₀ = 70 y Ωm = 0,3, 10,56 Ga. Se usa 10 800 Ma y en pantalla «hace más de 10 mil millones de años» (cierto en toda la horquilla 10,5–10,9 Ga). No es la distancia actual (comóvil ≈ 18 Gal), que no se muestra. No se halló una página de NASA que dé la cifra; el «más de 10 mil millones» de la idea original queda respaldado por el cálculo.
+- **Hitos** (en Ma): Sol 4 600 (NASA: se formó hace ≈ 4,6 mil millones de años); Tierra 4 540 (edad radiométrica clásica, Patterson 1956 / USGS); vida 3 500 (evidencia más aceptada: microfósiles y estromatolitos del Pilbara, ≈ 3,47–3,5 Ga; las del Isua, ≈ 3,7 Ga, son discutidas, por eso «hace unos»); dinosaurios 230 (primeros dinosaurios del Triásico, Ischigualasto, ≈ 228–231 Ma); humanos 0,3 (*Homo sapiens* de Jebel Irhoud, ≈ 300 000 años, Hublin et al., *Nature*, 2017).
 - **Etiquetas:** exactas para Sol y Tierra («hace 4 600 millones…», «hace 4 540 millones…»); «hace unos…» para vida, dinosaurios y humanos.
 
 ### Escala de tiempo
 
-- **Ni lineal ni logarítmica.** En escala lineal real Sol y Tierra quedarían a un 0,6 % de distancia, vida al 66 % y dinosaurios y humanos pegados a la llegada (98–100 %); ilegible. Se usan **anclas calibradas a mano** (`MILESTONE_POS`), monótonas en el orden cronológico real, con una separación mínima entre marcadores consecutivos (`MIN_GAP`) suficiente para que las etiquetas no se solapen en móvil.
+- **Ni lineal ni logarítmica.** En escala lineal real Sol y Tierra quedarían a un 0,6 % de distancia, vida al 66 % y dinosaurios y humanos pegados a la llegada (98–100 %); ilegible. Se usan **anclas calibradas a mano** (`MILESTONE_POS`), monótonas en el orden cronológico real, repartidas en carriles (lado y altura, `LABEL_LANE`) para que las etiquetas no se solapen en móvil.
 - **Honestidad:** no se muestran escalas, números de eje ni la palabra «proporcional». El orden y los «hace X años» de las etiquetas son los reales; la distancia visual entre hitos no lo es. Se acepta como licencia de diseño (compresión suave decidida por el autor) y se registra en «Decisiones».
-- Sol y Tierra (≈ 60 Ma de diferencia) se separan solo lo que dicta `MIN_GAP` y sus etiquetas van en lados opuestos de la línea (una arriba, otra abajo).
+- Sol y Tierra (≈ 60 Ma de diferencia) se separan solo lo justo y sus etiquetas van en lados opuestos de la línea (una arriba, otra abajo).
 
 ---
 
@@ -123,7 +122,7 @@ Poco elemento visual, transiciones lentas y tiempo para contemplar (idea origina
 | Etiquetas     | Texto HTML (nombre + «hace X años»), alternadas arriba y abajo de la línea                           | Entran con `opacity` + `translate`                                                     |
 | Mensaje       | Texto HTML centrado sobre la línea al llegar la luz                                                  | Entra con fundido lento                                                                |
 
-**Reglas heredadas:** solo `transform`/`translate`/`scale` y `opacity` animados (más `visibility` discreta); sin `filter` ni `backdrop-filter`; `will-change` solo en las capas que se mueven mientras se mueven; animaciones pausadas con `data-inview="false"`. Los mismos tokens de duración/easing que Ciencia y Escala, pero con transiciones más lentas (se añade `$motionContemplative`).
+**Reglas heredadas:** solo `transform`/`translate`/`scale` y `opacity` animados (más `visibility` discreta); sin `filter` ni `backdrop-filter`; `will-change` solo en las capas que se mueven mientras se mueven; animaciones pausadas con `data-inview="false"`. Mismos tokens de duración y easing que Ciencia y Escala.
 
 ---
 
@@ -178,15 +177,15 @@ La transición ocurre con el escenario pegado; Escala no se desliza hacia arriba
 
 Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researcher` (paso 2), `web-motion-designer` (pasos 1, 3, 4, 5, 6, 7 y 9), `section-verifier` (paso 10).
 
-1. **Tokens y base.** En `_variables.scss`: `$timeBg`, `$timeIntro`, `$timeTravel`, `$timeHold`, `$scaleFade`, `$motionContemplative` y los mixins de altura del track (análogos a `scaleTrackHeight`). Esqueleto de `src/utils/timeScale.ts` (formas sin valores finales).
-2. **Datos.** `src/interfaces/time.ts` y `src/data/time.json` con textos verificados (`cosmic-data-researcher`): `title`, `subtitle`, `hint`, `summary`, `departure`, 5 `milestones`, `arrival` y `message`. El investigador fija y documenta en este spec el tiempo de viaje de la luz (con z y cosmología), las fechas de los cinco hitos y el texto de las etiquetas; rellena `MILESTONE_AGO_MA` y `TRAVEL_MA`.
+1. **Tokens y base.** En `_variables.scss`: `$timeBg`, `$timeIntro`, `$timeTravel`, `$timeHold`, `$scaleFade` y los mixins de altura del track (análogos a `scaleTrackHeight`). Esqueleto de `src/utils/timeScale.ts` (formas sin valores finales).
+2. **Datos.** `src/interfaces/time.ts` y `src/data/time.json` con textos verificados (`cosmic-data-researcher`): `title`, `subtitle`, `hint`, `summary`, `departure`, 5 `milestones`, `arrival` y `message`. El investigador fija y documenta en este spec el tiempo de viaje de la luz (con z y cosmología), las fechas de los cinco hitos y el texto de las etiquetas.
 3. **Sección estática.** `Time.tsx` y `Time.module.scss`: `<section id="time" aria-labelledby>`, `h2` visible, subtítulo, hint, `summary` solo para lectores, `<ol>` de hitos, stage de 100dvh con cielo, línea, origen y destino; montada en `App.tsx` tras `Scale`. Estrellas reutilizando el generador de `scaleSky.ts` (extraerlo a `src/utils/` si hace falta, sin duplicarlo).
 4. **Viaje por scroll.** Partícula, rastro (`fill`), aparición de marcadores y etiquetas ligados al progreso con `animation-timeline`; `MILESTONE_POS` provisional; track pegajoso.
 5. **Transición con Escala.** Fundido de Escala (cambio mínimo y localizado en `Scale.module.scss`/`Scale.tsx`), intro de Tiempo con margen negativo, pausa del vídeo del Sol coherente con el fundido.
 6. **Mensaje final y hold.** Fundido lento del mensaje, atenuación de las etiquetas, encendido de la Tierra y tramo de pausa.
 7. **Fallback y reduced-motion.** `useTrackProgress` para navegadores sin timeline nativo; estado ya compuesto con reduced-motion; `data-inview` pausa el parpadeo de estrellas.
 8. **Estilo y limpieza.** Prettier, lint, sin `!important`, sin `style={{}}` salvo valores dinámicos (la posición de cada marcador por variable CSS, no por estilo directo si se puede); revisar `time.json` e interfaces (ningún campo sin uso); eliminar lo que dejó de usarse.
-9. **Revisión visual y calibración.** Capturas en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900, 1920×1080); calibrar `MILESTONE_POS` y `MIN_GAP`, los tramos del track, el contraste de las etiquetas sobre la nebulosa y la sensación contemplativa del ritmo. Registrar los valores finales en este spec.
+9. **Revisión visual y calibración.** Capturas en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900, 1920×1080); calibrar `MILESTONE_POS` y `LABEL_LANE`, los tramos del track, el contraste de las etiquetas sobre la nebulosa y la sensación contemplativa del ritmo. Registrar los valores finales en este spec.
 10. **Verificación con `section-verifier`.** Rendimiento (capas, Layout/Paint durante el scroll), accesibilidad, responsive, robustez con medición en navegador; registrar resultados y pendientes en este documento.
 
 ---
@@ -225,7 +224,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 - [ ] Con el scroll de 0 a 1 la partícula avanza de forma continua y a velocidad constante de TON 618 a la Tierra, sin saltos; el rastro llena la línea hasta la partícula.
 - [ ] Cada hito aparece (marcador y etiqueta) cuando la partícula pasa por su ancla, queda visible, y al volver hacia arriba se oculta de forma inversa sin saltos.
-- [ ] Los marcadores están en orden cronológico y separados al menos `MIN_GAP`; Sol y Tierra tienen etiquetas en lados opuestos de la línea.
+- [ ] Los marcadores están en orden cronológico y sus etiquetas no se solapan; Sol y Tierra tienen etiquetas en lados opuestos de la línea.
 - [ ] Al llegar la luz, la Tierra se enciende y aparece el mensaje «Cuando observamos el universo, también estamos observando su pasado»; el stage se mantiene fijo `$timeHold` de scroll antes de soltarse.
 - [ ] El fondo muestra estrellas y nebulosa (no es negro puro) y el texto mantiene un contraste ≥ 4,5:1 sobre el fondo renderizado.
 
@@ -291,7 +290,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 ## Riesgos identificados
 
-- **Hitos juntos (Sol, Tierra y vida).** Sol y Tierra distan ≈ 60 Ma y la vida unos 800 Ma; incluso con compresión suave, en móvil vertical las etiquetas pueden solaparse. Mitigar con `MIN_GAP`, etiquetas alternadas arriba/abajo, textos cortos y calibración en el Paso 9.
+- **Hitos juntos (Sol, Tierra y vida).** Sol y Tierra distan ≈ 60 Ma y la vida unos 800 Ma; incluso con compresión suave, en móvil vertical las etiquetas pueden solaparse. Mitigar con carriles de etiquetas (arriba/abajo, cerca/lejos), textos cortos y calibración en el Paso 9.
 - **Distorsión de la escala percibida como engaño.** La distancia visual entre hitos no es proporcional. Mitigar con la ausencia de ejes y números, el orden real y la fecha en cada etiqueta; el autor aceptó la compresión.
 - **Cifra del tiempo de viaje.** Depende del modelo cosmológico y de la fuente del corrimiento al rojo (z ≈ 2,219); NASA dice «más de 10 mil millones de años». Mitigar usando la forma «más de 10 mil millones de años» en pantalla y documentando z, `H₀` y el cálculo.
 - **Fechas de la vida y de los humanos.** El inicio de la vida (≈ 3 500–3 800 Ma) y *Homo sapiens* (≈ 300 000 años) tienen rangos aceptados; el investigador fija una cifra con fuente y la etiqueta evita falsa precisión («hace unos…»).
