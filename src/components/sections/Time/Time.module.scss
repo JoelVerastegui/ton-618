@@ -104,7 +104,7 @@
 .nebulaMask {
   position: absolute;
   inset: 0;
-  mask-image: radial-gradient(closest-side, #000 45%, transparent);
+  mask-image: radial-gradient(closest-side, #000 55%, transparent);
 }
 
 // Nebulosa del Hero (vertical en móvil, horizontal desde md); `screen` hace desaparecer su negro.
@@ -113,7 +113,7 @@
   inset: 0;
   background: url('../../../assets/images/hero/nebula-mobile.webp') center / cover no-repeat;
   mix-blend-mode: screen;
-  opacity: 0.8;
+  opacity: 0.9;
 
   @include media-breakpoint-up(md) {
     background-image: url('../../../assets/images/hero/nebula.webp');
@@ -201,6 +201,11 @@
   color: $amberText;
   font-size: 0.875rem;
   letter-spacing: 0.04em;
+
+  // Apaisado bajo: más compacto para no tocar la etiqueta lejana de la vida
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    font-size: 0.75rem;
+  }
 }
 
 .hint {
@@ -640,7 +645,7 @@
   }
 
   to {
-    opacity: 0.6;
+    opacity: 0.85;
   }
 }
 
@@ -842,7 +847,7 @@
 
     .items,
     .bar {
-      opacity: calc(1 - 0.4 * var(--msg));
+      opacity: calc(1 - 0.15 * var(--msg));
     }
 
     @media (max-height: $shortHeight) and (orientation: landscape) {

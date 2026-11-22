@@ -1,14 +1,15 @@
 import type { TimeMilestoneId } from '../interfaces/time';
 
 // Posición de cada hito en la línea (0 = salida de la luz, 1 = llegada): anclas calibradas a
-// mano, monótonas en el orden cronológico (compresión suave, SPEC 05). Valores provisionales,
-// se fijan en el Paso 9. Las fechas verificadas de cada hito están en `time.json` y en el spec.
+// mano, monótonas en el orden cronológico (compresión suave, SPEC 05). Valores calibrados en el
+// Paso 9 (humanos ≤ 0,87 para no tocar la Tierra de 48 px a 320 px). Las fechas verificadas de cada
+// hito están en `time.json` y en el spec.
 export const MILESTONE_POS: Record<TimeMilestoneId, number> = {
-  sun: 0.22,
-  earth: 0.4,
-  life: 0.55,
-  dinosaurs: 0.78,
-  humans: 0.92,
+  sun: 0.2,
+  earth: 0.36,
+  life: 0.52,
+  dinosaurs: 0.74,
+  humans: 0.87,
 };
 
 // Carril de cada etiqueta (presentación): lado de la línea y altura (`near` pegada a la línea,

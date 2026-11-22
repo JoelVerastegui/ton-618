@@ -188,6 +188,20 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 9. **Revisión visual y calibración.** Capturas en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900, 1920×1080); calibrar `MILESTONE_POS` y `LABEL_LANE`, los tramos del track, el contraste de las etiquetas sobre la nebulosa y la sensación contemplativa del ritmo. Registrar los valores finales en este spec.
 10. **Verificación con `section-verifier`.** Rendimiento (capas, Layout/Paint durante el scroll), accesibilidad, responsive, robustez con medición en navegador; registrar resultados y pendientes en este documento.
 
+### Calibración (Paso 9)
+
+Medido con Chrome real y scroll real en los 8 viewports de referencia (inicio/hint, cinco hitos, llegada y mensaje): 0 solapes de texto, línea, marcadores y extremos; sin scroll horizontal (320–2560); contraste medido sobre píxeles reales del fondo renderizado (nebulosa + estrellas, con el halo de texto).
+
+- **`MILESTONE_POS`:** sol 0,20 · tierra 0,36 · vida 0,52 · dinosaurios 0,74 · humanos 0,87 (orden cronológico, separación mínima 0,16 entre Sol, Tierra y vida). Humanos ≤ 0,87 para que su raya no toque la Tierra (48 px) en 320 px de ancho. `LABEL_LANE` no cambia.
+- **Track:** `$timeIntro` 100 · `$timeTravel` 420 (antes 450) · `$timeHold` 80 = 600 svh de scroll (≈ 700 svh de altura del track con el viewport inicial). Los hitos aparecen cada ≥ 67 svh.
+- **Mensaje:** ubicado en una banda inferior del stage (donde el hint ya se fue), no «sobre la línea»: con siete etiquetas visibles no hay hueco entre ellas.
+- **Hold:** las etiquetas, marcadores y línea bajan a 0,85 (no 0,6, que daba 3,2–3,7:1 en las fechas ámbar).
+- **Nebulosa:** opacidad 0,9 con velo radial opaco hasta el 55 %; visible pero tenue.
+- **Texto:** espacios de no ruptura (U+00A0) en las cifras («4 600 millones», «300 000 años», «10 mil millones», «TON 618») para que no se partan en 320 px; en apaisado bajo el subtítulo baja a 0,75rem para no tocar la etiqueta de la vida.
+- **Contraste medido (percentil 97 del fondo bajo cada línea de texto):** mínimo 5,5:1 en las escenas normales y ≥ 4,6:1 en el hold; en 640×360 «hoy» baja a 3,1:1 solo por una estrella puntual detrás (percentil 90: 5,9:1).
+- **z-index:** Escala `1`, Ciencia `2`, Tiempo sin z-index (se pinta bajo Escala durante el solape).
+- **Transición con Escala:** el stage de Escala mantiene `top: 0` durante el fundido; 0 Layout por frame en el recorrido de Tiempo (los pocos layouts medidos pertenecen al tramo de Escala).
+
 ---
 
 ## Presupuesto

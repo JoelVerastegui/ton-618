@@ -466,12 +466,12 @@ $tonOutScale: 0.02;
 // ---------------------------------------------------------------------------
 // Fondo: azul cósmico muy oscuro bajo la nebulosa del Hero y las estrellas (no es negro).
 $timeBg: #0a1226;
-// Tramos del track en svh de scroll (valores iniciales; se calibran en el Paso 9):
+// Tramos del track en svh de scroll (calibrados en el Paso 9, ≈ 600 svh en total):
 // intro (cielo, título, línea; solapa con el fundido de Escala), viaje de la partícula y pausa
 // con el mensaje visible. Con `prefers-reduced-motion` la intro y la pausa valen 0 (`--timeIntro`,
 // `--timeHold`) y el track no es sticky.
 $timeIntro: 100;
-$timeTravel: 450;
+$timeTravel: 420;
 $timeHold: 80;
 // Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
 @mixin timeTrackHeight {
