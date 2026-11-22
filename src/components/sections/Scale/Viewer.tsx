@@ -75,22 +75,26 @@ export const Viewer = memo(function Viewer({ viewerRef }: ViewerProps) {
         ))}
       </div>
 
-      <video
-        ref={sunRef}
-        className={styles.sun}
-        poster={sunPoster}
-        width={400}
-        height={400}
-        muted
-        loop
-        playsInline
-        preload='none'
-        disablePictureInPicture
-        tabIndex={-1}
-      >
-        <source src={sunWebm} type='video/webm' />
-        <source src={sunMp4} type='video/mp4' />
-      </video>
+      <div className={styles.sun}>
+        <div className={styles.sunBox}>
+          <video
+            ref={sunRef}
+            className={styles.sunVideo}
+            poster={sunPoster}
+            width={400}
+            height={400}
+            muted
+            loop
+            playsInline
+            preload='none'
+            disablePictureInPicture
+            tabIndex={-1}
+          >
+            <source src={sunWebm} type='video/webm' />
+            <source src={sunMp4} type='video/mp4' />
+          </video>
+        </div>
+      </div>
 
       <img className={styles.earth} src={earth} alt='' width={560} height={560} />
     </div>

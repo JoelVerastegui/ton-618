@@ -109,6 +109,7 @@ export function useScaleZoom(
     let listening = false;
     let last = NaN; // último valor del zoom escrito
     let lastIntro = NaN; // último progreso de la intro escrito
+    let lastStop = -1; // última parada comunicada a React
 
     const measure = () => {
       const intro = (stage.nextElementSibling as HTMLElement | null)?.offsetHeight ?? 0;
@@ -135,7 +136,12 @@ export function useScaleZoom(
       }
       last = value;
 
-      setActiveStop(STOP_ORDER[stopIndexAt(value)]); // mismo valor: React no renderiza
+      // Solo al cambiar de parada: un `setState` con el mismo valor aún ejecuta el componente una vez más
+      const stopIndex = stopIndexAt(value);
+      if (stopIndex !== lastStop) {
+        lastStop = stopIndex;
+        setActiveStop(STOP_ORDER[stopIndex]);
+      }
       const input = inputRef.current;
       // Tolera < 1 de diferencia: al arrastrar, el scroll redondea y no debe mover el pulgar
       if (input && Math.abs(Number(input.value) - value) >= 1) {
@@ -146,7 +152,10 @@ export function useScaleZoom(
       const zoom = zoomAt(value);
       viewer.style.setProperty('--zoom', String(zoom));
       // Capa del Sol visible o no (su vídeo solo se reproduce si lo es); sin estado de React
-      viewer.dataset.sun = String(sunVisible(zoom));
+      // Solo si cambia: escribir el mismo valor también dispara el `MutationObserver` de
+      // `useVideoPlayback`, que llamaría a `play()`/`pause()` del vídeo en cada frame y lo repintaría.
+      const sun = String(sunVisible(zoom));
+      if (viewer.dataset.sun !== sun) viewer.dataset.sun = sun;
       markMoving();
     };
 
@@ -154,7 +163,7 @@ export function useScaleZoom(
     const markMoving = () => {
       const viewer = viewerRef.current;
       if (!viewer) return;
-      viewer.dataset.moving = 'true';
+      if (viewer.dataset.moving !== 'true') viewer.dataset.moving = 'true';
       window.clearTimeout(idle);
       idle = window.setTimeout(() => {
         viewer.dataset.moving = 'false';

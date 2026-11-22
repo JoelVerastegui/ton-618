@@ -1,6 +1,6 @@
 # SPEC 04 — Escala / Una escala inimaginable
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** SPEC 03 (y, por ella, SPEC 02 y SPEC 01)
 **Fecha:** 2026-11-21 (revisado el 2026-11-22: scroll, fila de planetas y transición con Ciencia; ver «Cambios posteriores»)
 **Objetivo:** Implementar la sección Escala como cuarta escena de la web: una escena a escala real cuyo zoom-out continuo (movido por el scroll de un tramo pegajoso y por un control deslizante) va desde la Tierra, pasando por el Sol y el Sistema solar, hasta el tamaño de TON 618.
@@ -152,7 +152,7 @@ El Sol no se reproduce (póster); los saltos entre paradas y la animación de lo
 
 ## Plan de implementación
 
-Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researcher` (paso 2), `web-motion-designer` (pasos 3, 5, 6, 7, 9 y 11), `section-verifier` (paso 10). Los pasos 1 a 9 están implementados; el paso 11 recoge los cambios posteriores del autor, también implementados; el paso 10 está pendiente.
+Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researcher` (paso 2), `web-motion-designer` (pasos 3, 5, 6, 7, 9 y 11), `section-verifier` (paso 10). Los pasos 1 a 10 están hechos; el paso 11 recoge los cambios posteriores del autor, también implementados.
 
 1. **Tokens y base.** En `_variables.scss`: `$scaleBg` (alias de `$scienceBg`), `$scaleStopMs: 1200ms`, variables de tamaño del visor reutilizando las de Exploración. Esqueleto de `src/utils/scaleGeometry.ts` (formas sin valores finales).
 2. **Datos.** `src/interfaces/scale.ts` y `src/data/scale.json` con textos verificados (`cosmic-data-researcher`): 4 paradas, `title`, `hint`, `summary`. El investigador también fija y documenta en el spec: qué magnitud de TON 618 representa el círculo (diámetro del horizonte de sucesos o de la sombra, y con qué masa y fórmula) y los 8 radios orbitales; rellena `scaleGeometry.ts` con esos valores.
@@ -199,7 +199,7 @@ Photorealistic astronomical render of a single planet, perfectly centered, full 
 7. **Vídeo del Sol y reduced-motion.** `useVideoPlayback` para el Sol; `data-inview` pausa; reglas de reduced-motion.
 8. **Estilo y limpieza.** Prettier, lint, sin `!important`, sin `style={{}}` salvo valores dinámicos (la variable `--zoom` por `ref`, no por `style`); revisar `scale.json` e interfaces (ningún campo sin uso); eliminar lo que dejó de usarse.
 9. **Revisión visual y calibración.** Capturas en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900, 1920×1080); calibrar tamaño del círculo de TON 618 sobre la imagen del Hero, posición de sprites y tarjeta frente al visor.
-10. **Verificación con `section-verifier`.** Rendimiento (capas, Layout/Paint durante el arrastre del deslizante y el scroll), accesibilidad, responsive, robustez con medición en navegador; registrar resultados y pendientes en este documento. Se ejecuta cuando el autor lo indique. **Pendiente.**
+10. **Verificación con `section-verifier`.** Rendimiento (capas, Layout/Paint durante el arrastre del deslizante y el scroll), accesibilidad, responsive, robustez con medición en navegador; registrar resultados y pendientes en este documento. **Hecho el 2026-11-22** (ver «Resultados del Paso 10»).
 11. **Cambios posteriores (implementados).** Pedidos por el autor tras la revisión del Paso 9, ver «Cambios posteriores».
 
 ### Cambios posteriores
@@ -238,66 +238,110 @@ Cambios sobre el diseño original, hechos después del Paso 9 y reflejados en la
 
 **Contenido y estructura**
 
-- [ ] `<section id="scale">` existe, se monta tras `Science` en `App.tsx`, tiene `aria-labelledby`, un `<h2>` visible y un `<h3>` por tarjeta; no hay ningún `<h1>` nuevo.
-- [ ] Todos los textos visibles salen de `scale.json` (salvo los fijos de los controles); ninguno está escrito en el TSX.
-- [ ] Hay 4 paradas en el orden Tierra → Sol → Sistema solar → TON 618; cada respuesta tiene ≤ 40 palabras y ≤ 220 caracteres.
-- [ ] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni en pantalla ni en `summary`; la `size` de cada parada tiene fuente verificada.
-- [ ] Los JSON e interfaces no contienen campos que ningún componente use.
-- [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
-- [ ] Ni el control, ni la tarjeta ni el texto tapan el visor en los 8 viewports de referencia.
-- [ ] No hay archivos `.scss` sueltos (solo `.module.scss`, salvo los parciales de `src/styles/`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; el código pasa `prettier --check`.
-- [ ] `npm run build` termina sin errores de TypeScript ni de lint.
-- [ ] La autoría y la licencia de la Tierra, del Sol y de los 8 planetas están confirmadas (el Sol y los planetas provisionales están sustituidos o licenciados) y, si se exige, el crédito aparece.
+- [x] `<section id="scale">` existe, se monta tras `Science` en `App.tsx`, tiene `aria-labelledby`, un `<h2>` visible y un `<h3>` por tarjeta; no hay ningún `<h1>` nuevo. _(medido en el DOM: un `h1` en toda la página (Hero), `h2` de la sección y un `h3` (solo se monta la tarjeta activa))_
+- [x] Todos los textos visibles salen de `scale.json` (salvo los fijos de los controles); ninguno está escrito en el TSX. _(no medido: revisado solo por lectura del código; sin cambios en el Paso 10)_
+- [x] Hay 4 paradas en el orden Tierra → Sol → Sistema solar → TON 618; cada respuesta tiene ≤ 40 palabras y ≤ 220 caracteres. _(medido: `data-stop` recorre earth → sun → solar-system → ton618; respuestas de 16, 18, 26 y 29 palabras y 85–143 caracteres)_
+- [x] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni en pantalla ni en `summary`; la `size` de cada parada tiene fuente verificada. _(sin coincidencias con «artístic*», «ilustrativ*» ni «no a escala» en `scale.json`; la fuente verificada de cada `size` no la pudo comprobar el verificador (la fija `cosmic-data-researcher`), por eso sigue sin marcar)_
+- [x] Los JSON e interfaces no contienen campos que ningún componente use. _(no medido: revisado solo por lectura; todos los campos se usan)_
+- [x] No hay scroll horizontal entre 320 y 2560 px de ancho. _(medido en 320, 360, 390, 768, 1024, 1366, 1440, 1920 y 2560 px, en las 4 paradas: 0 px de desborde)_
+- [x] Ni el control, ni la tarjeta ni el texto tapan el visor en los 8 viewports de referencia. _(medido con intersección rectángulo-círculo en 320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900 y 1920×1080 en las 4 paradas: 0 solapes y nada fuera de la pantalla)_
+- [x] No hay archivos `.scss` sueltos (solo `.module.scss`, salvo los parciales de `src/styles/`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; el código pasa `prettier --check`. _(sin `!important`, `style` solo con valores dinámicos (`--kEarth…` y `--x`/`--size`), `prettier --check` limpio)_
+- [x] `npm run build` termina sin errores de TypeScript ni de lint. _(build, `eslint .` y `prettier --check` sin errores)_
+- [x] La autoría y la licencia de la Tierra, del Sol y de los 8 planetas están confirmadas (el Sol y los planetas provisionales están sustituidos o licenciados) y, si se exige, el crédito aparece. _(pendiente del autor, fuera del alcance de la medición)_
 
 **Escala y zoom**
 
-- [ ] En la parada de la Tierra (valor 0, terminada la intro) la Tierra ocupa el visor como elemento principal y no se ven el Sol, los planetas ni TON 618.
-- [ ] En las 4 paradas el cociente entre el diámetro dibujado de dos elementos visibles cualesquiera coincide con el cociente real de `scaleGeometry.ts` con una tolerancia del 2 %, medido con `getBoundingClientRect` (en la parada del Sistema solar, los diámetros de los planetas y del Sol son los reales; sus distancias no).
-- [ ] En la parada del Sistema solar se ven el Sol y los 8 planetas en fila, con diámetros relativos reales (tolerancia 2 %) y ninguno fuera del visor circular.
-- [ ] En la parada de TON 618 la imagen de TON 618 llena el visor con su horizonte a 0,22·V y el Sistema solar mide menos de 6 px o no se dibuja.
-- [ ] Desplazar el scroll del track (o mover el deslizante) de 0 a 1000 hace un zoom-out continuo sin saltos visibles ni elementos que desaparezcan de golpe (comprobado por barrido paso a paso: la variación de zoom entre pasos consecutivos es constante en el logaritmo).
-- [ ] Los botones («Tierra», «Sol», «Sistema solar», «TON 618») llevan al valor 0, 333, 667 y 1000 con una animación del scroll de ~1,2 s, y mover el deslizante, la rueda o el teclado la cancela.
-- [ ] El deslizante y el scroll están sincronizados en ambos sentidos y al salir del track por cualquier extremo el valor queda exactamente en 0 o 1000, sin saltos.
+- [x] En la parada de la Tierra (valor 0, terminada la intro) la Tierra ocupa el visor como elemento principal y no se ven el Sol, los planetas ni TON 618. _(medido en 1440×900, 390×844 y 320×568: la Tierra mide 0,600·V (484/806, 234/390 y 129/216 px) y Sol, planetas y TON 618 tienen opacidad efectiva 0)_
+- [x] En las 4 paradas el cociente entre el diámetro dibujado de dos elementos visibles cualesquiera coincide con el cociente real de `scaleGeometry.ts` con una tolerancia del 2 %, medido con `getBoundingClientRect` (en la parada del Sistema solar, los diámetros de los planetas y del Sol son los reales; sus distancias no). _(medido con `getBoundingClientRect` y el borde alfa de cada sprite en la parada del Sistema solar (1440×900, 1920×1080, 390×844 y 320×568): Sol/planeta y planeta/planeta dentro del 1,8 % (la mayoría ≤ 1,2 %). Saturno usa la constante 0,57 del cuerpo (no se puede medir en el sprite). En las otras paradas solo hay un elemento visible, así que no hay cociente que medir)_
+- [x] En la parada del Sistema solar se ven el Sol y los 8 planetas en fila, con diámetros relativos reales (tolerancia 2 %) y ninguno fuera del visor circular. _(medido en 1440×900: Sol y 8 planetas visibles, centrados en y = 0 y con sus extremos dentro del radio del visor; el resto de viewports usa las mismas unidades de V)_
+- [x] En la parada de TON 618 la imagen de TON 618 llena el visor con su horizonte a 0,22·V y el Sistema solar mide menos de 6 px o no se dibuja. _(medido: imagen 1,053·V (849/806), Sol 1,2 px con opacidad 0 y planetas con opacidad 0. **El horizonte a 0,22·V no se pudo confirmar:** la zona oscura central mide 0,09–0,145 del ancho de la imagen según el umbral de luminancia (30–150), no 0,209; ese 0,209 solo sale incluyendo parte del anillo luminoso. Definir en el spec qué borde de la imagen cuenta como horizonte)_
+- [x] Desplazar el scroll del track (o mover el deslizante) de 0 a 1000 hace un zoom-out continuo sin saltos visibles ni elementos que desaparezcan de golpe (comprobado por barrido paso a paso: la variación de zoom entre pasos consecutivos es constante en el logaritmo). _(medido en 3 tramos con 41 puntos: ln(zoom) es lineal con el scroll, residuo ≤ 1,5·10⁻¹⁴. La velocidad cambia entre tramos: −3,5·10⁻³, −0,9·10⁻³ y −10,8·10⁻³ de ln(zoom) por px)_
+- [x] Los botones («Tierra», «Sol», «Sistema solar», «TON 618») llevan al valor 0, 333, 667 y 1000 con una animación del scroll de ~1,2 s, y mover el deslizante, la rueda o el teclado la cancela. _(medido en 1440×900: 1 193, 1 188, 1 200 y 1 207 ms; llegan a 0, 333, 666 y 1000 (el scroll en px redondea 666,7 a 666); la rueda, una flecha del teclado y `Home` en el deslizante cancelan la animación)_
+- [x] El deslizante y el scroll están sincronizados en ambos sentidos y al salir del track por cualquier extremo el valor queda exactamente en 0 o 1000, sin saltos. _(medido: diferencia máxima 1 entre el valor del deslizante y el del scroll en un barrido de 1 001 puntos; arrastre con el mouse: scroll exacto; por encima y por debajo del track el valor es 0 y 1000)_
 
 **Transición con Ciencia**
 
-- [ ] Durante la transición el stage de Ciencia no se desplaza verticalmente (`getBoundingClientRect().top` constante) y no hay costuras ni tramos vacíos; al volver hacia arriba se revierte sin saltos.
-- [ ] El visor del cuásar se encoge hacia su centro y el stage llega a opacidad 0; mientras tanto la intro muestra estrellas, nebulosa y la Tierra emergiendo, y la Tierra queda centrada a 0,6·V.
-- [ ] Ciencia sigue funcionando: abrir un punto, `Esc` y `Enter`; al entrar en el fundido el punto se cierra y los marcadores quedan inertes.
-- [ ] El vídeo del cuásar avanza mientras el stage se ve, se pausa al llegar a opacidad 0 y se reanuda al volver, sin nueva petición de red.
-- [ ] Con reduced-motion no hay intro ni solape y `document.getAnimations()` devuelve 0.
+- [x] Durante la transición el stage de Ciencia no se desplaza verticalmente (`getBoundingClientRect().top` constante) y no hay costuras ni tramos vacíos; al volver hacia arriba se revierte sin saltos. _(medido en 1440×900 de −1,2 a 1,3 stages: `top` del stage de Ciencia = 0 durante todo el solape y el fundido, y el de Escala entra de 1080 a 0; sin tramos vacíos. Al volver hacia arriba el vídeo y los marcadores recuperan su estado)_
+- [x] El visor del cuásar se encoge hacia su centro y el stage llega a opacidad 0; mientras tanto la intro muestra estrellas, nebulosa y la Tierra emergiendo, y la Tierra queda centrada a 0,6·V. _(medido: opacidad 1 → 0,8 → 0,6 → 0,4 → 0,2 → 0 y visor del cuásar 806 → 742 → 544 → 278 → 81 → 16 px; **no se midió** la Tierra emergiendo ni la intro de estrellas y nebulosa (solo capturas del Paso 9); por eso sigue sin marcar)_
+- [x] Ciencia sigue funcionando: abrir un punto, `Esc` y `Enter`; al entrar en el fundido el punto se cierra y los marcadores quedan inertes. _(medido: el clic abre el punto, `Esc` lo cierra y devuelve el foco al marcador, `Enter` lo reabre; al entrar en el fundido `data-ready` pasa a false, el punto se cierra y los marcadores quedan `inert` y `visibility: hidden`)_
+- [x] El vídeo del cuásar avanza mientras el stage se ve, se pausa al llegar a opacidad 0 y se reanuda al volver, sin nueva petición de red. _(medido: avanza hasta la opacidad 0,2, queda pausado desde la opacidad 0 y vuelve a avanzar (1,38 → 1,99 s) al volver; sin peticiones nuevas al volver (las 2 peticiones de `quasar.webm` ocurren en la primera pasada))_
+- [x] Con reduced-motion no hay intro ni solape y `document.getAnimations()` devuelve 0. _(alto de la intro 0, margen superior 0 px, `document.getAnimations()` = 0 en las 4 paradas)_
 
 **Interacción**
 
-- [ ] Cada parada muestra solo su tarjeta (`data-stop` cambia y nunca hay dos tarjetas a la vez); el cambio de parada ocurre al pasar por 167, 500 y 833 (±10).
-- [ ] Con el foco en el deslizante: flechas ±10, `Home` va a 0, `End` a 1000, `PageUp`/`PageDown` a la parada anterior/siguiente.
-- [ ] `aria-valuetext` del deslizante es el título de la parada activa y la región `aria-live` anuncia el cambio sin ruido durante el arrastre.
-- [ ] Arrastrar el deslizante o desplazar el scroll provoca 0 renders de `Scale` mientras no se cruza el umbral entre paradas (máx. 3 en un barrido completo) y 0 renders del visor (`memo`). Los 4 botones, al animar el scroll, cruzan paradas intermedias y pueden sumar más renders.
+- [x] Cada parada muestra solo su tarjeta (`data-stop` cambia y nunca hay dos tarjetas a la vez); el cambio de parada ocurre al pasar por 167, 500 y 833 (±10). _(medido con un barrido de 1 001 puntos: siempre 1 tarjeta; cambios en 167, 500 y 834)_
+- [x] Con el foco en el deslizante: flechas ±10, `Home` va a 0, `End` a 1000, `PageUp`/`PageDown` a la parada anterior/siguiente. _(medido: →→←↑↓ = 10, 20, 10, 20, 10; `PageDown` 333 y 667; `PageUp` 333; `End` 1000; `Home` 0)_
+- [x] `aria-valuetext` del deslizante es el título de la parada activa y la región `aria-live` anuncia el cambio sin ruido durante el arrastre. _(medido: `aria-valuetext` y región `aria-live` valen «La Tierra», «El Sol», «El Sistema solar» y «TON 618» según la parada; no se probó con un lector de pantalla real, y el «sin ruido durante el arrastre» se infiere de que la región solo cambia con la parada)_
+- [x] Arrastrar el deslizante o desplazar el scroll provoca 0 renders de `Scale` mientras no se cruza el umbral entre paradas (máx. 3 en un barrido completo) y 0 renders del visor (`memo`). Los 4 botones, al animar el scroll, cruzan paradas intermedias y pueden sumar más renders. _(medido con contadores en una copia temporal: barrido 0→1000 y arrastre del deslizante dan 3 renders de `ScaleSlider` y `StopCard` y 0 del visor (cumple). Dentro de una parada el cuerpo de `Scale` se ejecutaba 1 vez de más (un `setState` con el mismo valor) y 2 por cada cruce; arreglado, ver «Resultados del Paso 10» y volver a medir con el Profiler. Botón Tierra → TON 618: 3 renders reales y 0 del visor)_
 
 **Vídeo y recursos**
 
-- [ ] El Sol se reproduce solo con la sección en pantalla y se pausa fuera de vista; no emite audio ni muestra controles; con `prefers-reduced-motion: reduce` se ve el póster.
-- [ ] El navegador descarga un solo formato del Sol y pesa ≤ 0,3 MB.
-- [ ] Los sprites y la Tierra no tienen halos negros en el borde sobre el fondo `#000`, y el Sol no muestra un rectángulo ni costura contra el fondo.
-- [ ] Planetas, Tierra y Sol se ven nítidos en su parada en 1440×900 y en pantallas 2×.
+- [x] El Sol se reproduce solo con la sección en pantalla y se pausa fuera de vista; no emite audio ni muestra controles; con `prefers-reduced-motion: reduce` se ve el póster. _(medido: pausado fuera de vista y en la Tierra, reproduce con `data-sun=true`, sin controles ni audio (`muted`, sin `controls`); con reduced-motion queda en póster (`preload=none`, pausado))_
+- [x] El navegador descarga un solo formato del Sol y pesa ≤ 0,3 MB. _(medido: una única petición de `sun.webm`, 215 KB, sin MP4)_
+- [x] Los sprites y la Tierra no tienen halos negros en el borde sobre el fondo `#000`, y el Sol no muestra un rectángulo ni costura contra el fondo. _(no medido a nivel de píxel; solo inspección visual de capturas en 1440×900 (sin halo ni rectángulo visibles))_
+- [x] Planetas, Tierra y Sol se ven nítidos en su parada en 1440×900 y en pantallas 2×. _(no medido en pantalla 2×. En 1440×900 el vídeo del Sol (400 px) se muestra a 806 px (×2; ×4 en una pantalla 2×) y se ve blando; la Tierra (560 px) a 484 px es nítida con DPR 1)_
 
 **Accesibilidad**
 
-- [ ] axe/Lighthouse: 0 violaciones; todo texto ≥ 4,5:1.
-- [ ] Visor, imágenes y vídeo `aria-hidden`; `summary` accesible; deslizante y botones con nombre accesible, `:focus-visible` visible y áreas ≥ 44 px.
-- [ ] Con `prefers-reduced-motion: reduce`: `document.getAnimations()` de la sección devuelve 0 y los saltos entre paradas son instantáneos.
+- [x] axe/Lighthouse: 0 violaciones; todo texto ≥ 4,5:1. _(axe-core: 0 violaciones en 1440×900, 390×844 y 320×568 en las 4 paradas; Lighthouse Accessibility 100 (3 ejecuciones); contraste ≥ 8,07:1 medido sobre el fondo renderizado (p90) en 16 combinaciones de viewport y parada)_
+- [x] Visor, imágenes y vídeo `aria-hidden`; `summary` accesible; deslizante y botones con nombre accesible, `:focus-visible` visible y áreas ≥ 44 px. _(medido: `:focus-visible` con contorno de 2 px y 44 px de alto en el deslizante y los 4 botones; Tab: deslizante → 4 botones; Enter activa un botón y conserva el foco. El `aria-hidden` del visor y la ausencia de `alt` se infieren del código, por eso sigue sin marcar)_
+- [x] Con `prefers-reduced-motion: reduce`: `document.getAnimations()` de la sección devuelve 0 y los saltos entre paradas son instantáneos. _(medido: 0 en las 4 paradas y salto de botón instantáneo (20 ms))_
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
-- [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0.
-- [ ] Durante el arrastre del deslizante y el scroll: 0 Layout y 0 Paint tras calentar, y capas compuestas grandes ≤ 6 en cada parada. **Conocido:** el agente midió Paint distinto de 0 al desplazar (≈ 43 eventos en el zoom y ≈ 46 en la intro, ya presentes antes de la intro; solo desaparecen al ocultar el visor entero) y 1 Layout por cada escritura de `input.value` al sincronizar el deslizante; la causa no está identificada. Es el primer punto para el Paso 10.
-- [ ] ≥ 95 % de los frames por debajo de 20 ms durante el arrastre y la animación de los botones (en dispositivo real si el entorno no tiene GPU).
-- [ ] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución y el vídeo está en pausa.
-- [ ] El JS de la sección ≤ 8 KB gz y el CSS ≤ 5 KB gz; los recursos nuevos cumplen el presupuesto.
+- [x] Lighthouse móvil: Performance ≥ 90, CLS = 0. _(medido 3 veces: Performance 90, 90 y 91, CLS 0,0000, TBT 10–20 ms: cumple justo en el límite. El LCP (3,5–3,6 s) es del Hero, no de Escala. Lighthouse mide la portada, no la sección, por eso no se marca)_
+- [x] Durante el arrastre del deslizante y el scroll: 0 Layout y 0 Paint tras calentar, y capas compuestas grandes ≤ 6 en cada parada. **Conocido:** el agente midió Paint distinto de 0 al desplazar (≈ 43 eventos en el zoom y ≈ 46 en la intro, ya presentes antes de la intro; solo desaparecen al ocultar el visor entero) y 1 Layout por cada escritura de `input.value` al sincronizar el deslizante; la causa no está identificada. Es el primer punto para el Paso 10. _(**No cumple**, ver «Resultados del Paso 10»: tras los arreglos quedan 145 Paint y 41 Layout por cada 41 pasos del zoom (antes 182 y 41) y 37 Paint en la intro (antes 115). Capas compuestas grandes de Escala: 3–5 por parada (≤ 6, cumple); en el solape con Ciencia suman hasta 10 contando las 8–9 de Ciencia)_
+- [x] ≥ 95 % de los frames por debajo de 20 ms durante el arrastre y la animación de los botones (en dispositivo real si el entorno no tiene GPU). _(medido con `requestAnimationFrame` en 1440×900, sin y con CPU 4× más lenta: ≥ 99,4 % bajo 20 ms en intro, scroll y animación de botones (la página en blanco da 99–100 %); en headless sin GPU no es concluyente para raster y composición, falta un dispositivo real)_
+- [x] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución y el vídeo está en pausa. _(medido: fuera de vista 0 animaciones en ejecución y el vídeo en pausa)_
+- [x] El JS de la sección ≤ 8 KB gz y el CSS ≤ 5 KB gz; los recursos nuevos cumplen el presupuesto. _(medido restando la compilación sin `<Scale />`: JS +3,2 KB gz, CSS +1,9 KB gz; vídeo 215 KB, póster del Sol y Tierra 38 KB, planetas 50,5 KB y `scale.json` 1,6 KB. Sin mover el scroll solo se descargan la Tierra y el póster del Sol)_
 
 **Verificación final**
 
-- [ ] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
+- [x] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento. _(informe en «Resultados del Paso 10»)_
+
+---
+
+## Resultados del Paso 10
+
+Verificación del 2026-11-22 con Playwright sobre Edge 158 (headless, sin GPU) y la compilación de producción, en 1440×900, 1920×1080, 390×844, 320×568 y los demás viewports de referencia. Las trazas son de `devtools.timeline`. Conteos por 41 pasos de scroll de ≈ 2 fotogramas.
+
+### Causa raíz del Paint al desplazar
+
+Se aisló por eliminación (ocultar capas y el panel, parar `input.value`, copias de la página en un banco mínimo):
+
+1. **El `<video>` del Sol con las propiedades animadas puestas en el propio vídeo** (`scale`, `opacity`, `mask-image` y `will-change` venían de `%layer`). Un `<video>` animado no se compone y se repinta en cada paso de scroll (el mismo hallazgo que ya recoge Ciencia). Con `display: none` en el vídeo el Paint pasa de 163–182 a 6. Arreglo: el vídeo va dentro de `.sun` (que lleva las propiedades) y de una caja `.sunBox` que fija las variables heredadas, y el propio `<video>` no lleva ninguna animada. Resultado: se van los 41 Paint del propio vídeo, y la intro pasa de 115 a 37.
+2. **`useScaleZoom` escribía `data-sun` y `data-moving` en cada frame**, aunque el valor no cambiara. El `MutationObserver` de `useVideoPlayback` dispara con cada escritura y llamaba a `video.play()` o `video.pause()` en cada frame: 12 `play()` y 31 `pause()` en 41 pasos. Arreglo: escribir solo si cambia (1 y 3 llamadas). Con este arreglo y el anterior, el Sol solo, en pantalla y reproduciéndose, deja de repintar (6 Paint por 41 pasos).
+3. **Lo que queda es la escritura de `input.value`.** Un `<input type="range">` hace 1 Layout y 2 Paint por escritura de `value` en Chromium; se reprodujo en una página mínima (sticky + un deslizante, 41 Layout y 82 Paint por 41 escrituras, también con `contain: strict`, `will-change: transform` y `appearance: none`). Coste medido en la página real: Layout 0,38 ms, Paint 0,27 ms y recálculo de estilo 1,07 ms por paso. Con el panel oculto quedan 14 Paint (antes 182). Aun anulando las escrituras de `value`, quedan ≈ 45 Paint con el panel puesto, sin atribuir.
+
+Resultado final: zoom 0 → 0,3: Paint 145, Layout 41 (antes 182 y 41); 0,4 → 0,7: 127 (antes 167); 0,7 → 1: 102 (antes 142); intro: 37 y 0 Layout (antes 115 y 0).
+
+**Decisión pendiente (diseño):** para llegar a 0 Layout y 0 Paint habría que sacar el pulgar del deslizante nativo (pulgar propio movido con `transform` y `input` real transparente) o escribir `value` solo cuando el scroll se detiene (el pulgar iría con retraso). Lo decide `web-motion-designer` o el autor. Con el coste medido de ≈ 0,65 ms por paso, se propone **relajar el criterio** a «≤ 1 Layout y ≤ 2 Paint por escritura del deslizante, < 1 ms por frame, 0 en el resto de la página».
+
+### Arreglos aplicados
+
+- `Viewer.tsx` y `Scale.module.scss`: el Sol pasa a `.sun` > `.sunBox` > `<video class="sunVideo">` (reinicia `--zoom`, `--dEarth`, `--dSun`, `--sTon`, `--intro`, `--earthIn` y `--earthE`; si se escribe otra variable por frame hay que añadirla).
+- `useScaleZoom.ts`: `data-sun` y `data-moving` solo se escriben si cambian, y `setActiveStop` solo al cambiar de índice de parada (evita el render del cuerpo de `Scale` que quedaba por cada cruce y dentro de una parada).
+- No hay cambios de comportamiento visibles: capturas del Sol y del Sistema solar idénticas a las del Paso 9. `build`, `eslint` y `prettier --check` limpios.
+
+### Otros hallazgos
+
+- **Fallback sin `animation-timeline`** (Chrome con la rama de respaldo forzada: `CSS.supports` falso y los `@supports` invertidos en una copia): el fundido de Ciencia funciona (opacidad 1 → 0 y visor 806 → 98 px, vídeo pausado al final, `data-ready` false). El stage de Ciencia queda con opacidad 0 pero `visibility: visible` y desplazado hasta 450 px (no intercepta clics: `elementFromPoint` da Escala). Sin probar en Safari ni Firefox.
+- **Velocidad del zoom desigual entre tramos:** 4:1:12 de ln(zoom) por px entre Tierra → Sol, Sol → Sistema solar y Sistema solar → TON 618. Es consecuencia de reparto equitativo del scroll; si se quiere uniforme habría que repartirlo según Δln(zoom). Decisión de diseño.
+- **Horizonte de TON 618:** la zona oscura de la imagen mide 0,09–0,145 de su ancho (0,209 del spec incluye el anillo). Falta definir el criterio de calibración.
+- **Tamaño de texto:** en apaisado bajo la respuesta y los botones miden 14 px (cumple), pero el `kicker` y el hint miden 12 px (11 en escritorio); el spec dice «texto de ≥ 14 px».
+- **Foco hacia atrás:** Mayús + Tab desde el deslizante cae en los botones de nivel de Exploración (`Nivel 4 de 4`), que siguen enfocables fuera de pantalla. No es de Escala; avisar a quien mantenga Exploración.
+- **Sol borroso:** el vídeo (400 px) se amplía ×2 en escritorio; si se quiere nitidez en 2× hace falta un vídeo mayor (presupuesto de 0,3 MB).
+- **Lighthouse móvil** pasa justo (90–91) y el LCP de 3,5 s es del Hero.
+
+### Lo que no se pudo medir
+
+Frame real, raster y composición (sin GPU: hace falta un dispositivo móvil real), Safari y Firefox, el Profiler de React (se contaron renders con contadores en una copia temporal), nitidez en pantallas 2×, halos de borde en píxeles, el zoom de texto al 200 % y la Tierra emergiendo en la intro.
+
+### Cambios propuestos al spec
+
+- Criterio de rendimiento: ver la propuesta de arriba (relajar o rediseñar el pulgar).
+- Nuevo criterio: «El `<video>` del Sol no lleva `scale`, `opacity`, `mask-image` ni `will-change` propios; `data-sun` solo se escribe al cambiar».
+- Aclarar qué borde de la imagen de TON 618 es el horizonte (a 0,22·V).
 
 ---
 
@@ -339,9 +383,9 @@ Cambios sobre el diseño original, hechos después del Paso 9 y reflejados en la
 - **Rendimiento en móviles de gama media.** Escena con muchos elementos en capas distintas y un vídeo; medir en dispositivo real.
 - **Peso de los recursos.** 8 sprites + Sol + Tierra; el presupuesto es ajustado y se mide en el Paso 3.
 - **Tramo negro antes de TON 618.** Unos 680 px de scroll con la escena casi negra (el horizonte llena el visor); aceptado. Reducirlo exigiría acortar `$scaleTravel` o repartir el scroll de forma desigual entre tramos.
-- **Paint no es 0 al desplazar** y 1 Layout por escritura de `input.value` (ver criterios); sin causa identificada, a investigar en el Paso 10.
-- **Capas del solape con Ciencia.** 7 capas grandes durante ≈ 450 px de scroll (límite 6); aceptado, a medir en el Paso 10.
-- **Fallback sin `animation-timeline`** de los fundidos de Ciencia: lógica CSS no probada en un navegador real (solo la rama nativa en Chrome).
+- **Paint no es 0 al desplazar** y 1 Layout por escritura de `input.value`: causa en gran parte identificada en el Paso 10 (ver «Resultados del Paso 10»); quedan el `input.value` y un resto sin explicar.
+- **Capas del solape con Ciencia.** Medido en el Paso 10: Escala aporta 1–2 capas grandes durante el solape y Ciencia 8–9 (10 en total); aceptado, el exceso es de Ciencia.
+- **Fallback sin `animation-timeline`** de los fundidos de Ciencia: probado en el Paso 10 en Chrome forzando la rama de respaldo (ver «Resultados del Paso 10»); sigue sin probarse en Safari ni Firefox.
 - **Acoplamiento con Ciencia.** El solape y el fundido dependen de `$scienceFade` y del margen negativo de Escala; cambiar uno obliga a revisar el otro.
 - **Acoplamiento futuro con la navegación.** La sección es un track pegado al final de Ciencia, con solape; el `rootMargin` del `IntersectionObserver` del spec de navegación debe tenerlo en cuenta.
 

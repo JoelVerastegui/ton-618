@@ -197,7 +197,6 @@
 // Sol: fundido de entrada cuando llena el visor (< 4 V) y de salida cuando ya es un punto.
 .sun {
   @extend %layer;
-  object-fit: cover;
   // Los bordes del vídeo no son negro puro: un velo radial en lugar de un recorte duro conserva
   // las llamaradas y no deja ver el rectángulo.
   mask-image: radial-gradient(closest-side, #000 90%, transparent);
@@ -206,6 +205,29 @@
     clamp(0, calc((4 - var(--dSun)) / 2), 1),
     clamp(0, calc((var(--dSun) - 0.003) / 0.007), 1)
   );
+}
+
+// Caja entre la capa del Sol y su `<video>`: un `<video>` cuyo estilo se recalcula repinta el stage
+// en cada paso de scroll (medido en Chrome sin GPU). Las variables que `useScaleZoom` escribe se
+// heredan y lo recalculan, así que aquí se fijan y el vídeo no las ve cambiar. Si el hook o la
+// escena escriben otra variable por frame, hay que añadirla a esta lista.
+.sunBox {
+  position: absolute;
+  inset: 0;
+  --zoom: 0;
+  --dEarth: 0;
+  --dSun: 0;
+  --sTon: 0;
+  --intro: 0;
+  --earthIn: 0;
+  --earthE: 0;
+}
+
+.sunVideo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 // Tierra: se funde cuando mide < ~0,04 V (ya detrás del Sol no aporta).
