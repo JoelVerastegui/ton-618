@@ -1,15 +1,15 @@
 import type { TimeMilestoneId } from '../interfaces/time';
 
-// Tiempo de viaje de la luz de TON 618 hasta nosotros, en millones de años. Valor provisional:
-// lo verifica `cosmic-data-researcher` en el Paso 2 (z ≈ 2,219; NASA: «más de 10 mil millones»).
+// Tiempo de viaje de la luz de TON 618 hasta nosotros, en millones de años (verificado, SPEC 05:
+// z = 2,219, ΛCDM plano con H₀ = 67,4 y Ωm = 0,315 → 10 844 Ma ≈ 10 800).
 export const TRAVEL_MA = 10800;
 
-// Antigüedad de cada hito, en millones de años (provisional, Paso 2). Sirve de referencia del
+// Antigüedad de cada hito, en millones de años (verificado, SPEC 05). Sirve de referencia del
 // orden cronológico; la posición visual sale de `MILESTONE_POS`, no de estas cifras.
 export const MILESTONE_AGO_MA: Record<TimeMilestoneId, number> = {
   sun: 4600,
   earth: 4540,
-  life: 3700,
+  life: 3500,
   dinosaurs: 230,
   humans: 0.3,
 };

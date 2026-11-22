@@ -91,6 +91,14 @@ Convenciones:
 - La partícula avanza a **velocidad constante en el scroll**: su posición es `progreso × longitud de la línea`. La compresión del tiempo se aplica **solo a los marcadores** (su posición en la línea), no al movimiento. Una etiqueta aparece cuando la partícula pasa por el ancla de su hito.
 - Las fechas (`when`) y `TRAVEL_MA` los verifica `cosmic-data-researcher` (referencia: corrimiento al rojo z ≈ 2,219 de TON 618 ⇒ ≈ 10 800 Ma de tiempo de viaje; NASA: «más de 10 mil millones de años»; Sol ≈ 4 600 Ma, Tierra ≈ 4 540 Ma, vida ≈ 3 500–3 800 Ma, dinosaurios ≈ 230 Ma, *Homo sapiens* ≈ 300 000 años).
 
+### Datos físicos verificados
+
+Consulta: 2026-11-22.
+
+- **Tiempo de viaje de la luz:** z = 2,219 (NED). Tiempo de retrospección (*lookback time*) en ΛCDM plano: `t = (1/H₀) ∫₀^z dz' / [(1+z') √(Ωm(1+z')³ + ΩΛ)]`. Con Planck 2018 (H₀ = 67,4 km/s/Mpc, Ωm = 0,315) da 10,84 Ga; con H₀ = 67,7 y Ωm = 0,31, 10,84 Ga; con H₀ = 70 y Ωm = 0,3, 10,56 Ga. Se usa `TRAVEL_MA = 10800` y en pantalla «hace más de 10 mil millones de años» (cierto en toda la horquilla 10,5–10,9 Ga). No es la distancia actual (comóvil ≈ 18 Gal), que no se muestra. No se halló una página de NASA que dé la cifra; el «más de 10 mil millones» de la idea original queda respaldado por el cálculo.
+- **Hitos** (`MILESTONE_AGO_MA`, en Ma): Sol 4 600 (NASA: se formó hace ≈ 4,6 mil millones de años); Tierra 4 540 (edad radiométrica clásica, Patterson 1956 / USGS); vida 3 500 (evidencia más aceptada: microfósiles y estromatolitos del Pilbara, ≈ 3,47–3,5 Ga; las del Isua, ≈ 3,7 Ga, son discutidas, por eso «hace unos»); dinosaurios 230 (primeros dinosaurios del Triásico, Ischigualasto, ≈ 228–231 Ma); humanos 0,3 (*Homo sapiens* de Jebel Irhoud, ≈ 300 000 años, Hublin et al., *Nature*, 2017).
+- **Etiquetas:** exactas para Sol y Tierra («hace 4 600 millones…», «hace 4 540 millones…»); «hace unos…» para vida, dinosaurios y humanos.
+
 ### Escala de tiempo
 
 - **Ni lineal ni logarítmica.** En escala lineal real Sol y Tierra quedarían a un 0,6 % de distancia, vida al 66 % y dinosaurios y humanos pegados a la llegada (98–100 %); ilegible. Se usan **anclas calibradas a mano** (`MILESTONE_POS`), monótonas en el orden cronológico real, con una separación mínima entre marcadores consecutivos (`MIN_GAP`) suficiente para que las etiquetas no se solapen en móvil.
