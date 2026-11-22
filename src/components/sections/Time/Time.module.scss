@@ -498,10 +498,82 @@
   }
 }
 
+// --- Intro y transición con Escala -----------------------------------------------------
+// El track solapa el fundido final de Escala (`$scaleFade`): su stage se pega mientras el de Escala
+// (z-index mayor por orden de capas, ver abajo) sigue pegado encima y se desvanece sobre el cielo
+// que entra. Escala es negra y se apaga por opacidad: no hay costura con el fondo de Tiempo.
+// Con reduced-motion o sin timeline no hay solape ni intro: corte directo a la escena compuesta.
+@keyframes skyIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// Las estrellas se abren desde el centro; cada capa a su ritmo (la cercana, la más rápida)
+@keyframes starsOpen {
+  from {
+    scale: 0.55;
+  }
+
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes introIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
+    .section {
+      // Escala (z-index 1) queda por encima durante el solape; Tiempo, sin z-index, se pinta bajo ella.
+      margin-top: calc(-100vh - #{$scaleFade}svh);
+      margin-top: calc(-100dvh - #{$scaleFade}svh);
+    }
+
     .track {
       view-timeline: --timeTrack block;
+    }
+
+    .sky {
+      animation: skyIn 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeIntroRangeOf(0, 0.6)};
+    }
+
+    .stars {
+      animation: starsOpen 1ms $easeOutExpo both;
+      animation-timeline: --timeTrack;
+    }
+
+    .far {
+      animation-range: #{timeIntroRangeOf(0, 1)};
+    }
+
+    .mid {
+      animation-range: #{timeIntroRangeOf(0, 0.8)};
+    }
+
+    .near {
+      animation-range: #{timeIntroRangeOf(0, 0.6)};
+    }
+
+    .header,
+    .line {
+      animation: introIn 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeIntroRangeOf(0.35, 1)};
     }
 
     .particle {
@@ -516,10 +588,15 @@
       animation-range: #{timeRangeOf(0, 1)};
     }
 
+    // Aparece con la línea (intro) y se va al arrancar el viaje (`forwards`: antes de su rango no actúa)
     .hint {
-      animation: hintOut 1ms linear both;
-      animation-timeline: --timeTrack;
-      animation-range: #{timeRangeOf(0, 0.04)};
+      animation:
+        introIn 1ms linear both,
+        hintOut 1ms linear forwards;
+      animation-timeline: --timeTrack, --timeTrack;
+      animation-range:
+        #{timeIntroRangeOf(0.35, 1)},
+        #{timeRangeOf(0, 0.04)};
     }
 
     // Cada hito (y la llegada) se muestra al cruzar su ancla `--pos`; la salida ya está visible.
