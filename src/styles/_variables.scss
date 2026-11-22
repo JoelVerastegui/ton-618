@@ -510,3 +510,17 @@ $motionContemplative: 2400ms;
 @function timeRangeOf($from: 0, $to: 1) {
   @return cover timeTravelAt($from) cover timeTravelAt($to);
 }
+
+// Punto del hold (`$t` 0 → 1, fracción de `$timeHold`) como posición del timeline `cover`: el hold
+// empieza donde acaba el viaje y termina cuando el stage se suelta.
+@function timeHoldAt($t) {
+  @return calc(
+    100svh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro})) * 1svh + #{$t} *
+      var(--timeHold, #{$timeHold}) * 1svh
+  );
+}
+
+// Rango de animación dentro del hold (fracciones 0 → 1 de `$timeHold`).
+@function timeHoldRangeOf($from: 0, $to: 1) {
+  @return cover timeHoldAt($from) cover timeHoldAt($to);
+}

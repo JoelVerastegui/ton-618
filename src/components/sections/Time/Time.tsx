@@ -76,6 +76,7 @@ export function Time() {
                 decoding='async'
               />
             </span>
+            <span className={styles.halo} aria-hidden='true' />
             <span className={styles.particle} aria-hidden='true' />
 
             <ol className={styles.items}>

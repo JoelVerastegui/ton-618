@@ -81,9 +81,15 @@
     --stemFar: 5rem;
   }
 
+  // Móvil vertical bajo (p. ej. 320×568): la línea sube para dejar la banda del mensaje libre
+  // bajo las etiquetas
+  @media (max-height: 600px) and (orientation: portrait) {
+    --lineY: 50%;
+  }
+
   // Pantallas muy bajas (p. ej. 568×320): la línea sube y las etiquetas lejanas se acercan
   @media (max-height: 400px) and (orientation: landscape) {
-    --lineY: 50%;
+    --lineY: 45%;
     --stemFar: 4rem;
   }
 }
@@ -169,6 +175,8 @@
   @media (max-height: $shortHeight) and (orientation: landscape) {
     top: 0.75rem;
     max-width: 14rem;
+    // En la escena base ya está el mensaje: el título deja sitio a las etiquetas
+    opacity: 0;
   }
 }
 
@@ -214,16 +222,37 @@
   }
 }
 
-// Mensaje final: en su sitio del DOM, invisible hasta que el viaje llegue (Paso 6).
+// Mensaje final. Ubicación (medida en los 8 viewports de referencia): banda propia en la parte
+// baja del stage, donde el hint ya se fue; nunca sobre la línea, porque con las siete etiquetas
+// visibles no hay hueco entre ellas (el spec lo pedía centrado sobre la línea). Las etiquetas
+// «down» más largas acaban por encima de esta banda. En la escena base (reduced-motion o sin
+// timeline) está visible; el scroll lo funde desde 0 durante el hold.
 .message {
   position: absolute;
   right: 1rem;
-  bottom: 3rem;
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + (100dvh - 100svh) / 2);
   left: 1rem;
-  margin: 0;
-  opacity: 0;
+  max-width: 34rem;
+  margin: 0 auto;
+  color: $starlight;
+  font-size: clamp(1rem, 4.6vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.3;
   text-align: center;
+  text-shadow: 0 0 0.75rem $timeBg;
+  text-wrap: balance;
   pointer-events: none;
+
+  @media #{$sideBySide} {
+    max-width: 44rem;
+    font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+  }
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + (100dvh - 100svh) / 2);
+    max-width: 38rem;
+    font-size: 0.9375rem;
+  }
 }
 
 .summary {
@@ -289,6 +318,25 @@
   left: 100%;
 }
 
+// Halo de la Tierra «encendida»: gradiente con opacity, sin filter. Oculto en la escena base solo
+// cuando hay timeline (ahí lo anima); en la base queda encendido.
+.halo {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: calc(var(--endSize) * 3);
+  height: calc(var(--endSize) * 3);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba($solarAmber, 0.5) 0,
+    rgba($solarAmber, 0.22) 35%,
+    transparent 70%
+  );
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
 .particle {
   position: absolute;
   top: 0;
@@ -306,6 +354,8 @@
   );
   translate: -50% -50%;
   transform: translateX(calc(var(--lineW) * var(--progress)));
+  // En la escena base la luz ya llegó y se fundió con la Tierra
+  opacity: 0;
 }
 
 // --- Hitos y etiquetas ---------------------------------------------------------------
@@ -534,6 +584,73 @@
   }
 }
 
+// --- Llegada, mensaje y hold -----------------------------------------------------------
+@keyframes earthLit {
+  from {
+    opacity: 0.5;
+    scale: 0.92;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes haloIn {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes particleOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    translate: 0 1rem;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes sceneDim {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.6;
+  }
+}
+
+@keyframes headerOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .section {
@@ -576,10 +693,55 @@
       animation-range: #{timeIntroRangeOf(0.35, 1)};
     }
 
+    // La partícula viaja y se funde con la Tierra al llegar (0,96 → 1)
     .particle {
-      animation: particleTravel 1ms linear both;
+      animation:
+        particleTravel 1ms linear both,
+        particleOut 1ms linear both;
+      animation-timeline: --timeTrack, --timeTrack;
+      animation-range:
+        #{timeRangeOf(0, 1)},
+        #{timeRangeOf(0.96, 1)};
+    }
+
+    .destination {
+      animation: earthLit 1ms $easeOutExpo both;
       animation-timeline: --timeTrack;
-      animation-range: #{timeRangeOf(0, 1)};
+      animation-range: #{timeRangeOf(0.96, 1)};
+    }
+
+    .halo {
+      animation: haloIn 1ms $easeOutExpo both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeRangeOf(0.96, 1)};
+    }
+
+    // Mensaje: fundido lento en el primer tramo del hold; el resto queda quieto
+    .message {
+      animation: messageIn 1ms ease-out both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeHoldRangeOf(0, 0.5)};
+    }
+
+    // Etiquetas, marcadores y línea bajan a 0,6 mientras entra el mensaje
+    .items,
+    .bar {
+      animation: sceneDim 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeHoldRangeOf(0, 0.5)};
+    }
+
+    // Apaisado bajo: el título y el subtítulo dejan sitio al mensaje
+    @media (max-height: $shortHeight) and (orientation: landscape) {
+      .header {
+        animation:
+          introIn 1ms linear both,
+          headerOut 1ms linear forwards;
+        animation-timeline: --timeTrack, --timeTrack;
+        animation-range:
+          #{timeIntroRangeOf(0.35, 1)},
+          #{timeHoldRangeOf(0, 0.5)};
+      }
     }
 
     .fill {
@@ -604,6 +766,12 @@
     .item:not([data-id='departure']) {
       --from: #{timeTravelAt('(var(--pos) - 0.03)')};
       --to: #{timeTravelAt('(var(--pos) + 0.02)')};
+
+      // La llegada termina de aparecer justo en 1, con la Tierra encendida
+      &[data-id='arrival'] {
+        --to: #{timeTravelAt(1)};
+      }
+
       animation: itemIn 1ms linear both;
       animation-timeline: --timeTrack;
       animation-range: cover var(--from) cover var(--to);
