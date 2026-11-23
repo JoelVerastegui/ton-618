@@ -14,10 +14,19 @@ interface ScaleSliderProps {
   inputRef: RefObject<HTMLInputElement | null>;
   onValue: (value: number) => void;
   onStop: (value: number) => void;
+  // Inerte (sin foco ni clics) mientras la escena no está lista (fundido final)
+  inert?: boolean;
 }
 
 // Deslizante de escala y botones de parada. El valor continuo no es estado de React.
-export function ScaleSlider({ stops, activeStop, inputRef, onValue, onStop }: ScaleSliderProps) {
+export function ScaleSlider({
+  stops,
+  activeStop,
+  inputRef,
+  onValue,
+  onStop,
+  inert,
+}: ScaleSliderProps) {
   const activeTitle = stops.find((stop) => stop.id === activeStop)?.title;
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +68,7 @@ export function ScaleSlider({ stops, activeStop, inputRef, onValue, onStop }: Sc
   };
 
   return (
-    <div className={styles.control}>
+    <div className={styles.control} inert={inert}>
       <input
         ref={inputRef}
         className={styles.slider}

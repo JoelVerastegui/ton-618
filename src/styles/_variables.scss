@@ -427,9 +427,98 @@ $scaleTravel: 400;
 // desde el negro de Ciencia y la Tierra emerge. Con `prefers-reduced-motion` vale 0 (`--scaleIntro`).
 $scaleIntro: 120;
 // Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
+// Suma el fundido final (`--scaleFade`, ver más abajo).
 @mixin scaleTrackHeight {
-  height: calc(100vh + (#{$scaleTravel} + var(--scaleIntro, #{$scaleIntro})) * 1svh);
-  height: calc(100dvh + (#{$scaleTravel} + var(--scaleIntro, #{$scaleIntro})) * 1svh);
+  height: calc(
+    100vh +
+      (#{$scaleTravel} + var(--scaleIntro, #{$scaleIntro}) + var(--scaleFade, #{$scaleFade})) * 1svh
+  );
+  height: calc(
+    100dvh +
+      (#{$scaleTravel} + var(--scaleIntro, #{$scaleIntro}) + var(--scaleFade, #{$scaleFade})) * 1svh
+  );
 }
 // El visor reutiliza `$mapSizeDesktop` de Exploración en side-by-side.
 $scaleViewSizeDesktop: $mapSizeDesktop;
+
+// Fundido final de Escala (svh de scroll tras su último estado, SPEC 05): el visor de TON 618 se
+// encoge hacia su centro y el escenario se desvanece, pegado en pantalla, mientras entra el cielo
+// de Tiempo. Es scroll extra al final del track de Escala (ver `Time.module.scss`). Con
+// `prefers-reduced-motion` o sin `animation-timeline` vale 0 (`--scaleFade`). No cuenta como
+// recorrido del zoom: `useScaleZoom` lo descuenta midiendo `fadeSpan`.
+$scaleFade: 50;
+// Escala final del visor de TON 618 (se pierde en el centro)
+$tonOutScale: 0.02;
+
+// Punto del fundido final (`$t` 0 → 1) como posición del timeline `cover` del track de Escala.
+@function scaleFadeAt($t) {
+  @return calc(
+    100svh + (#{$scaleTravel} + var(--scaleIntro, #{$scaleIntro})) * 1svh + #{$t * $scaleFade}svh
+  );
+}
+
+@function scaleFadeRangeOf($from: 0, $to: 1) {
+  @return cover scaleFadeAt($from) cover scaleFadeAt($to);
+}
+
+// ---------------------------------------------------------------------------
+// Sección Tiempo (SPEC 05)
+// ---------------------------------------------------------------------------
+// Fondo: azul cósmico muy oscuro bajo la nebulosa del Hero y las estrellas (no es negro).
+$timeBg: #0a1226;
+// Tramos del track en svh de scroll (calibrados en el Paso 9, ≈ 600 svh en total):
+// intro (cielo, título, línea; solapa con el fundido de Escala), viaje de la partícula y pausa
+// con el mensaje visible. Con `prefers-reduced-motion` la intro y la pausa valen 0 (`--timeIntro`,
+// `--timeHold`) y el track no es sticky.
+$timeIntro: 100;
+$timeTravel: 420;
+$timeHold: 80;
+// Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
+@mixin timeTrackHeight {
+  height: calc(
+    100vh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+      1svh
+  );
+  height: calc(
+    100dvh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+      1svh
+  );
+}
+
+// Punto del viaje (`$t` 0 → 1, fracción de `$timeTravel`) como posición del timeline `cover` del
+// track de Tiempo: tras el viewport inicial y la intro. `$t` puede ser una expresión CSS (p. ej.
+// `(var(--pos) - 0.03)`): así cada hito se ancla a su `--pos` (`MILESTONE_POS` en `timeScale.ts`)
+// sin duplicar sus valores aquí.
+@function timeTravelAt($t) {
+  @return calc(100svh + var(--timeIntro, #{$timeIntro}) * 1svh + #{$t} * #{$timeTravel} * 1svh);
+}
+
+// Punto de la intro (`$t` 0 → 1, fracción de `$timeIntro`) como posición del timeline `cover`: la
+// intro empieza al pegarse el stage (track en lo alto del viewport = 100svh de recorrido).
+@function timeIntroAt($t) {
+  @return calc(100svh + #{$t} * var(--timeIntro, #{$timeIntro}) * 1svh);
+}
+
+// Rango de animación dentro de la intro (fracciones 0 → 1 de `$timeIntro`).
+@function timeIntroRangeOf($from: 0, $to: 1) {
+  @return cover timeIntroAt($from) cover timeIntroAt($to);
+}
+
+// Rango de animación dentro del viaje (fracciones 0 → 1 del recorrido de la partícula).
+@function timeRangeOf($from: 0, $to: 1) {
+  @return cover timeTravelAt($from) cover timeTravelAt($to);
+}
+
+// Punto del hold (`$t` 0 → 1, fracción de `$timeHold`) como posición del timeline `cover`: el hold
+// empieza donde acaba el viaje y termina cuando el stage se suelta.
+@function timeHoldAt($t) {
+  @return calc(
+    100svh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro})) * 1svh + #{$t} *
+      var(--timeHold, #{$timeHold}) * 1svh
+  );
+}
+
+// Rango de animación dentro del hold (fracciones 0 → 1 de `$timeHold`).
+@function timeHoldRangeOf($from: 0, $to: 1) {
+  @return cover timeHoldAt($from) cover timeHoldAt($to);
+}

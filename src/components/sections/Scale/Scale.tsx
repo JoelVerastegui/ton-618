@@ -1,5 +1,7 @@
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { useSceneReady } from '@/hooks/useSceneReady';
+import { useSectionFaded } from '@/hooks/useSectionFaded';
 import { useScaleZoom } from '@/hooks/useScaleZoom';
 import scaleJson from '@/data/scale.json';
 import type { ScaleData } from '@/interfaces/scale';
@@ -23,6 +25,15 @@ export function Scale() {
   const viewerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { scrollToValue, animateTo, activeStop } = useScaleZoom(trackRef, viewerRef, inputRef);
+  // `data-faded` en el visor cuando el fundido final terminó: pausa el vídeo del Sol
+  const fadedRef = useRef<HTMLSpanElement>(null);
+  useSectionFaded(viewerRef, fadedRef);
+
+  // Lista hasta que empieza el fundido final (el control queda inerte; sin estado extra de scroll)
+  const sentinelRef = useRef<HTMLSpanElement>(null);
+  const noop = useCallback(() => {}, []);
+  const ready = useSceneReady(sentinelRef, noop);
+
   const stop = scale.stops.find((item) => item.id === activeStop) ?? scale.stops[0];
 
   return (
@@ -59,10 +70,18 @@ export function Scale() {
               inputRef={inputRef}
               onValue={scrollToValue}
               onStop={animateTo}
+              inert={!ready}
             />
           </div>
         </div>
         <div className={styles.introSpan} aria-hidden='true' />
+        <div className={styles.fadeSpan} aria-hidden='true' />
+
+        {/* Desde lo alto del track hasta el inicio del fundido final (ver `useSceneReady`) */}
+        <span ref={sentinelRef} className={styles.sentinel} aria-hidden='true' />
+
+        {/* Desde el final del track hacia abajo: el fundido terminó (ver `useSectionFaded`) */}
+        <span ref={fadedRef} className={styles.fadedSentinel} aria-hidden='true' />
       </div>
     </section>
   );

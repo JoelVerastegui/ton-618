@@ -20,7 +20,8 @@ const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2,
  * Convierte el scroll del track de la sección en el zoom 0…1000 y lo vuelca en la variable CSS
  * `--zoom` del visor. El track empieza con una intro (el segundo hijo, `introSpan`, mide su
  * alto): ahí el zoom vale 0 y el progreso 0…1 de la intro va en `--intro` del stage (más
- * `data-intro` del visor); después el zoom recorre 0…1000 hasta que el stage se suelta. La fuente de verdad es el scroll: el
+ * `data-intro` del visor); después el zoom recorre 0…1000 y el track acaba con el fundido final
+ * (tercer hijo, `fadeSpan`), donde el zoom ya vale 1000. La fuente de verdad es el scroll: el
  * deslizante y los botones solo hacen scroll (`scrollToValue`, `animateTo`).
  * El valor continuo no es estado de React: se escribe por `ref` con `requestAnimationFrame`, y
  * con `inputRef` también el `value` del deslizante (no controlado). Solo la parada activa es
@@ -112,9 +113,12 @@ export function useScaleZoom(
     let lastStop = -1; // última parada comunicada a React
 
     const measure = () => {
-      const intro = (stage.nextElementSibling as HTMLElement | null)?.offsetHeight ?? 0;
+      const introSpan = stage.nextElementSibling as HTMLElement | null;
+      const intro = introSpan?.offsetHeight ?? 0;
+      // El fundido final (tercer hijo) va tras el último estado: no es recorrido del zoom
+      const fade = (introSpan?.nextElementSibling as HTMLElement | null)?.offsetHeight ?? 0;
       introRef.current = intro;
-      travelRef.current = Math.max(1, track.offsetHeight - stage.offsetHeight - intro);
+      travelRef.current = Math.max(1, track.offsetHeight - stage.offsetHeight - intro - fade);
     };
 
     const render = () => {

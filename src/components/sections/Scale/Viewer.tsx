@@ -45,8 +45,9 @@ interface ViewerProps {
 // `--zoom` (escrita por ref), de modo que mover el scroll no lo vuelve a renderizar.
 export const Viewer = memo(function Viewer({ viewerRef }: ViewerProps) {
   const sunRef = useRef<HTMLVideoElement>(null);
-  // Reproduce solo con el vídeo en pantalla y la capa del Sol visible (`data-sun` del visor)
-  useVideoPlayback(sunRef, viewerRef, 'sun');
+  // Reproduce solo con el vídeo en pantalla, la capa del Sol visible (`data-sun` del visor) y el
+  // escenario sin desvanecer del todo (`data-faded`, ver `useSectionFaded`)
+  useVideoPlayback(sunRef, viewerRef, 'sun', 'faded');
 
   return (
     <div

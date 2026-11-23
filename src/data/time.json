@@ -1,0 +1,22 @@
+{
+  "title": "Un mensaje del pasado",
+  "subtitle": "Más de 10 mil millones de años",
+  "hint": "Desliza para seguir la luz",
+  "summary": "Una partícula de luz sale de TON 618 hace más de 10 mil millones de años y viaja hasta la Tierra. En su camino pasan el nacimiento del Sol, el de la Tierra, la aparición de la vida, los dinosaurios y el ser humano. La luz llega hoy: al observar el universo, vemos su pasado.",
+  "departure": {
+    "label": "Sale de TON 618",
+    "when": "hace más de 10 mil millones de años"
+  },
+  "milestones": [
+    { "id": "sun", "label": "Nace el Sol", "when": "hace 4 600 millones de años" },
+    { "id": "earth", "label": "Nace la Tierra", "when": "hace 4 540 millones de años" },
+    { "id": "life", "label": "Aparece la vida", "when": "hace unos 3 500 millones de años" },
+    { "id": "dinosaurs", "label": "Reinan los dinosaurios", "when": "hace unos 230 millones de años" },
+    { "id": "humans", "label": "Aparece el ser humano", "when": "hace unos 300 000 años" }
+  ],
+  "arrival": {
+    "label": "Llega a la Tierra",
+    "when": "hoy"
+  },
+  "message": "Cuando observamos el universo, también estamos observando su pasado."
+}

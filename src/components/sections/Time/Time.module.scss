@@ -1,0 +1,882 @@
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Texto solo para lectores de pantalla
+%srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Track de scroll con stage sticky (como Escala). En este paso la escena está ya compuesta y
+// estática (estado de reduced-motion y de navegadores sin timeline); el viaje por scroll la anima.
+// Geometría de la línea (variables locales, por viewport):
+// · móvil vertical: línea ~84vw a 56 % del alto, etiquetas de 14 px alternadas arriba y abajo;
+// · side-by-side: línea 72vw;
+// · móvil apaisado bajo: todo más compacto.
+.section {
+  // Progreso total del track (0-1); el fallback sin timeline lo reescribe al hacer scroll
+  --progress: 1;
+  position: relative;
+
+  @media (prefers-reduced-motion: reduce) {
+    --timeIntro: 0;
+    --timeHold: 0;
+  }
+}
+
+.track {
+  position: relative;
+  @include timeTrackHeight;
+
+  @media (prefers-reduced-motion: reduce) {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
+.stage {
+  --lineW: 84vw;
+  --lineY: 56%;
+  --endSize: 3rem;
+  --labelW: 6.25rem;
+  --stemNear: 1rem;
+  --stemFar: 6rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh; // sigue las barras del navegador
+  overflow: clip;
+  background-color: $timeBg;
+
+  @media (prefers-reduced-motion: reduce) {
+    position: relative;
+  }
+
+  @include media-breakpoint-up(md) {
+    --lineW: 78vw;
+    --endSize: 3.5rem;
+    --labelW: 10rem;
+    --stemFar: 6.5rem;
+  }
+
+  @media #{$sideBySide} {
+    --lineW: 72vw;
+    --labelW: 11rem;
+    --stemFar: 5.75rem;
+  }
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    --endSize: 2.5rem;
+    --labelW: 9.5rem;
+    --stemNear: 0.75rem;
+    --stemFar: 5rem;
+  }
+
+  // Móvil vertical bajo (p. ej. 320×568): la línea sube para dejar la banda del mensaje libre
+  // bajo las etiquetas
+  @media (max-height: 600px) and (orientation: portrait) {
+    --lineY: 50%;
+  }
+
+  // Pantallas muy bajas (p. ej. 568×320): la línea sube y las etiquetas lejanas se acercan
+  @media (max-height: 400px) and (orientation: landscape) {
+    --lineY: 45%;
+    --stemFar: 4rem;
+  }
+}
+
+// --- Cielo -----------------------------------------------------------------------
+.sky {
+  position: absolute;
+  inset: 0;
+}
+
+// Velo radial: la nebulosa se desvanece hacia el borde y queda tenue bajo las etiquetas.
+.nebulaMask {
+  position: absolute;
+  inset: 0;
+  mask-image: radial-gradient(closest-side, #000 55%, transparent);
+}
+
+// Nebulosa del Hero (vertical en móvil, horizontal desde md); `screen` hace desaparecer su negro.
+.nebula {
+  position: absolute;
+  inset: 0;
+  background: url('../../../assets/images/hero/nebula-mobile.webp') center / cover no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+
+  @include media-breakpoint-up(md) {
+    background-image: url('../../../assets/images/hero/nebula.webp');
+  }
+}
+
+.stars {
+  --k: 1.6;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  @include media-breakpoint-up(md) {
+    --k: 1;
+  }
+
+  path {
+    fill: none;
+    stroke: var(--tint);
+    stroke-width: calc(var(--stroke) * var(--k));
+    stroke-linecap: round;
+  }
+}
+
+.far {
+  opacity: 0.5;
+  --stroke: 1.4;
+  --tint: #bcd0ff;
+}
+
+.mid {
+  opacity: 0.75;
+  --stroke: 2;
+  --tint: #{$starlight};
+}
+
+.near {
+  opacity: 0.95;
+  --stroke: 2.8;
+  --tint: #fff;
+}
+
+// --- Título y hint ---------------------------------------------------------------
+.header {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  left: 1rem;
+  text-align: center;
+
+  @media #{$sideBySide} {
+    top: 6svh;
+    right: auto;
+    left: max(3vw, 1rem);
+    text-align: left;
+  }
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    top: 0.75rem;
+    max-width: 14rem;
+    // En la escena base ya está el mensaje: el título deja sitio a las etiquetas
+    opacity: 0;
+  }
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.125rem, 5.5vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.15;
+  text-wrap: balance;
+
+  @media #{$sideBySide} {
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+  }
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    font-size: 1.125rem;
+  }
+}
+
+.subtitle {
+  margin: 0;
+  color: $amberText;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+
+  // Apaisado bajo: más compacto para no tocar la etiqueta lejana de la vida
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    font-size: 0.75rem;
+  }
+}
+
+.hint {
+  position: absolute;
+  right: 1rem;
+  bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + (100dvh - 100svh) / 2);
+  left: 1rem;
+  margin: 0;
+  color: $amberText;
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-align: center;
+  text-transform: uppercase;
+  // En la escena base (reduced-motion) no hay viaje que invitar a seguir y ocuparía la banda del
+  // mensaje; con timeline o con el fallback por scroll se anima desde 1
+  opacity: 0;
+
+  // Apaisado bajo: a la izquierda, bajo la salida, para no tapar las etiquetas de la derecha
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    right: auto;
+    text-align: left;
+  }
+}
+
+// Mensaje final. Ubicación (medida en los 8 viewports de referencia): banda propia en la parte
+// baja del stage, donde el hint ya se fue; nunca sobre la línea, porque con las siete etiquetas
+// visibles no hay hueco entre ellas (el spec lo pedía centrado sobre la línea). Las etiquetas
+// «down» más largas acaban por encima de esta banda. En la escena base (reduced-motion o sin
+// timeline) está visible; el scroll lo funde desde 0 durante el hold.
+.message {
+  position: absolute;
+  right: 1rem;
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + (100dvh - 100svh) / 2);
+  left: 1rem;
+  max-width: 34rem;
+  margin: 0 auto;
+  color: $starlight;
+  font-size: clamp(1rem, 4.6vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.3;
+  text-align: center;
+  text-shadow: 0 0 0.75rem $timeBg;
+  text-wrap: balance;
+  pointer-events: none;
+
+  @media #{$sideBySide} {
+    max-width: 44rem;
+    font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+  }
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + (100dvh - 100svh) / 2);
+    max-width: 38rem;
+    font-size: 0.9375rem;
+  }
+}
+
+.summary {
+  @extend %srOnly;
+}
+
+// --- Línea y partícula -------------------------------------------------------------
+// Contenedor sin alto sobre el eje de la línea; sus hijos se colocan por fracción (0-1) del ancho.
+.line {
+  position: absolute;
+  top: var(--lineY);
+  left: calc((100% - var(--lineW)) / 2);
+  width: var(--lineW);
+  height: 0;
+}
+
+.bar {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba($starlight, 0.18), rgba($starlight, 0.35));
+}
+
+// Rastro: sigue a la partícula con `scaleX` (0-1)
+.fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba($solarAmber, 0.6), $amberText);
+  scale: var(--progress) 1;
+  transform-origin: left;
+}
+
+.end {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: var(--endSize);
+  height: var(--endSize);
+  overflow: hidden;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+.endImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// El agujero negro del Hero llena poco el encuadre: se acerca para que el disco se lea a 56 px
+.origin .endImage {
+  scale: 2.4;
+}
+
+.origin {
+  left: 0;
+}
+
+.destination {
+  left: 100%;
+}
+
+// Halo de la Tierra «encendida»: gradiente con opacity, sin filter. Oculto en la escena base solo
+// cuando hay timeline (ahí lo anima); en la base queda encendido.
+.halo {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: calc(var(--endSize) * 3);
+  height: calc(var(--endSize) * 3);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba($solarAmber, 0.5) 0,
+    rgba($solarAmber, 0.22) 35%,
+    transparent 70%
+  );
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fff 0 14%,
+    $amberText 26%,
+    rgba($solarAmber, 0.35) 50%,
+    transparent 70%
+  );
+  translate: -50% -50%;
+  transform: translateX(calc(var(--lineW) * var(--progress)));
+  // En la escena base la luz ya llegó y se fundió con la Tierra
+  opacity: 0;
+}
+
+// --- Hitos y etiquetas ---------------------------------------------------------------
+// Cada <li> es un punto sin tamaño sobre la línea (`--pos`, 0-1). Su etiqueta cuelga hacia
+// arriba o abajo (`data-side`) a la altura de su carril (`data-lane`) y se alinea de forma
+// proporcional a la posición, así las etiquetas de los extremos no salen de la línea.
+.items {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  --stem: var(--stemNear);
+  --drift: 0.5rem;
+  position: absolute;
+  top: 0;
+  left: calc(var(--pos) * 100%);
+  width: 0;
+  height: 0;
+
+  &[data-lane='far'] {
+    --stem: var(--stemFar);
+  }
+
+  // La etiqueta llega desde la línea
+  &[data-side='down'] {
+    --drift: -0.5rem;
+  }
+
+  // Raya hacia la etiqueta
+  &::before {
+    content: '';
+    position: absolute;
+    left: -0.5px;
+    width: 1px;
+    height: var(--stem);
+    background: rgba($starlight, 0.35);
+  }
+
+  &[data-side='up']::before {
+    bottom: 0;
+  }
+
+  &[data-side='down']::before {
+    top: 0;
+  }
+}
+
+.dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: $starlight;
+  translate: -50% -50%;
+
+  // Los extremos ya llevan su imagen
+  .item[data-id='departure'] &,
+  .item[data-id='arrival'] & {
+    display: none;
+  }
+}
+
+.label {
+  position: absolute;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: var(--labelW);
+  line-height: 1.25;
+  text-align: center;
+  text-shadow: 0 0 0.5rem $timeBg;
+  translate: calc(var(--pos) * -100%) 0;
+
+  .item[data-side='up'] & {
+    bottom: calc(var(--stem) + 0.25rem);
+  }
+
+  .item[data-side='down'] & {
+    top: calc(var(--stem) + 0.25rem);
+  }
+
+  // Extremos: el texto arranca junto a su raya
+  .item[data-id='departure'] & {
+    padding-inline-start: 0.5rem;
+    text-align: left;
+  }
+
+  .item[data-id='arrival'] & {
+    width: min(var(--labelW), 5rem);
+    padding-inline-end: 0.5rem;
+    text-align: right;
+
+    @include media-breakpoint-up(md) {
+      width: var(--labelW);
+    }
+  }
+}
+
+.name {
+  color: $starlight;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  @media #{$sideBySide} {
+    font-size: 1rem;
+  }
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    font-size: 0.8125rem;
+  }
+}
+
+.when {
+  color: $amberText;
+  font-size: 0.875rem;
+
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    font-size: 0.75rem;
+  }
+}
+
+// --- Viaje por scroll ----------------------------------------------------------------
+// El timeline cuelga del track (como Ciencia): el viaje ocupa los `$timeTravel` svh que siguen a
+// la intro. Solo `transform`, `scale`, `translate` y `opacity`; todo `both` para que antes y
+// después del rango la escena esté en su estado de partida o de llegada, reversible al subir.
+// Sin `prefers-reduced-motion: no-preference` o sin `animation-timeline` queda la escena base.
+@keyframes particleTravel {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(var(--lineW));
+  }
+}
+
+@keyframes fillGrow {
+  from {
+    scale: 0 1;
+  }
+
+  to {
+    scale: 1 1;
+  }
+}
+
+@keyframes hintOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes itemIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dotIn {
+  from {
+    scale: 0;
+  }
+
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes labelIn {
+  from {
+    transform: translateY(var(--drift));
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+// --- Intro y transición con Escala -----------------------------------------------------
+// El track solapa el fundido final de Escala (`$scaleFade`): su stage se pega mientras el de Escala
+// (z-index mayor por orden de capas, ver abajo) sigue pegado encima y se desvanece sobre el cielo
+// que entra. Escala es negra y se apaga por opacidad: no hay costura con el fondo de Tiempo.
+// Con reduced-motion o sin timeline no hay solape ni intro: corte directo a la escena compuesta.
+@keyframes skyIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// Las estrellas se abren desde el centro; cada capa a su ritmo (la cercana, la más rápida)
+@keyframes starsOpen {
+  from {
+    scale: 0.55;
+  }
+
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes introIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// --- Llegada, mensaje y hold -----------------------------------------------------------
+@keyframes earthLit {
+  from {
+    opacity: 0.5;
+    scale: 0.92;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes haloIn {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes particleOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    translate: 0 1rem;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes sceneDim {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.85;
+  }
+}
+
+@keyframes headerOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .section {
+      // Escala (z-index 1) queda por encima durante el solape; Tiempo, sin z-index, se pinta bajo ella.
+      margin-top: calc(-100vh - #{$scaleFade}svh);
+      margin-top: calc(-100dvh - #{$scaleFade}svh);
+      // El ancla `#time` aterriza al terminar la intro (cielo ya presente, partícula en el origen);
+      // sin esto caería en el inicio del fundido de Escala, que aún se ve entera
+      scroll-margin-top: -#{$timeIntro}svh;
+    }
+
+    .track {
+      view-timeline: --timeTrack block;
+    }
+
+    .sky {
+      animation: skyIn 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeIntroRangeOf(0, 0.6)};
+    }
+
+    .stars {
+      animation: starsOpen 1ms $easeOutExpo both;
+      animation-timeline: --timeTrack;
+    }
+
+    .far {
+      animation-range: #{timeIntroRangeOf(0, 1)};
+    }
+
+    .mid {
+      animation-range: #{timeIntroRangeOf(0, 0.8)};
+    }
+
+    .near {
+      animation-range: #{timeIntroRangeOf(0, 0.6)};
+    }
+
+    .header,
+    .line {
+      animation: introIn 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeIntroRangeOf(0.35, 1)};
+    }
+
+    // La partícula viaja y se funde con la Tierra al llegar (0,96 → 1)
+    .particle {
+      animation:
+        particleTravel 1ms linear both,
+        particleOut 1ms linear both;
+      animation-timeline: --timeTrack, --timeTrack;
+      animation-range:
+        #{timeRangeOf(0, 1)},
+        #{timeRangeOf(0.96, 1)};
+    }
+
+    .destination {
+      animation: earthLit 1ms $easeOutExpo both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeRangeOf(0.96, 1)};
+    }
+
+    .halo {
+      animation: haloIn 1ms $easeOutExpo both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeRangeOf(0.96, 1)};
+    }
+
+    // Mensaje: fundido lento en el primer tramo del hold; el resto queda quieto
+    .message {
+      animation: messageIn 1ms ease-out both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeHoldRangeOf(0, 0.5)};
+    }
+
+    // Etiquetas, marcadores y línea bajan a 0,6 mientras entra el mensaje
+    .items,
+    .bar {
+      animation: sceneDim 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeHoldRangeOf(0, 0.5)};
+    }
+
+    // Apaisado bajo: el título y el subtítulo dejan sitio al mensaje
+    @media (max-height: $shortHeight) and (orientation: landscape) {
+      .header {
+        animation:
+          introIn 1ms linear both,
+          headerOut 1ms linear forwards;
+        animation-timeline: --timeTrack, --timeTrack;
+        animation-range:
+          #{timeIntroRangeOf(0.35, 1)},
+          #{timeHoldRangeOf(0, 0.5)};
+      }
+    }
+
+    .fill {
+      animation: fillGrow 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: #{timeRangeOf(0, 1)};
+    }
+
+    // Aparece con la línea (intro) y se va al arrancar el viaje (`forwards`: antes de su rango no actúa)
+    .hint {
+      animation:
+        introIn 1ms linear both,
+        hintOut 1ms linear forwards;
+      animation-timeline: --timeTrack, --timeTrack;
+      animation-range:
+        #{timeIntroRangeOf(0.35, 1)},
+        #{timeRangeOf(0, 0.04)};
+    }
+
+    // Cada hito (y la llegada) se muestra al cruzar su ancla `--pos`; la salida ya está visible.
+    // El rango sale de `--pos`, así no se duplican las anclas de `timeScale.ts`.
+    .item:not([data-id='departure']) {
+      --from: #{timeTravelAt('(var(--pos) - 0.03)')};
+      --to: #{timeTravelAt('(var(--pos) + 0.02)')};
+
+      // La llegada termina de aparecer justo en 1, con la Tierra encendida
+      &[data-id='arrival'] {
+        --to: #{timeTravelAt(1)};
+      }
+
+      animation: itemIn 1ms linear both;
+      animation-timeline: --timeTrack;
+      animation-range: cover var(--from) cover var(--to);
+
+      .dot {
+        animation: dotIn 1ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        animation-timeline: --timeTrack;
+        animation-range: cover var(--from) cover var(--to);
+      }
+
+      .label {
+        animation: labelIn 1ms linear both;
+        animation-timeline: --timeTrack;
+        animation-range: cover var(--from) cover var(--to);
+      }
+    }
+  }
+}
+
+// --- Sin `animation-timeline` ------------------------------------------------------------
+// `useTrackProgress` escribe `--progress` (0-1 sobre todo el recorrido del sticky) en la sección.
+// Sin intro (no hay fundido con Escala: el cielo ya está presente) el recorrido es viaje + hold.
+// De `--progress` salen `--travel` (viaje 0-1) y `--hold` (pausa 0-1), y con `clamp` las mismas
+// fases que el timeline nativo. Solo `transform`, `scale`, `translate` y `opacity`. Reversible.
+@media (prefers-reduced-motion: no-preference) {
+  @supports not (animation-timeline: view()) {
+    .section {
+      --timeIntro: 0;
+      --progress: 0; // antes de la primera medición
+      --run: calc(var(--progress) * #{$timeTravel + $timeHold});
+      --travel: clamp(0, calc(var(--run) / #{$timeTravel}), 1);
+      --hold: clamp(0, calc((var(--run) - #{$timeTravel}) / #{$timeHold}), 1);
+      // Llegada (0,96 → 1) y mensaje (primera mitad del hold), 0-1
+      --lit: clamp(0, calc((var(--travel) - 0.96) / 0.04), 1);
+      --msg: clamp(0, calc(var(--hold) / 0.5), 1);
+    }
+
+    .fill {
+      scale: var(--travel) 1;
+    }
+
+    .particle {
+      transform: translateX(calc(var(--lineW) * var(--travel)));
+      opacity: calc(1 - var(--lit));
+    }
+
+    .destination {
+      opacity: calc(0.5 + 0.5 * var(--lit));
+      scale: calc(0.92 + 0.08 * var(--lit));
+    }
+
+    .halo {
+      opacity: var(--lit);
+      scale: calc(0.6 + 0.4 * var(--lit));
+    }
+
+    .hint {
+      opacity: calc(1 - clamp(0, calc(var(--travel) / 0.04), 1));
+    }
+
+    .message {
+      opacity: var(--msg);
+      translate: 0 calc(1rem * (1 - var(--msg)));
+    }
+
+    .items,
+    .bar {
+      opacity: calc(1 - 0.15 * var(--msg));
+    }
+
+    @media (max-height: $shortHeight) and (orientation: landscape) {
+      .header {
+        opacity: calc(1 - var(--msg));
+      }
+    }
+
+    // Cada hito aparece al cruzar su ancla `--pos` (mismas anclas que el timeline: -0,03 → +0,02;
+    // la llegada termina en 1)
+    .item:not([data-id='departure']) {
+      --span: 0.05;
+      --appear: clamp(0, calc((var(--travel) - var(--pos) + 0.03) / var(--span)), 1);
+      opacity: var(--appear);
+
+      &[data-id='arrival'] {
+        --span: 0.03;
+      }
+
+      .dot {
+        scale: var(--appear);
+      }
+
+      .label {
+        transform: translateY(calc(var(--drift) * (1 - var(--appear))));
+      }
+    }
+  }
+}

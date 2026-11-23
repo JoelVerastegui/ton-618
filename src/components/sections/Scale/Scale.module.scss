@@ -37,7 +37,12 @@
   --panelRight: 1rem;
   // Scroll de la intro (svh) antes del valor 0; sin movimiento no hay intro
   --scaleIntro: #{$scaleIntro};
+  // Scroll del fundido final (svh) tras el último estado; sin movimiento o sin timeline no hay
+  --scaleFade: #{$scaleFade};
   position: relative;
+  // Por debajo de Ciencia (z-index 2), que sigue encima durante su fundido, y por encima de
+  // Tiempo, que solapa su intro con el fundido final de Escala.
+  z-index: 1;
 
   @supports (height: 100dvh) {
     --viewportExtra: calc((100dvh - 100svh) / 2);
@@ -45,6 +50,11 @@
 
   @media (prefers-reduced-motion: reduce) {
     --scaleIntro: 0;
+    --scaleFade: 0;
+  }
+
+  @supports not (animation-timeline: view()) {
+    --scaleFade: 0;
   }
 
   // El track solapa el fundido final de Ciencia (`$scienceFade`): su stage se pega mientras el
@@ -79,6 +89,43 @@
 .track {
   position: relative;
   @include scaleTrackHeight;
+}
+
+// Marcador vacío del fundido final, al final del track: el hook mide su alto para no contarlo
+// como recorrido del zoom.
+.fadeSpan {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(var(--scaleFade) * 1svh);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+// Desde lo alto del track hasta el inicio del fundido final: `useSceneReady` la observa para
+// marcar `data-ready`; al empezar el fundido el deslizante y los botones dejan de ser operables
+// y al volver atrás se restablecen.
+.sentinel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: calc(100vh + var(--scaleFade) * 1svh);
+  bottom: calc(100dvh + var(--scaleFade) * 1svh);
+  left: 0;
+  pointer-events: none;
+}
+
+// Desde el final del track (el fundido terminó y el stage está oculto) hacia abajo: mientras
+// intersecta, `useSectionFaded` marca `data-faded` en el visor y el vídeo del Sol se pausa.
+.fadedSentinel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: 100vh;
+  height: 100dvh;
+  pointer-events: none;
 }
 
 // Marcador vacío del tramo de la intro: el hook mide su alto (el offset del zoom en el track).
@@ -351,4 +398,57 @@
 
 .summary {
   @extend %srOnly;
+}
+
+// --- Fundido final ---------------------------------------------------------------
+// Tras el último estado el stage sigue pegado `$scaleFade` svh más: el visor de TON 618 se encoge
+// hacia su centro y el escenario se desvanece (`opacity`) dejando ver el cielo de Tiempo, cuyo
+// track solapa este tramo (ver `Time.module.scss`). Al terminar queda `visibility: hidden`, así
+// que al soltarse y subir no se ve nada de Escala moverse. Solo `scale` y `opacity`.
+@keyframes stageFade {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes viewerOut {
+  from {
+    scale: 1;
+  }
+
+  to {
+    scale: $tonOutScale;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .track {
+      view-timeline: --scaleTrack block;
+    }
+
+    .stage,
+    .viewer {
+      animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+      animation-timing-function: linear;
+      animation-fill-mode: forwards; // antes de su rango no actúa
+      animation-timeline: --scaleTrack;
+      animation-range: #{scaleFadeRangeOf()};
+    }
+
+    .stage {
+      animation-name: stageFade;
+    }
+
+    .viewer {
+      animation-name: viewerOut;
+      animation-timing-function: ease-in-out;
+    }
+  }
 }
