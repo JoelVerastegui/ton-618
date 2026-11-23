@@ -36,15 +36,6 @@ export const BG_H = 512;
 // Rejilla de estrellas lensadas (el doble que el cielo en ancho).
 export const STAR_U = 2048;
 
-// --- Cuadrícula lensada (añadido al demo, SPEC 06) --------------------------------------------
-// Líneas cada 15° (24 meridianos, 12 paralelos) en texels del cielo, ancho de línea en píxeles,
-// intensidad y color (azul claro) antes del tone mapping.
-export const GRID_LON_STEP = BG_W / 24;
-export const GRID_LAT_STEP = (BG_H - 1) / 12;
-export const GRID_LINE_PX = 1.1;
-export const GRID_INTENSITY = 0.7;
-export const GRID_COLOR = [0.55, 0.78, 1] as const;
-
 // --- Color y tone mapping ----------------------------------------------------------------------
 export const EMISSION_LUT_SIZE = 512;
 export const TONE_LUT_SIZE = 4096;
@@ -55,16 +46,11 @@ export const MIN_DISTANCE = 7;
 export const MAX_DISTANCE = 60;
 export const DEFAULT_DISTANCE = 30;
 export const DEFAULT_AZIMUTH = 0.6;
-// Inclinaciones (grados) por las que pasa la cámara sola.
-export const AUTO_TILTS = [2.5, 10, 1.2, 24, 5, -9, 45];
+// Inclinación inicial de la cámara (2,5°); solo cambia si la persona la mueve.
+export const INITIAL_TILT = 2.5 * DEG;
 export const MAX_TILT = 1.45;
-// Segundos sin interacción para que la cámara empiece a derivar.
-export const IDLE_SECONDS = 4;
-// Pausa inicial antes de la primera transición de inclinación, la de las siguientes y duración.
-export const TILT_FIRST_HOLD = 11;
-export const TILT_HOLD = 9;
-export const TILT_AFTER_INPUT_HOLD = 6;
-export const TILT_TRANSITION = 4.5;
+// Deriva constante del fondo respecto al agujero negro (rad/s): el azimut avanza despacio.
+export const AZIMUTH_DRIFT = 0.01;
 
 // --- Render progresivo -------------------------------------------------------------------------
 export const SCALE_MIN_COARSE = 0.18;

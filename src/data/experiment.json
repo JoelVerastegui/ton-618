@@ -2,12 +2,12 @@
   "title": "Dentro de su gravedad",
   "subtitle": "Un agujero negro que dobla la luz",
   "hint": "Acércate al agujero negro",
-  "summary": "Un agujero negro rodeado de un disco de gas incandescente, que curva la luz de las estrellas de fondo. Un deslizante de distancia, medida en radios de Schwarzschild, acerca o aleja la cámara. El conmutador de cuadrícula muestra cómo la gravedad deforma una malla de líneas. El conmutador de rayo de luz compara un rayo recto con otro curvado por la gravedad. Una tarjeta explica la espaguetización y su texto se estira al acercarte.",
-  "slider": { "label": "Distancia", "valueText": "{value} radios de Schwarzschild" },
-  "canvasLabel": "Agujero negro con disco de gas incandescente. Arrastra horizontalmente o usa las flechas para girar la cámara; usa más y menos para acercarte o alejarte.",
-  "grid": { "label": "Cuadrícula" },
-  "ray": { "label": "Rayo de luz" },
-  "rayLegend": { "straight": "Sin gravedad", "bent": "Con gravedad" },
+  "summary": "Un agujero negro rodeado de un disco de gas incandescente, que curva la luz de las estrellas de fondo. Un deslizante de distancia, medida en radios de Schwarzschild, acerca o aleja la cámara. Una tarjeta explica la espaguetización.",
+  "slider": {
+    "label": "Distancia",
+    "valueText": "{value} radios de Schwarzschild"
+  },
+  "canvasLabel": "Agujero negro con disco de gas incandescente. Arrastra para girar o inclinar la cámara, o usa las flechas; usa más y menos para acercarte o alejarte.",
   "tidal": {
     "kicker": "Fuerzas de marea",
     "title": "Espaguetización",

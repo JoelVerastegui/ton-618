@@ -4,16 +4,16 @@ import type {
   BlackHoleOptions,
 } from '../../interfaces/blackHole';
 import {
+  AZIMUTH_DRIFT,
   DEFAULT_DISTANCE,
   FINE_DELAY,
   FINE_ROWS_PER_CHUNK,
   FINE_SLICE_MS,
-  IDLE_SECONDS,
   SCALE_MAX_COARSE,
   SCALE_MIN_COARSE,
   SCALE_MIN_FINE,
 } from './constants';
-import { clampDistance, clampTilt, createCameraState, driftCamera, resetAutoTilt } from './camera';
+import { clampDistance, clampTilt, createCameraState } from './camera';
 import { computeStartPsi } from './geodesicTable';
 import { clamp } from './random';
 import { createShader } from './shadePass';
@@ -24,10 +24,7 @@ import { createTracePass, createTracer, resizeTracePass } from './tracePass';
 export function createBlackHole(
   canvas: HTMLCanvasElement,
   assets: BlackHoleAssets,
-  options: Pick<
-    BlackHoleOptions,
-    'preview' | 'distance' | 'autoDrift' | 'gridAmount' | 'reducedMotion'
-  > = {}
+  options: Pick<BlackHoleOptions, 'preview' | 'distance' | 'autoDrift' | 'reducedMotion'> = {}
 ): BlackHoleEngine {
   const preview = options.preview ?? false;
   const ctx = canvas.getContext('2d', { alpha: false });
@@ -38,7 +35,6 @@ export function createBlackHole(
   const camera = createCameraState(options.distance ?? DEFAULT_DISTANCE);
   let autoDrift = options.autoDrift ?? true;
   let reducedMotion = options.reducedMotion ?? false;
-  let gridAmount = clamp(options.gridAmount ?? 0, 0, 1);
 
   // Lienzo de render a resolución interna, y sus reducciones 1/4 y 1/12 para el bloom.
   const renderCanvas = document.createElement('canvas');
@@ -64,10 +60,7 @@ export function createBlackHole(
   let coarseScale = 0.35;
   let fineScale = 0.7;
   let shadeMs = 6; // media móvil del coste del sombreado
-  let clock = 0;
   let gasTime = 0;
-  let lastActive = -Infinity;
-  let dragging = false;
   let destroyed = false;
   let cameraVersion = 0;
   let lastTiltKey = NaN;
@@ -116,13 +109,11 @@ export function createBlackHole(
   const frame = (dt: number): void => {
     if (destroyed || width === 0 || height === 0) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    clock += dt;
     if (!reducedMotion) gasTime += dt;
 
-    if (autoDrift && !reducedMotion) {
-      if (clock - lastActive > IDLE_SECONDS && !dragging) driftCamera(camera, dt);
-      else camera.azimuth += 0.01 * dt;
-    }
+    // El fondo gira despacio respecto al agujero negro a ritmo constante; la inclinación solo
+    // cambia si la persona la mueve.
+    if (autoDrift && !reducedMotion) camera.azimuth += AZIMUTH_DRIFT * dt;
 
     const tiltKey = Math.round(camera.tilt * 1e6);
     const distanceKey = Math.round(camera.distance * 1e5);
@@ -180,7 +171,7 @@ export function createBlackHole(
 
     setupRenderCanvases(shown.width, shown.height);
     const shadeStart = performance.now();
-    shade(shown, pixels, camera.azimuth, gasTime, gridAmount);
+    shade(shown, pixels, camera.azimuth, gasTime);
     if (image) renderCtx.putImageData(image, 0, 0);
     const shadeElapsed = performance.now() - shadeStart;
     if (shown.fine) {
@@ -212,19 +203,12 @@ export function createBlackHole(
     },
     set tilt(value: number) {
       camera.tilt = clampTilt(value);
-      resetAutoTilt(camera);
     },
     get autoDrift() {
       return autoDrift;
     },
     set autoDrift(value: boolean) {
       autoDrift = value;
-    },
-    get gridAmount() {
-      return gridAmount;
-    },
-    set gridAmount(value: number) {
-      gridAmount = clamp(value, 0, 1);
     },
     get reducedMotion() {
       return reducedMotion;
@@ -247,20 +231,9 @@ export function createBlackHole(
       lastTiltKey = NaN;
     },
     frame,
-    touch() {
-      lastActive = clock;
-    },
-    grab() {
-      dragging = true;
-    },
-    release() {
-      dragging = false;
-      resetAutoTilt(camera);
-    },
     orbitBy(azimuthDelta, tiltDelta) {
       camera.azimuth += azimuthDelta;
       camera.tilt = clampTilt(camera.tilt + tiltDelta);
-      resetAutoTilt(camera);
     },
     destroy() {
       destroyed = true;

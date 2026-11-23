@@ -324,6 +324,15 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 ---
 
+## Cambios posteriores (autor, 2026-11-23)
+
+Decididos por el autor tras el Paso 11; **sustituyen** a lo que el resto del documento diga en contrario (el texto original se conserva como histórico).
+
+- **Sin «Cuadrícula» ni «Rayo de luz».** Se eliminan los dos conmutadores, el diagrama del rayo y la cuadrícula lensada: `gridAmount` en el motor, `rayPath`, el diagrama SVG, `rayDiagram.ts`, `animateValue.ts`, `RAY_IMPACT` y los campos `grid`, `ray` y `rayLegend` del JSON y de las interfaces. Dejan de aplicar los Pasos 7 y 8 y los criterios de cuadrícula y rayo. Con ello la sección no tiene estado de React salvo el del cálculo diferido, y el motor vuelve a coincidir con el demo sin añadidos.
+- **Tarjeta de espaguetización estática.** Ya no se deforma: se eliminan `--tidal`, `tidalAmount`, `TIDAL_START` y la reserva de espacio. Deja de aplicar el Paso 9 y el criterio de deformación de la tarjeta; el texto sigue siendo el verificado en el Paso 6.
+- **Movimiento vertical en el canvas.** Arrastrar en vertical inclina la cámara (como en el demo) y las flechas arriba y abajo también. El canvas lleva `touch-action: none`: en móvil vertical no ocupa toda la pantalla, así que el scroll de página se hace arrastrando fuera de él; la rueda del ratón sigue haciendo scroll. En móvil apaisado bajo, donde el canvas ocupa toda la pantalla, se mantiene `touch-action: pan-y` (solo orbita en horizontal) para no atrapar el scroll.
+- **Sin movimientos automáticos aleatorios.** Se eliminan la inclinación automática (`AUTO_TILTS`) y la deriva por inactividad. Solo queda la deriva constante e inicial del fondo respecto al agujero negro (azimut a 0,01 rad/s, desactivada con reduced-motion o `autoDrift = false`), la rotación del gas y lo que mueva la persona. La inclinación inicial es de 2,5° y solo cambia con el arrastre o las teclas.
+
 ## Decisiones tomadas y descartadas
 
 **Tomadas**

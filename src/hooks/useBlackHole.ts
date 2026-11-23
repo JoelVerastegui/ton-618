@@ -7,7 +7,9 @@ import { useReducedMotion } from './useReducedMotion';
 // Fotograma más largo que se simula (el bucle se alarga, no salta, en pestañas lentas).
 const MAX_DT = 1 / 30;
 const ORBIT_PER_PIXEL = 0.006;
+const TILT_PER_PIXEL = 0.005;
 const ORBIT_PER_KEY = 0.12;
+const TILT_PER_KEY = 0.06;
 const WHEEL_ZOOM = 0.0012;
 const KEY_ZOOM_IN = 0.9;
 const KEY_ZOOM_OUT = 1.1;
@@ -157,6 +159,7 @@ export function useBlackHole(
         // --- Entrada de usuario (no en miniatura) ---
         if (!preview) {
           let dragX = 0;
+          let dragY = 0;
           let dragging = false;
           const zoomBy = (factor: number) => {
             engine.distance *= factor;
@@ -165,22 +168,22 @@ export function useBlackHole(
           listen(canvas, 'pointerdown', (event: PointerEvent) => {
             dragging = true;
             dragX = event.clientX;
+            dragY = event.clientY;
             canvas.setPointerCapture?.(event.pointerId);
-            engine.grab();
-            engine.touch();
           });
           listen(canvas, 'pointermove', (event: PointerEvent) => {
-            engine.touch();
             if (!dragging) return;
-            // Solo orbita en horizontal: la inclinación es automática y el gesto vertical es scroll.
-            engine.orbitBy(-ORBIT_PER_PIXEL * (event.clientX - dragX), 0);
+            // Horizontal gira (acimut); vertical inclina. Con `touch-action: none` (ver el CSS de
+            // la sección) el gesto sobre el canvas no hace scroll de página: se hace fuera de él.
+            engine.orbitBy(
+              -ORBIT_PER_PIXEL * (event.clientX - dragX),
+              TILT_PER_PIXEL * (event.clientY - dragY)
+            );
             dragX = event.clientX;
+            dragY = event.clientY;
           });
           const endDrag = () => {
-            if (!dragging) return;
             dragging = false;
-            engine.release();
-            engine.touch();
           };
           listen(canvas, 'pointerup', endDrag);
           listen(canvas, 'pointercancel', endDrag);
@@ -189,10 +192,11 @@ export function useBlackHole(
             let handled = true;
             if (event.key === 'ArrowLeft') engine.orbitBy(-ORBIT_PER_KEY, 0);
             else if (event.key === 'ArrowRight') engine.orbitBy(ORBIT_PER_KEY, 0);
+            else if (event.key === 'ArrowUp') engine.orbitBy(0, TILT_PER_KEY);
+            else if (event.key === 'ArrowDown') engine.orbitBy(0, -TILT_PER_KEY);
             else if (event.key === '+' || event.key === '=') zoomBy(KEY_ZOOM_IN);
             else if (event.key === '-') zoomBy(KEY_ZOOM_OUT);
             else handled = false;
-            engine.touch();
             if (handled) {
               event.preventDefault();
               event.stopPropagation();
@@ -205,7 +209,6 @@ export function useBlackHole(
               (event: WheelEvent) => {
                 event.preventDefault();
                 zoomBy(Math.exp(WHEEL_ZOOM * event.deltaY));
-                engine.touch();
               },
               { passive: false }
             );

@@ -3,11 +3,6 @@ import {
   BANDS,
   BG_H,
   BG_W,
-  GRID_COLOR,
-  GRID_INTENSITY,
-  GRID_LAT_STEP,
-  GRID_LINE_PX,
-  GRID_LON_STEP,
   MAX_HITS,
   STAR_U,
   TAU,
@@ -27,13 +22,7 @@ export function buildToneLut(): Uint8Array {
   return lut;
 }
 
-type Shader = (
-  pass: TracePass,
-  pixels: Uint32Array,
-  azimuth: number,
-  gasTime: number,
-  gridAmount: number
-) => void;
+type Shader = (pass: TracePass, pixels: Uint32Array, azimuth: number, gasTime: number) => void;
 
 // Pasada de sombreado: por píxel compone los cruces con el disco (gas animado por rotación
 // diferencial), después el cielo y las estrellas lensadas, y escribe el color con tone mapping.
@@ -46,7 +35,7 @@ export function createShader(assets: BlackHoleAssets): Shader {
   const skyMaskU = BG_W - 1;
   const starScale = STAR_U / BG_W;
 
-  return (pass, pixels, azimuth, gasTime, gridAmount) => {
+  return (pass, pixels, azimuth, gasTime) => {
     const { width, height, hits, band, angle, red, green, blue, alpha, skyU, skyV } = pass;
     // El azimut gira la textura; el gas avanza con su velocidad angular. El desplazamiento grande
     // mantiene los índices positivos para truncar con `| 0`.
@@ -58,9 +47,6 @@ export function createShader(assets: BlackHoleAssets): Shader {
     // Lado de un píxel en la rejilla de estrellas (área = starArea) para el brillo del lente.
     const pixelStar = pass.span / (TAU / STAR_U);
     const starArea = pixelStar * pixelStar;
-    // La cuadrícula sustituye al cielo en proporción a `gridAmount`; con 0 el cálculo es el del demo.
-    const skyWeight = 1 - gridAmount;
-    const gridOn = gridAmount > 0;
 
     for (let row = 0; row < height; row += 1) {
       const rowStride = row < height - 1 ? width : -width;
@@ -121,7 +107,7 @@ export function createShader(assets: BlackHoleAssets): Shader {
           const w10 = fu * (1 - fv);
           const w01 = (1 - fu) * fv;
           const w11 = fu * fv;
-          const sky0 = transmit * (1 / 255) * 0.42 * skyWeight;
+          const sky0 = transmit * (1 / 255) * 0.42;
           r +=
             sky0 * ((255 & c00) * w00 + (255 & c10) * w10 + (255 & c01) * w01 + (255 & c11) * w11);
           g +=
@@ -142,9 +128,6 @@ export function createShader(assets: BlackHoleAssets): Shader {
           const nx = col < width - 1 ? px + 1 : px - 1;
           const colSign = col < width - 1 ? 1 : -1;
           const ny = px + rowStride;
-          // Tamaño de un píxel en texels del cielo (para el ancho constante de las líneas)
-          let footU = 0;
-          let footV = 0;
           if (skyV[nx] >= 0 && skyV[ny] >= 0) {
             let dux = (skyU[nx] - skyU[px]) * colSign;
             let duy = (skyU[ny] - skyU[px]) * rowSign;
@@ -152,10 +135,6 @@ export function createShader(assets: BlackHoleAssets): Shader {
             else if (dux < -BG_W / 2) dux += BG_W;
             if (duy > BG_W / 2) duy -= BG_W;
             else if (duy < -BG_W / 2) duy += BG_W;
-            if (gridOn) {
-              footU = Math.abs(dux) + Math.abs(duy);
-              footV = Math.abs(skyV[nx] - v) + Math.abs(skyV[ny] - v);
-            }
             dux *= starScale;
             duy *= starScale;
             const dvx = (skyV[nx] - v) * colSign * starScale;
@@ -176,32 +155,13 @@ export function createShader(assets: BlackHoleAssets): Shader {
                 const code = (hash >>> 22) & 255;
                 const base = 0.08 + 4 * Math.pow(code / 255, 7);
                 const stretch = Math.min(8, starArea / Math.abs(det));
-                const glow =
-                  transmit * base * Math.sqrt(stretch) * Math.exp(1.6 * -dist2) * skyWeight;
+                const glow = transmit * base * Math.sqrt(stretch) * Math.exp(1.6 * -dist2);
                 const tint = 3 & code;
                 r += glow * (tint === 0 ? 0.75 : 1);
                 g += 0.93 * glow;
                 b += glow * (tint === 3 ? 0.7 : 1);
               }
             }
-          }
-
-          if (gridOn) {
-            // Meridianos y paralelos cada 15° sobre la dirección de salida del rayo: el mismo
-            // trazado que curva el cielo curva la cuadrícula. Las líneas miden ~GRID_LINE_PX píxeles.
-            const phaseU = u / GRID_LON_STEP;
-            const distU = Math.abs(phaseU - Math.round(phaseU)) * GRID_LON_STEP;
-            // los meridianos convergen en los polos: se desvanecen para no formar una mancha
-            const poleFade = Math.min(1, 3 * Math.sin((Math.PI * v) / (BG_H - 1)));
-            const lineU =
-              Math.max(0, 1 - distU / (Math.max(footU, 0.25) * GRID_LINE_PX)) * poleFade;
-            const phaseV = v / GRID_LAT_STEP;
-            const distV = Math.abs(phaseV - Math.round(phaseV)) * GRID_LAT_STEP;
-            const lineV = Math.max(0, 1 - distV / (Math.max(footV, 0.25) * GRID_LINE_PX));
-            const grid = transmit * gridAmount * GRID_INTENSITY * Math.max(lineU, lineV);
-            r += grid * GRID_COLOR[0];
-            g += grid * GRID_COLOR[1];
-            b += grid * GRID_COLOR[2];
           }
         }
 
