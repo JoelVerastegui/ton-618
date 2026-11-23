@@ -151,6 +151,16 @@ $trackHeight: 4px;
   letter-spacing: 0.24em;
   text-align: center;
   text-transform: uppercase;
+  transition: opacity $motionBase $easeOutExpo;
+
+  // Tras la primera interacción con el deslizante la invitación se va (queda en el DOM)
+  [data-touched='true'] & {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 .sliderLabel {
