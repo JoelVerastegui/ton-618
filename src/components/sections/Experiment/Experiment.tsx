@@ -10,6 +10,7 @@ import {
   distanceToSlider,
   formatDistance,
   sliderToDistance,
+  tidalAmount,
 } from '@/utils/experimentScale';
 import { animateValue } from '@/utils/animateValue';
 import { getRayDiagram } from '@/utils/rayDiagram';
@@ -28,6 +29,7 @@ export function Experiment() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLInputElement>(null);
+  const tidalRef = useRef<HTMLElement>(null);
   const raySvgRef = useRef<SVGSVGElement>(null);
   const rayStraightRef = useRef<SVGPathElement>(null);
   const rayBentRef = useRef<SVGPathElement>(null);
@@ -72,6 +74,15 @@ export function Experiment() {
     rayBentRef.current?.setAttribute('d', diagram.bent);
     rayCameraRef.current?.setAttribute('d', diagram.camera);
   };
+  // Escribe `--tidal` (0…1) directamente en la tarjeta: el CSS la deforma con `transform`. Con
+  // reduced-motion no se escribe y la tarjeta no se deforma.
+  const showTidal = (distance: number) => {
+    tidalRef.current?.style.setProperty(
+      '--tidal',
+      reducedMotion ? '0' : String(tidalAmount(distance))
+    );
+  };
+
   useEffect(() => {
     showRay(INITIAL_DISTANCE);
   }, []);
@@ -83,6 +94,7 @@ export function Experiment() {
     slider.value = String(distanceToSlider(distance));
     slider.setAttribute('aria-valuetext', formatDistance(experiment.slider.valueText, distance));
     showRay(distance);
+    showTidal(distance);
   };
 
   // Al estar listo el motor, el canvas hace un fundido corto (atributo directo, sin estado) y
@@ -131,6 +143,7 @@ export function Experiment() {
       formatDistance(experiment.slider.valueText, distance)
     );
     showRay(distance);
+    showTidal(distance);
     // El hint invita hasta la primera interacción con el deslizante.
     stageRef.current?.setAttribute('data-touched', 'true');
   };
@@ -208,7 +221,7 @@ export function Experiment() {
             </ul>
           </div>
 
-          <aside className={styles.tidal}>
+          <aside ref={tidalRef} className={styles.tidal}>
             <p className={styles.tidalKicker}>{experiment.tidal.kicker}</p>
             <h3 className={styles.tidalTitle}>{experiment.tidal.title}</h3>
             <p className={styles.tidalBody}>{experiment.tidal.body}</p>

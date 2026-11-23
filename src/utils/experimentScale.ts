@@ -29,3 +29,11 @@ export const sliderToDistance = (position: number): number =>
 // Texto de `aria-valuetext` a partir de la plantilla del JSON.
 export const formatDistance = (template: string, distance: number): string =>
   template.replace('{value}', String(Math.round(distance)));
+
+// Intensidad de las mareas de la tarjeta (`--tidal`, 0…1): 0 a partir de `TIDAL_START`, sube con
+// smoothstep hasta 1 en `MIN_DISTANCE`. Redondeada a 3 decimales para no reescribir el estilo sin
+// cambio visible.
+export const tidalAmount = (distance: number): number => {
+  const t = Math.min(1, Math.max(0, (TIDAL_START - distance) / (TIDAL_START - MIN_DISTANCE)));
+  return Math.round(t * t * (3 - 2 * t) * 1000) / 1000;
+};

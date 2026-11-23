@@ -402,11 +402,41 @@ $trackHeight: 4px;
 
 // --- Tarjeta de espaguetización -------------------------------------------------------
 // Siempre visible. Móvil vertical: sobre los controles; side-by-side: a la derecha.
+// Al acercarse (`--tidal` 0 → 1, escrito por el componente) la tarjeta se estira en vertical y se
+// estrecha en horizontal, anclada arriba; solo `transform`. Metáfora visual de las mareas, no un
+// dato. `--reserve` deja libre bajo ella el espacio que ocupa estirada, para no tocar lo de debajo.
 .tidal {
+  --stretchY: 1.3;
+  --squeezeX: 0.8;
+  margin-bottom: 3.5rem;
+  transform: scale(
+    calc(1 - (1 - var(--squeezeX)) * var(--tidal, 0)),
+    calc(1 + (var(--stretchY) - 1) * var(--tidal, 0))
+  );
+  transform-origin: 50% 0;
   padding: 0.75rem 1rem;
-  background-color: rgba($cosmicBlue, 0.82);
+  // Más opaca que el resto de paneles: el texto debe cumplir 4,5:1 incluso sobre el disco saturado
+  background-color: rgba($cosmicBlue, 0.94);
   border: 1px solid rgba($starlight, 0.14);
   border-radius: 0.75rem;
+
+  // Móvil vertical bajo (p. ej. 320×568): menos estiramiento y menos reserva
+  @media (max-height: 600px) and (orientation: portrait) {
+    --stretchY: 1.2;
+    margin-bottom: 2.5rem;
+  }
+
+  // Side-by-side: sitio de sobra bajo la tarjeta; estiramiento completo (≈ 1,5×)
+  @media #{$sideBySide} {
+    --stretchY: 1.5;
+    margin-bottom: 0;
+  }
+
+  // Sin movimiento no hay deformación ni reserva
+  @media (prefers-reduced-motion: reduce) {
+    margin-bottom: 0;
+    transform: none;
+  }
 }
 
 .tidalKicker {
@@ -479,5 +509,18 @@ $trackHeight: 4px;
 
   .tidalTitle {
     font-size: 1rem;
+  }
+}
+
+// Pantallas muy bajas (p. ej. 568×320): tarjeta y diagrama algo más anchos (menos líneas) y menos
+// estiramiento, para que la tarjeta estirada no toque el diagrama ni salga de la pantalla.
+@media (max-height: 400px) and (orientation: landscape) {
+  .tidal {
+    --stretchY: 1.15;
+    width: min(20rem, 46vw);
+  }
+
+  .ray {
+    width: min(20rem, 46vw);
   }
 }
