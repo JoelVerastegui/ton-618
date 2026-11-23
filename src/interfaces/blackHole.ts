@@ -92,3 +92,17 @@ export interface TracePass {
   span: number; // ángulo por píxel (rad)
   version: number; // versión de cámara para la que se trazó (0 = ninguna)
 }
+
+// Punto del plano del rayo, en radios de Schwarzschild (el agujero negro en el origen).
+export interface RayPoint {
+  x: number;
+  y: number;
+}
+
+// Geometría ya lista para el diagrama SVG del rayo de luz (eje y hacia abajo).
+export interface RayDiagram {
+  viewBox: string;
+  straight: string; // `d` del trazo recto
+  bent: string; // `d` del trazo curvado por la gravedad
+  camera: string; // `d` de un punto (la cámara)
+}

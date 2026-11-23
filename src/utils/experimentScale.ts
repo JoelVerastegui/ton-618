@@ -11,8 +11,8 @@ export const INITIAL_DISTANCE = 30;
 export const TIDAL_START = 14;
 
 // Parámetro de impacto del rayo del diagrama, en rs. El radio crítico de captura es 3√3/2 ≈ 2,6:
-// un valor algo mayor da un rayo que se curva claramente y escapa. Provisional (Paso 12).
-export const RAY_IMPACT = 3.2;
+// con 4,5 el rayo se curva unos 40° y escapa, y sigue siendo legible a cualquier distancia. Provisional (Paso 12).
+export const RAY_IMPACT = 4.5;
 
 // Posición del deslizante (0…SLIDER_MAX) y distancia, en escala logarítmica: el recorrido se
 // reparte por igual entre cada factor de distancia. Izquierda = lejos (60), derecha = cerca (7).

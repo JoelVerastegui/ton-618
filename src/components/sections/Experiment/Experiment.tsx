@@ -12,6 +12,7 @@ import {
   sliderToDistance,
 } from '@/utils/experimentScale';
 import { animateValue } from '@/utils/animateValue';
+import { getRayDiagram } from '@/utils/rayDiagram';
 import styles from '@/components/sections/Experiment/Experiment.module.scss';
 
 const experiment = experimentJson as ExperimentData;
@@ -27,11 +28,16 @@ export function Experiment() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLInputElement>(null);
+  const raySvgRef = useRef<SVGSVGElement>(null);
+  const rayStraightRef = useRef<SVGPathElement>(null);
+  const rayBentRef = useRef<SVGPathElement>(null);
+  const rayCameraRef = useRef<SVGPathElement>(null);
   useInView(sectionRef);
   const reducedMotion = useReducedMotion();
 
   // Los dos conmutadores son el único estado de React de la sección.
   const [gridOn, setGridOn] = useState(false);
+  const [rayOn, setRayOn] = useState(false);
   // Valor de `gridAmount` que corresponde al conmutador (el motor puede no estar listo aún).
   const gridTargetRef = useRef(0);
 
@@ -57,12 +63,26 @@ export function Experiment() {
   // deslizante, `+`/`-` sobre el canvas y el motor comparten este único valor.
   const distanceRef = useRef(INITIAL_DISTANCE);
 
+  // Dibuja el diagrama del rayo para la distancia de la cámara. La trayectoria sale de una caché
+  // por distancia redondeada; solo se escriben atributos (DOM directo, 0 renders).
+  const showRay = (distance: number) => {
+    const diagram = getRayDiagram(distance);
+    raySvgRef.current?.setAttribute('viewBox', diagram.viewBox);
+    rayStraightRef.current?.setAttribute('d', diagram.straight);
+    rayBentRef.current?.setAttribute('d', diagram.bent);
+    rayCameraRef.current?.setAttribute('d', diagram.camera);
+  };
+  useEffect(() => {
+    showRay(INITIAL_DISTANCE);
+  }, []);
+
   // Refleja la distancia en el deslizante y en su `aria-valuetext` (DOM directo, 0 renders).
   const showDistance = (distance: number) => {
     const slider = sliderRef.current;
     if (!slider) return;
     slider.value = String(distanceToSlider(distance));
     slider.setAttribute('aria-valuetext', formatDistance(experiment.slider.valueText, distance));
+    showRay(distance);
   };
 
   // Al estar listo el motor, el canvas hace un fundido corto (atributo directo, sin estado) y
@@ -110,6 +130,7 @@ export function Experiment() {
       'aria-valuetext',
       formatDistance(experiment.slider.valueText, distance)
     );
+    showRay(distance);
     // El hint invita hasta la primera interacción con el deslizante.
     stageRef.current?.setAttribute('data-touched', 'true');
   };
@@ -160,17 +181,39 @@ export function Experiment() {
             >
               {experiment.grid.label}
             </button>
-            <button type='button' className={styles.toggle} aria-pressed='false'>
+            <button
+              type='button'
+              className={styles.toggle}
+              aria-pressed={rayOn}
+              onClick={() => setRayOn((on) => !on)}
+            >
               {experiment.ray.label}
             </button>
           </div>
         </div>
 
-        <aside className={styles.tidal}>
-          <p className={styles.tidalKicker}>{experiment.tidal.kicker}</p>
-          <h3 className={styles.tidalTitle}>{experiment.tidal.title}</h3>
-          <p className={styles.tidalBody}>{experiment.tidal.body}</p>
-        </aside>
+        {/* Diagrama 2D del plano del rayo: la cámara a la distancia actual, el agujero negro de radio
+            1 y dos trazos con el mismo parámetro de impacto. Decorativo: lo explica el `summary`. */}
+        <div className={styles.side}>
+          <div className={styles.ray} data-on={rayOn} aria-hidden='true'>
+            <svg ref={raySvgRef} className={styles.raySvg} preserveAspectRatio='xMidYMid meet'>
+              <circle className={styles.rayHole} cx={0} cy={0} r={1} />
+              <path ref={rayStraightRef} className={styles.rayStraight} />
+              <path ref={rayBentRef} className={styles.rayBent} />
+              <path ref={rayCameraRef} className={styles.rayCamera} />
+            </svg>
+            <ul className={styles.rayLegend}>
+              <li className={styles.rayLegendStraight}>{experiment.rayLegend.straight}</li>
+              <li className={styles.rayLegendBent}>{experiment.rayLegend.bent}</li>
+            </ul>
+          </div>
+
+          <aside className={styles.tidal}>
+            <p className={styles.tidalKicker}>{experiment.tidal.kicker}</p>
+            <h3 className={styles.tidalTitle}>{experiment.tidal.title}</h3>
+            <p className={styles.tidalBody}>{experiment.tidal.body}</p>
+          </aside>
+        </div>
       </div>
     </section>
   );
