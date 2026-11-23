@@ -109,7 +109,7 @@ export function Time() {
           <p className={styles.hint}>{time.hint}</p>
           <p className={styles.message}>{time.message}</p>
 
-          {/* Salida hacia Experimento: distorsión desde el centro (solo anima en la cola final) */}
+          {/* Salida hacia Experimento: transición de estrellas de abajo hacia arriba (solo anima en la cola final) */}
           <Distortion />
         </div>
       </div>

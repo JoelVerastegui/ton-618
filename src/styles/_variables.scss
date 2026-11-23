@@ -539,7 +539,7 @@ $timeHold: 80;
 $experimentBg: #070d1e;
 
 // Cola pegajosa de transición (svh de scroll): al terminar su contenido, el stage queda pegado
-// mientras la distorsión desde el centro lo desvanece (ver `_distortion.scss`). Tiempo la añade
+// mientras la transición de estrellas de abajo hacia arriba lo desvanece (ver `_distortion.scss`). Tiempo la añade
 // al final de su track; Experimento recibe esa misma distorsión solapándose bajo Tiempo y la
 // aplica sobre sí misma con la suya. Con `prefers-reduced-motion` o sin `animation-timeline`
 // vale 0 (`--timeFade`, `--experimentFade`). Si cambia uno, revisar el solape del otro.

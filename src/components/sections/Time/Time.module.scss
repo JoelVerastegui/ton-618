@@ -27,7 +27,7 @@
   // Progreso total del track (0-1); el fallback sin timeline lo reescribe al hacer scroll
   --progress: 1;
   // Cola pegajosa de la transición con Experimento (svh): el stage queda pegado mientras la
-  // distorsión desde el centro lo desvanece (ver `styles/_distortion.scss`). Sin movimiento no hay.
+  // transición de estrellas de abajo hacia arriba lo desvanece (ver `styles/_distortion.scss`). Sin movimiento no hay.
   --timeFade: #{$timeFade};
   position: relative;
   // Por debajo de Escala, que sigue encima durante su fundido, y por encima de Experimento, que
@@ -693,7 +693,7 @@
     }
 
     // Salida: tras el hold el stage sigue pegado `$timeFade` svh más y se desvanece con la
-    // distorsión desde el centro, dejando ver Experimento, que solapa este tramo.
+    // transición de estrellas de abajo hacia arriba, dejando ver Experimento, que solapa este tramo.
     .stage {
       --distortTimeline: --timeTrack;
       --distortFrom: #{timeFadeAt(0)};

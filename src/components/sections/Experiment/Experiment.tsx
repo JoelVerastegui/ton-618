@@ -195,7 +195,7 @@ export function Experiment() {
             </button>
           </aside>
 
-          {/* Salida: distorsión desde el centro en la cola pegajosa final */}
+          {/* Salida: transición de estrellas de abajo hacia arriba en la cola pegajosa final */}
           <Distortion />
         </div>
 

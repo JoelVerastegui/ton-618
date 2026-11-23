@@ -342,6 +342,16 @@ Decididos por el autor tras el Paso 11; **sustituyen** a lo que el resto del doc
 - **`touch-action: pan-y` en el canvas:** como el canvas ocupa toda la pantalla, con el dedo el gesto vertical vuelve a ser scroll de página y la inclinación se hace con el joystick (con ratón, arrastrar en vertical sigue inclinando). Sustituye a lo dicho antes sobre `touch-action: none`.
 - **Tarjeta dentro del canvas** con un botón pequeño (36 px) para ocultarla: ojo tachado cuando está abierta (acción «ocultar») y ojo cuando está cerrada (acción «mostrar»); cerrada, queda solo el botón (`aria-expanded`, `aria-controls`). Textos en `experiment.json` (`controls.joystick`, `info`).
 
+### Nueva transición: telón de estrellas de abajo hacia arriba (autor, 2026-11-23)
+
+**Sustituye** a la distorsión desde el centro (anillos, estrías y velo) descrita en el alcance, la tabla de recursos, «Transiciones» y el criterio de la distorsión. Sigue siendo la misma al entrar y al salir, se ve en la sección que se va y se usa solo en Tiempo → Experimento y en Experimento → la siguiente.
+
+- **Qué es:** un telón de espacio profundo que **sube desde abajo hacia arriba** y cubre el stage; ya cubierto, el stage se desvanece con el telón encima y deja ver la sección siguiente. El stage termina en `opacity: 0` y `visibility: hidden`, y al volver hacia arriba se revierte sin saltos.
+- **Aspecto:** fondo `#000` (para no distinguirse del canvas), estrellas en tres capas con profundidad (lejanas, medias y cercanas, estas últimas más grandes, con halo y más rápidas) y una nebulosa casi imperceptible (morado, ámbar y azul con opacidad ≤ 0,12) que no tapa las estrellas. Borde superior del telón difuminado con máscara. Estrellas hechas con gradientes CSS, sin imágenes.
+- **Movimiento:** el telón sube con una **pequeña aceleración** (ease-in, `cubic-bezier(0.45, 0, 0.85, 0.5)`) ligada al scroll y termina de cubrir al 60 % de la cola (`$distortCoverAt`); el stage se desvanece en el 40 % restante. Cada capa sube dentro del telón a su ritmo (nebulosa −12 %, lejana −22 %, media −32 %, cercana −45 % de su altura), lo que da paralaje. Solo `translate` y `opacity` (más `visibility` discreta en el stage).
+- **Implementación:** el componente `Distortion` conserva su nombre y cambia de contenido (`cover` con capas `nebula`, `far`, `mid`, `near`); `styles/_distortion.scss` mantiene los mixins `distortStageKeyframes`, `distortStageEffect` y `distortStageFallback` y las variables `--distortTimeline`, `--distortFrom`, `--distortTo` y `--distortFade`. Sin `animation-timeline` el telón se calcula desde `--distortFade` con una aproximación del ease-in (0,4·t + 0,6·t²). Con reduced-motion no hay cola ni telón.
+- **Verificado en Chrome (Tiempo, 1280×800 y 390×844):** el telón pasa de 100 % a 0 % con pasos crecientes, el stage queda opaco hasta cubrirse y termina en `opacity: 0` y `visibility: hidden`; sin errores de consola. Pendiente de revisar: salida de Experimento, modo sin `animation-timeline` y reduced-motion.
+
 ## Decisiones tomadas y descartadas
 
 **Tomadas**

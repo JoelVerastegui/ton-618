@@ -30,8 +30,8 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
 // El stage se queda pegado `$experimentHold` svh antes de su cola de salida, para poder usarlo sin
 // pasar de golpe a la transición.
 .section {
-  // Pausa pegada y cola de salida (svh): durante la cola el stage se desvanece con la distorsión
-  // desde el centro (ver `styles/_distortion.scss`). Sin movimiento no hay pausa, cola ni solape.
+  // Pausa pegada y cola de salida (svh): durante la cola el stage se desvanece bajo el telón
+  // de estrellas que sube (ver `styles/_distortion.scss`). Sin movimiento no hay pausa, cola ni solape.
   --experimentHold: #{$experimentHold};
   --experimentFade: #{$experimentFade};
   position: relative;
