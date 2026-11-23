@@ -2,15 +2,15 @@
   "title": "Dentro de su gravedad",
   "subtitle": "Un agujero negro que dobla la luz",
   "hint": "Acércate al agujero negro",
-  "summary": "Un agujero negro interactivo. Con el deslizante de distancia puedes acercar o alejar la cámara; con la cuadrícula ves cómo la gravedad curva el espacio, y con el rayo de luz ves cómo se tuerce un rayo que pasa cerca.",
+  "summary": "Un agujero negro rodeado de un disco de gas incandescente, que curva la luz de las estrellas de fondo. Un deslizante de distancia, medida en radios de Schwarzschild, acerca o aleja la cámara. El conmutador de cuadrícula muestra cómo la gravedad deforma una malla de líneas. El conmutador de rayo de luz compara un rayo recto con otro curvado por la gravedad. Una tarjeta explica la espaguetización y su texto se estira al acercarte.",
   "slider": { "label": "Distancia", "valueText": "{value} radios de Schwarzschild" },
-  "canvasLabel": "Agujero negro con disco de gas incandescente. Arrastra para girar la cámara; usa más y menos para acercarte o alejarte.",
+  "canvasLabel": "Agujero negro con disco de gas incandescente. Arrastra horizontalmente o usa las flechas para girar la cámara; usa más y menos para acercarte o alejarte.",
   "grid": { "label": "Cuadrícula" },
   "ray": { "label": "Rayo de luz" },
   "rayLegend": { "straight": "Sin gravedad", "bent": "Con gravedad" },
   "tidal": {
     "kicker": "Fuerzas de marea",
     "title": "Espaguetización",
-    "body": "Cerca de un agujero negro la gravedad tira más de lo que está más cerca que de lo que está más lejos, y estira todo. En uno tan enorme como TON 618, el estirón en el horizonte es suave."
+    "body": "La gravedad tira más fuerte de tus pies que de tu cabeza, y te estira. En un agujero negro estelar te destrozaría antes del horizonte; en TON 618, enorme, lo cruzarías sin notarlo."
   }
 }

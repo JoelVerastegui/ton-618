@@ -131,6 +131,34 @@ Convenciones:
 - **Espaguetización:** para un agujero negro supermasivo como TON 618 las fuerzas de marea en el horizonte son pequeñas y la espaguetización ocurre **dentro** del horizonte; en uno estelar ocurre antes de cruzarlo. El texto de la tarjeta no puede afirmar que en TON 618 se sería destrozado al acercarse desde fuera. La deformación visual del texto es una metáfora de la intensidad de las mareas y no debe presentarse como un hecho de lo que ocurriría a esa distancia.
 - El texto de `summary` y la tarjeta no inventan cifras que el demo no modele (el demo es un agujero negro de Schwarzschild genérico sin escala física propia).
 
+#### Datos verificados (Paso 6, consulta 2026-11-23)
+
+**Masa de TON 618.** Discutida: ≈ 6,6·10^10 M☉ (Shemmer et al. 2004, ApJ 614, 547, línea Hβ; https://arxiv.org/abs/astro-ph/0406559) frente a ≈ 4,07·10^10 M☉ (Ge et al. 2019, revisión con C IV de los mismos datos, citada en https://en.wikipedia.org/wiki/TON_618; la revista exacta queda por confirmar). Redshift 2,219, luz de hace ≈ 10 800 millones de años. La tarjeta no usa la masa; basta decir «enorme». Si otro texto la cita, usar «decenas de miles de millones de masas solares».
+
+**Radio de Schwarzschild** (rs = 2GM/c², G = 6,674·10^-11, c = 2,998·10^8 m/s, 1 UA = 1,496·10^11 m; calculado con Node):
+
+| Masa | rs | rs en UA | rs / órbita de Neptuno (30 UA) |
+| --- | --- | --- | --- |
+| 6,6·10^10 M☉ | 1,95·10^11 km (195 mil millones de km) | ≈ 1 300 UA | ≈ 43 |
+| 4,07·10^10 M☉ | 1,20·10^11 km | ≈ 800 UA | ≈ 27 |
+| 10 M☉ | 29,5 km | — | — |
+
+Nota: la cifra «1,3·10^12 km» del encargo es incorrecta; 1 300 UA son 1,95·10^11 km. Referencia con 66 mil millones: el horizonte es ≈ 43 veces el radio de la órbita de Neptuno (diámetro ≈ 2 600 UA).
+
+**Marea en el horizonte** (diferencia de aceleración sobre L = 2 m, Δa ≈ 2GM·L / r³ con r = rs, es decir Δa = L·c^6 / (4G²M²) ∝ 1/M²):
+
+| Agujero negro | Δa en el horizonte (2 m) | En g |
+| --- | --- | --- |
+| TON 618 (6,6·10^10 M☉) | ≈ 5·10^-12 m/s² | ≈ 5·10^-13 g |
+| TON 618 (4,07·10^10 M☉) | ≈ 1·10^-11 m/s² | ≈ 1·10^-12 g |
+| Estelar (10 M☉) | ≈ 2·10^8 m/s² | ≈ 2·10^7 g |
+
+Cociente ≈ 4·10^19 entre ambos. Es una estimación newtoniana de orden de magnitud; la relatividad general da el mismo escalado (tensor de marea radial ≈ 2GM/r³ con r = rs). Concuerda con la explicación de Astronomy (https://www.astronomy.com/science/ask-astro-why-are-small-black-holes-more-dangerous-than-big-ones/), que usa otra longitud de cuerpo pero el mismo escalado 1/M² (≈ 10^16 para 10^8 de cociente de masas).
+
+**Espaguetización en TON 618.** Ocurre dentro del horizonte: Δa crece como (rs/r)³ y alcanza ≈ 10^3 m/s² (≈ 100 g, límite letal) a r ≈ rs/(6·10^4), aprox. Desde el horizonte, la caída hasta la singularidad dura como máximo πGM/c³ = π·rs/(2c) ≈ 10^6 s ≈ 12 días (tiempo propio, caída radial desde el horizonte) para 6,6·10^10 M☉.
+
+**Formulación de la tarjeta.** «La gravedad tira más fuerte de tus pies que de tu cabeza, y te estira. En un agujero negro estelar te destrozaría antes del horizonte; en TON 618, enorme, lo cruzarías sin notarlo.» (33 palabras). No afirma destrozo fuera del horizonte y no da cifras que el demo no modele. Se descartó una frase final que avisaba de que el texto se estira «por metáfora»: sería un rótulo en pantalla de los que el spec excluye; la propia explicación (en TON 618 no se nota la marea en el horizonte) deja claro que la deformación del texto es una metáfora visual.
+
 ---
 
 ## Recursos visuales
