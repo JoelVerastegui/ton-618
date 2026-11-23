@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useBlackHole } from '@/hooks/useBlackHole';
 import { useInView } from '@/hooks/useInView';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import experimentJson from '@/data/experiment.json';
 import type { ExperimentData } from '@/interfaces/experiment';
 import {
@@ -10,6 +11,7 @@ import {
   formatDistance,
   sliderToDistance,
 } from '@/utils/experimentScale';
+import { animateValue } from '@/utils/animateValue';
 import styles from '@/components/sections/Experiment/Experiment.module.scss';
 
 const experiment = experimentJson as ExperimentData;
@@ -17,12 +19,21 @@ const experiment = experimentJson as ExperimentData;
 // Id del encabezado que nombra la sección (aria-labelledby).
 const TITLE_ID = 'experimentTitle';
 
+// Duración de la aparición de la cuadrícula (ms)
+const GRID_FADE_MS = 600;
+
 export function Experiment() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLInputElement>(null);
   useInView(sectionRef);
+  const reducedMotion = useReducedMotion();
+
+  // Los dos conmutadores son el único estado de React de la sección.
+  const [gridOn, setGridOn] = useState(false);
+  // Valor de `gridAmount` que corresponde al conmutador (el motor puede no estar listo aún).
+  const gridTargetRef = useRef(0);
 
   // El cálculo inicial del motor (tabla, textura, cielo) empieza cuando la sección está a ≤ 1
   // viewport de entrar, no al montar la página.
@@ -61,6 +72,7 @@ export function Experiment() {
     initialDistance: INITIAL_DISTANCE,
     onReady: (engine) => {
       engine.distance = distanceRef.current;
+      engine.gridAmount = gridTargetRef.current;
       stageRef.current?.setAttribute('data-ready', 'true');
     },
     // `+`/`-` sobre el canvas: el motor ya cambió la distancia; el deslizante la sigue.
@@ -69,6 +81,22 @@ export function Experiment() {
       showDistance(distance);
     },
   });
+
+  // «Cuadrícula»: `gridAmount` sube de 0 a 1 (y baja) de forma suave; con reduced-motion cambia
+  // sin interpolar.
+  useEffect(() => {
+    const target = gridOn ? 1 : 0;
+    gridTargetRef.current = target;
+    const engine = engineRef.current;
+    if (!engine) return;
+    if (reducedMotion) {
+      engine.gridAmount = target;
+      return;
+    }
+    return animateValue(engine.gridAmount, target, GRID_FADE_MS, (value) => {
+      engine.gridAmount = value;
+    });
+  }, [gridOn, reducedMotion, engineRef]);
 
   const handleSlider = (event: ChangeEvent<HTMLInputElement>) => {
     const distance = sliderToDistance(Number(event.target.value));
@@ -124,7 +152,12 @@ export function Experiment() {
             />
           </label>
           <div className={styles.toggles}>
-            <button type='button' className={styles.toggle} aria-pressed='false'>
+            <button
+              type='button'
+              className={styles.toggle}
+              aria-pressed={gridOn}
+              onClick={() => setGridOn((on) => !on)}
+            >
               {experiment.grid.label}
             </button>
             <button type='button' className={styles.toggle} aria-pressed='false'>

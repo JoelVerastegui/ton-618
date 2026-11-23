@@ -4,6 +4,7 @@ export interface BlackHoleOptions {
   captureWheel?: boolean; // la rueda hace zoom y no scroll de página, por defecto false
   distance?: number; // 7…60 radios de Schwarzschild, por defecto 30
   autoDrift?: boolean; // deriva automática de la cámara, por defecto true
+  gridAmount?: number; // 0…1, mezcla de la cuadrícula lensada, por defecto 0
   reducedMotion?: boolean; // detiene deriva y rotación del gas
   onError?: (error: unknown) => void;
 }
@@ -14,6 +15,7 @@ export interface BlackHoleControls {
   azimuth: number; // radianes
   tilt: number; // radianes, se acota a ±1,45
   autoDrift: boolean;
+  gridAmount: number; // 0…1, se acota
   reducedMotion: boolean; // detiene deriva y rotación del gas
   destroy: () => void;
 }

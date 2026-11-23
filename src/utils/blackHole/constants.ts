@@ -36,6 +36,15 @@ export const BG_H = 512;
 // Rejilla de estrellas lensadas (el doble que el cielo en ancho).
 export const STAR_U = 2048;
 
+// --- Cuadrícula lensada (añadido al demo, SPEC 06) --------------------------------------------
+// Líneas cada 15° (24 meridianos, 12 paralelos) en texels del cielo, ancho de línea en píxeles,
+// intensidad y color (azul claro) antes del tone mapping.
+export const GRID_LON_STEP = BG_W / 24;
+export const GRID_LAT_STEP = (BG_H - 1) / 12;
+export const GRID_LINE_PX = 1.1;
+export const GRID_INTENSITY = 0.7;
+export const GRID_COLOR = [0.55, 0.78, 1] as const;
+
 // --- Color y tone mapping ----------------------------------------------------------------------
 export const EMISSION_LUT_SIZE = 512;
 export const TONE_LUT_SIZE = 4096;

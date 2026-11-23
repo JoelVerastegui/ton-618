@@ -24,7 +24,10 @@ import { createTracePass, createTracer, resizeTracePass } from './tracePass';
 export function createBlackHole(
   canvas: HTMLCanvasElement,
   assets: BlackHoleAssets,
-  options: Pick<BlackHoleOptions, 'preview' | 'distance' | 'autoDrift' | 'reducedMotion'> = {}
+  options: Pick<
+    BlackHoleOptions,
+    'preview' | 'distance' | 'autoDrift' | 'gridAmount' | 'reducedMotion'
+  > = {}
 ): BlackHoleEngine {
   const preview = options.preview ?? false;
   const ctx = canvas.getContext('2d', { alpha: false });
@@ -35,6 +38,7 @@ export function createBlackHole(
   const camera = createCameraState(options.distance ?? DEFAULT_DISTANCE);
   let autoDrift = options.autoDrift ?? true;
   let reducedMotion = options.reducedMotion ?? false;
+  let gridAmount = clamp(options.gridAmount ?? 0, 0, 1);
 
   // Lienzo de render a resolución interna, y sus reducciones 1/4 y 1/12 para el bloom.
   const renderCanvas = document.createElement('canvas');
@@ -176,7 +180,7 @@ export function createBlackHole(
 
     setupRenderCanvases(shown.width, shown.height);
     const shadeStart = performance.now();
-    shade(shown, pixels, camera.azimuth, gasTime);
+    shade(shown, pixels, camera.azimuth, gasTime, gridAmount);
     if (image) renderCtx.putImageData(image, 0, 0);
     const shadeElapsed = performance.now() - shadeStart;
     if (shown.fine) {
@@ -215,6 +219,12 @@ export function createBlackHole(
     },
     set autoDrift(value: boolean) {
       autoDrift = value;
+    },
+    get gridAmount() {
+      return gridAmount;
+    },
+    set gridAmount(value: number) {
+      gridAmount = clamp(value, 0, 1);
     },
     get reducedMotion() {
       return reducedMotion;
