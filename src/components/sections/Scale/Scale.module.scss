@@ -40,9 +40,9 @@
   // Scroll del fundido final (svh) tras el último estado; sin movimiento o sin timeline no hay
   --scaleFade: #{$scaleFade};
   position: relative;
-  // Por debajo de Ciencia (z-index 2), que sigue encima durante su fundido, y por encima de
-  // Tiempo, que solapa su intro con el fundido final de Escala.
-  z-index: 1;
+  // Por debajo de Ciencia, que sigue encima durante su fundido, y por encima de Tiempo, que solapa
+  // su intro con el fundido final de Escala (ver `$sectionLayers`).
+  z-index: sectionLayer('scale');
 
   @supports (height: 100dvh) {
     --viewportExtra: calc((100dvh - 100svh) / 2);

@@ -14,7 +14,7 @@ import { clamp } from './random';
 
 // Parámetro de impacto de cada fila: espaciado logarítmico a ambos lados de B_CRIT, donde la
 // curvatura cambia más deprisa (anillo de fotones).
-export function rowImpact(row: number): number {
+function rowImpact(row: number): number {
   if (row < SIDE_ROWS) {
     const t = row / (SIDE_ROWS - 1);
     return Math.max(0.001, B_CRIT * (1 - Math.exp(LOG_MIN * t)));

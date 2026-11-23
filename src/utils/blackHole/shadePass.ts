@@ -27,7 +27,7 @@ export function buildToneLut(): Uint8Array {
   return lut;
 }
 
-export type Shader = (
+type Shader = (
   pass: TracePass,
   pixels: Uint32Array,
   azimuth: number,

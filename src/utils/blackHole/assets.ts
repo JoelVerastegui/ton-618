@@ -42,29 +42,17 @@ function* buildAssetSteps(): Generator<void, BlackHoleAssets> {
   };
 }
 
-// Versión síncrona: bloquea el hilo hasta terminar (útil en pruebas y medidas).
-export function buildBlackHoleAssets(): BlackHoleAssets {
-  const steps = buildAssetSteps();
-  for (;;) {
-    const step = steps.next();
-    if (step.done) return step.value;
-  }
-}
-
 const yieldToMain = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
-// Versión diferida: trabaja en trozos de `budgetMs` y cede el hilo entre ellos. Devuelve `null` si
-// `signal` se aborta antes de terminar.
-export async function prepareBlackHoleAssets(
-  signal?: AbortSignal,
-  budgetMs = 12
-): Promise<{ assets: BlackHoleAssets; stats: PrepareStats } | null> {
+type PreparedAssets = { assets: BlackHoleAssets; stats: PrepareStats };
+
+// Cálculo diferido: trabaja en trozos de `budgetMs` y cede el hilo entre ellos.
+async function prepareBlackHoleAssets(budgetMs = 12): Promise<PreparedAssets> {
   const startedAt = performance.now();
   const steps = buildAssetSteps();
   let workMs = 0;
   let longestChunkMs = 0;
   for (;;) {
-    if (signal?.aborted) return null;
     const chunkStart = performance.now();
     let result = steps.next();
     while (!result.done && performance.now() - chunkStart < budgetMs) result = steps.next();
@@ -81,17 +69,13 @@ export async function prepareBlackHoleAssets(
   }
 }
 
-type PreparedAssets = { assets: BlackHoleAssets; stats: PrepareStats };
 let cached: Promise<PreparedAssets> | null = null;
 
 // Cálculo inicial único y compartido: montar, desmontar y volver a montar (o StrictMode) no lo
 // repite, y si se desmonta a mitad el trabajo sigue y queda listo para el siguiente montaje.
 export function loadBlackHoleAssets(): Promise<PreparedAssets> {
   if (!cached) {
-    cached = prepareBlackHoleAssets().then((result) => {
-      if (!result) throw new Error('El cálculo del agujero negro se canceló');
-      return result;
-    });
+    cached = prepareBlackHoleAssets();
     // Si falla, el siguiente intento vuelve a empezar.
     cached.catch(() => {
       cached = null;

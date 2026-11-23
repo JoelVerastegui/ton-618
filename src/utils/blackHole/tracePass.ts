@@ -57,7 +57,7 @@ export function resizeTracePass(pass: TracePass, width: number, height: number):
   pass.row = 0;
 }
 
-export type Tracer = (
+type Tracer = (
   pass: TracePass,
   tilt: number,
   distance: number,

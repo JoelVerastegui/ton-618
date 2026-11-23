@@ -560,3 +560,22 @@ $experimentFade: 50;
 @function experimentFadeAt($t) {
   @return calc(100svh + #{$t * $experimentFade}svh);
 }
+
+// ---------------------------------------------------------------------------
+// Apilamiento de las secciones (z-index)
+// ---------------------------------------------------------------------------
+// Las secciones que solapan a la anterior con un margen negativo se apilan en orden inverso al del
+// documento: la que se va queda por encima de la que entra (su stage pegado se desvanece sobre
+// ella). Cada módulo usa `sectionLayer('nombre')`; al añadir una sección nueva se añade aquí con el
+// siguiente número libre (07 → 8, 08 → 7…). Hero y Exploración no solapan a una posterior con su
+// raíz: su contenido va en stages `sticky` (contexto propio) y quedan por debajo.
+$sectionLayers: (
+  'science': 12,
+  'scale': 11,
+  'time': 10,
+  'experiment': 9,
+);
+
+@function sectionLayer($name) {
+  @return map-get($sectionLayers, $name);
+}

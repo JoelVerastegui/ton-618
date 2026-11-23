@@ -33,9 +33,8 @@ $trackHeight: 4px;
   --experimentFade: #{$experimentFade};
   position: relative;
   // Solapa el final de Tiempo (cuyo stage sigue pegado y se desvanece encima): se pinta por debajo
-  // de él sin tocar el z-index de las demás secciones. Con z-index negativo, Experimento no recibe
-  // el puntero hasta que Tiempo queda oculto.
-  z-index: -1;
+  // de él (ver `$sectionLayers`) y no recibe el puntero hasta que Tiempo queda oculto.
+  z-index: sectionLayer('experiment');
 
   @media (prefers-reduced-motion: no-preference) {
     margin-top: -100vh;
@@ -44,7 +43,6 @@ $trackHeight: 4px;
 
   @media (prefers-reduced-motion: reduce) {
     --experimentFade: 0;
-    z-index: auto;
   }
 
   @media (hover: none) and (pointer: coarse) {

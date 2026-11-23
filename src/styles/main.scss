@@ -34,9 +34,3 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-// `main` forma su propio contexto de apilamiento: Experimento va con `z-index` negativo (bajo el
-// final de Tiempo) y, sin esto, el propio bloque `main` quedaría por encima y se llevaría el puntero.
-main {
-  isolation: isolate;
-}

@@ -30,6 +30,9 @@
   // distorsión desde el centro lo desvanece (ver `styles/_distortion.scss`). Sin movimiento no hay.
   --timeFade: #{$timeFade};
   position: relative;
+  // Por debajo de Escala, que sigue encima durante su fundido, y por encima de Experimento, que
+  // solapa su cola de salida (ver `$sectionLayers`).
+  z-index: sectionLayer('time');
 
   @media (prefers-reduced-motion: reduce) {
     --timeIntro: 0;
@@ -563,7 +566,7 @@
 
 @include distortStageKeyframes;
 
-// Experimento queda bajo el final de Tiempo (z-index negativo): el track de Tiempo, aunque sin
+// Experimento queda bajo el final de Tiempo (ver `$sectionLayers`): el track de Tiempo, aunque sin
 // controles, no debe capturar el puntero mientras se solapan.
 @media (prefers-reduced-motion: no-preference) {
   .section {
@@ -677,7 +680,7 @@
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .section {
-      // Escala (z-index 1) queda por encima durante el solape; Tiempo, sin z-index, se pinta bajo ella.
+      // Escala queda por encima durante el solape (ver `$sectionLayers`).
       margin-top: calc(-100vh - #{$scaleFade}svh);
       margin-top: calc(-100dvh - #{$scaleFade}svh);
       // El ancla `#time` aterriza al terminar la intro (cielo ya presente, partícula en el origen);
