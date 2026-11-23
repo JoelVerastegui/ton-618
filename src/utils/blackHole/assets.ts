@@ -80,3 +80,22 @@ export async function prepareBlackHoleAssets(
     await yieldToMain();
   }
 }
+
+type PreparedAssets = { assets: BlackHoleAssets; stats: PrepareStats };
+let cached: Promise<PreparedAssets> | null = null;
+
+// Cálculo inicial único y compartido: montar, desmontar y volver a montar (o StrictMode) no lo
+// repite, y si se desmonta a mitad el trabajo sigue y queda listo para el siguiente montaje.
+export function loadBlackHoleAssets(): Promise<PreparedAssets> {
+  if (!cached) {
+    cached = prepareBlackHoleAssets().then((result) => {
+      if (!result) throw new Error('El cálculo del agujero negro se canceló');
+      return result;
+    });
+    // Si falla, el siguiente intento vuelve a empezar.
+    cached.catch(() => {
+      cached = null;
+    });
+  }
+  return cached;
+}
