@@ -1,0 +1,330 @@
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+$thumb: 1.25rem;
+$trackHeight: 4px;
+
+// Texto solo para lectores de pantalla
+%srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Sección normal (sin track de scroll): el stage mide 100dvh y pasa con la página. Un único
+// elemento protagonista, el canvas del agujero negro; el resto es interfaz mínima.
+// · móvil vertical: canvas arriba (`--canvasH`), tarjeta, deslizante y conmutadores debajo;
+// · side-by-side: canvas a pantalla completa, título arriba a la izquierda, controles abajo y
+//   tarjeta a la derecha; en móvil apaisado bajo todo es más compacto.
+.section {
+  --viewportExtra: 0px;
+  --canvasH: 50svh;
+  position: relative;
+
+  @media (hover: none) and (pointer: coarse) {
+    --viewportExtra: calc((100dvh - 100svh) / 2);
+  }
+
+  @media #{$sideBySide} {
+    --canvasH: 100%;
+  }
+}
+
+.stage {
+  position: relative;
+  height: 100vh;
+  height: 100dvh; // sigue las barras del navegador
+  overflow: clip;
+  background-color: $experimentBg;
+}
+
+.summary {
+  @extend %srOnly;
+}
+
+// --- Canvas ------------------------------------------------------------------------
+// `touch-action: pan-y`: el gesto vertical es siempre scroll de página; el horizontal orbita.
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(var(--canvasH) + var(--viewportExtra));
+  touch-action: pan-y;
+  cursor: grab;
+  // Hasta que el motor está listo solo se ve el fondo y el título; luego fundido corto
+  opacity: 0;
+  transition: opacity $motionBase $easeOutExpo;
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: -4px;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  [data-ready='true'] > & {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// --- Título -------------------------------------------------------------------------
+.header {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  left: 1rem;
+  text-align: center;
+  pointer-events: none;
+
+  @media #{$sideBySide} {
+    top: 6svh;
+    right: auto;
+    left: max(3vw, 1rem);
+    text-align: left;
+  }
+
+  // Apaisado bajo: título y subtítulo se ocultan para no tapar el disco (siguen en el DOM)
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    opacity: 0;
+  }
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.125rem, 5.5vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.15;
+  text-wrap: balance;
+
+  @media #{$sideBySide} {
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+  }
+}
+
+.subtitle {
+  margin: 0;
+  color: $amberText;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+}
+
+// --- Controles ----------------------------------------------------------------------
+// Móvil vertical: columna bajo el canvas, con la tarjeta justo encima. Side-by-side: bloque
+// centrado abajo.
+.controls {
+  position: absolute;
+  right: 1rem;
+  bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + var(--viewportExtra));
+  left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  @media #{$sideBySide} {
+    right: auto;
+    bottom: calc(5svh + var(--viewportExtra));
+    left: 50%;
+    width: min(32rem, 56vw);
+    translate: -50% 0;
+  }
+}
+
+.hint {
+  margin: 0;
+  color: $amberText;
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.sliderLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sliderName {
+  flex: none;
+  color: rgba($starlight, 0.82);
+  font-size: 0.875rem;
+}
+
+@mixin track {
+  height: $trackHeight;
+  background: rgba($starlight, 0.35);
+  border: 0;
+  border-radius: 999px;
+}
+
+@mixin thumb {
+  width: $thumb;
+  height: $thumb;
+  background: $starlight;
+  border: 2px solid $solarAmber;
+  border-radius: 50%;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+  height: 44px; // área táctil
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
+  appearance: none;
+  touch-action: pan-y;
+
+  &::-webkit-slider-runnable-track {
+    @include track;
+  }
+
+  &::-moz-range-track {
+    @include track;
+  }
+
+  &::-webkit-slider-thumb {
+    @include thumb;
+    margin-top: calc((#{$trackHeight} - #{$thumb}) / 2);
+    appearance: none;
+  }
+
+  &::-moz-range-thumb {
+    @include thumb;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 2px;
+  }
+}
+
+.toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.toggle {
+  min-height: 44px;
+  padding: 0.25rem 0.5rem;
+  color: rgba($starlight, 0.9);
+  font-size: 0.875rem;
+  cursor: pointer;
+  background-color: rgba($cosmicBlue, 0.82);
+  border: 1px solid rgba($starlight, 0.3);
+  border-radius: 0.5rem;
+  transition:
+    background-color $motionFast,
+    border-color $motionFast;
+
+  &:hover {
+    border-color: $solarAmber;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 2px;
+  }
+
+  &[aria-pressed='true'] {
+    color: $starlight;
+    background-color: rgba($solarAmber, 0.28);
+    border-color: $solarAmber;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// --- Tarjeta de espaguetización -------------------------------------------------------
+// Siempre visible. Móvil vertical: sobre los controles; side-by-side: a la derecha.
+.tidal {
+  position: absolute;
+  right: 1rem;
+  bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + var(--viewportExtra) + 8.5rem);
+  left: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: rgba($cosmicBlue, 0.82);
+  border: 1px solid rgba($starlight, 0.14);
+  border-radius: 0.75rem;
+
+  @media #{$sideBySide} {
+    top: 50%;
+    right: max(3vw, 1rem);
+    bottom: auto;
+    left: auto;
+    width: clamp(15rem, 22vw, 20rem);
+    translate: 0 -50%;
+  }
+}
+
+.tidalKicker {
+  margin: 0 0 0.125rem;
+  color: $amberText;
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.tidalTitle {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 300;
+}
+
+.tidalBody {
+  margin: 0;
+  color: rgba($starlight, 0.9);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+// Móvil apaisado bajo: controles abajo a la izquierda y tarjeta arriba a la derecha, compactos,
+// para dejar libre el disco del centro (se afina en la calibración por viewport).
+@media (max-height: $shortHeight) and (orientation: landscape) {
+  .controls {
+    right: auto;
+    bottom: calc(0.5rem + var(--viewportExtra));
+    left: 1rem;
+    width: min(18rem, 38vw);
+    translate: 0 0;
+  }
+
+  .hint {
+    text-align: left;
+  }
+
+  .toggles {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .tidal {
+    top: 0.75rem;
+    right: 1rem;
+    width: min(16rem, 38vw);
+    padding: 0.5rem 0.75rem;
+    translate: 0 0;
+  }
+
+  .tidalTitle {
+    font-size: 1rem;
+  }
+}

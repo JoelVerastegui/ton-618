@@ -13,3 +13,19 @@ export const TIDAL_START = 14;
 // Parámetro de impacto del rayo del diagrama, en rs. El radio crítico de captura es 3√3/2 ≈ 2,6:
 // un valor algo mayor da un rayo que se curva claramente y escapa. Provisional (Paso 12).
 export const RAY_IMPACT = 3.2;
+
+// Posición del deslizante (0…SLIDER_MAX) y distancia, en escala logarítmica: el recorrido se
+// reparte por igual entre cada factor de distancia. Izquierda = lejos (60), derecha = cerca (7).
+export const SLIDER_MAX = 1000;
+
+const LOG_SPAN = Math.log(MAX_DISTANCE / MIN_DISTANCE);
+
+export const distanceToSlider = (distance: number): number =>
+  Math.round((Math.log(MAX_DISTANCE / distance) / LOG_SPAN) * SLIDER_MAX);
+
+export const sliderToDistance = (position: number): number =>
+  MAX_DISTANCE * Math.exp((-position / SLIDER_MAX) * LOG_SPAN);
+
+// Texto de `aria-valuetext` a partir de la plantilla del JSON.
+export const formatDistance = (template: string, distance: number): string =>
+  template.replace('{value}', String(Math.round(distance)));
