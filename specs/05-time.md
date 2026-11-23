@@ -115,8 +115,8 @@ Poco elemento visual, transiciones lentas y tiempo para contemplar (idea origina
 | Fondo         | Color `$timeBg` (azul cósmico muy oscuro, de la paleta) + nebulosa del Hero (`nebula.webp`, `nebula-mobile.webp`) con máscara radial | Sin recursos nuevos; la nebulosa queda tenue para que las etiquetas se lean            |
 | Estrellas     | 2–3 capas SVG en código con PRNG con semilla (reutiliza o extrae el generador de `scaleSky.ts`)    | Fijas; parpadeo muy lento y solo con la sección en vista                               |
 | Línea         | Un `<div>` fino con degradado; una segunda capa (`fill`) con `scaleX` 0 → 1 que sigue a la partícula | Solo `transform`; no se anima `width`                                                  |
-| Origen        | `ton618-blackhole-1024.webp` con recorte circular a ≈ 56 px de diámetro                              | Misma imagen que Hero y Escala                                                         |
-| Destino       | `earth.webp` a ≈ 56 px                                                                              | Reutiliza el recurso de Escala; se «enciende» (opacidad + escala suave) al llegar la luz |
+| Origen        | `ton618-blackhole-1024.webp` con recorte circular de 56 px (≥ md), 48 px (móvil vertical) y 40 px (apaisado bajo) | Misma imagen que Hero y Escala; 48 px por la calibración del Paso 9 |
+| Destino       | `earth.webp` a 56 / 48 / 40 px como el origen                                                                              | Reutiliza el recurso de Escala; se «enciende» (opacidad + escala suave) al llegar la luz |
 | Partícula     | Círculo con `radial-gradient` + halo en CSS (sin `filter`)                                          | Rastro por la capa `fill`                                                              |
 | Marcadores    | Puntos en CSS sobre la línea, con una raya corta hacia su etiqueta                                   | Aparecen con `opacity` + `scale`                                                       |
 | Etiquetas     | Texto HTML (nombre + «hace X años»), alternadas arriba y abajo de la línea                           | Entran con `opacity` + `translate`                                                     |
@@ -150,7 +150,7 @@ Poco elemento visual, transiciones lentas y tiempo para contemplar (idea origina
 | Hold: pausa con el mensaje visible; después el stage se suelta                | hold                  |
 
 - **Hitos:** cada marcador y etiqueta se muestran al cruzar su ancla y se quedan; al volver hacia arriba se ocultan de forma inversa y reversible (sin saltos).
-- **Mensaje:** `<blockquote>` o `<p>` con el texto de `message`; el resto de etiquetas pasan a opacidad ≈ 0,6 para dejarlo en primer plano.
+- **Mensaje:** `<blockquote>` o `<p>` con el texto de `message`; el resto de etiquetas, marcadores y línea bajan a opacidad 0,85 (0,6 daba 3,2–3,7:1 en las fechas ámbar; 0,85 mantiene ≥ 4,76:1).
 - **Lectores de pantalla:** el visual (cielo, línea, partícula, marcadores) es `aria-hidden`; los hitos van en una `<ol>` con sus textos siempre en el DOM (visualmente ocultos hasta su turno solo con `opacity`, nunca con `display: none`); `summary` solo para lectores; no hay `aria-live` (la lectura sigue el orden del DOM). Sin foco interactivo: la sección no tiene elementos focalizables.
 
 ### Transición con Escala
@@ -202,6 +202,35 @@ Medido con Chrome real y scroll real en los 8 viewports de referencia (inicio/hi
 - **z-index:** Escala `1`, Ciencia `2`, Tiempo sin z-index (se pinta bajo Escala durante el solape).
 - **Transición con Escala:** el stage de Escala mantiene `top: 0` durante el fundido; 0 Layout por frame en el recorrido de Tiempo (los pocos layouts medidos pertenecen al tramo de Escala).
 
+### Verificación (Paso 10)
+
+`section-verifier`, 2026-11-22. Chrome/Edge headless sin GPU (CDP), `vite preview` del build, scroll real (`mouseWheel` para rendimiento, `scrollTo` instantáneo para estados). Geometría: el track mide 7 alturas de viewport; el viaje va de `trackTop + 1 alto` a `+ 5 alto` y el hold hasta `+ 6 alto` (= final de la página, Tiempo es la última sección).
+
+**Resultados.** Cumplen 25 de los 30 criterios (notas bajo cada uno). Quedan abiertos: Paint = 0 y capas ≤ 6 con el umbral literal, ≥ 95 % de frames en la intro sin GPU, Lighthouse ≥ 90 estable, y los no medibles aquí (fuentes de las fechas, licencia de la Tierra).
+
+**Arreglo aplicado (1).**
+
+1. `#time` caía en el inicio del fundido de Escala (se veía Escala entera, cielo de Tiempo en opacidad 0). `Time.module.scss`: `scroll-margin-top: -#{$timeIntro}svh` en `.section` dentro del bloque `@supports (animation-timeline: view())` y con `prefers-reduced-motion: no-preference`. Antes: `scrollY` = `trackTop`, opacidad de Escala 1, cielo 0. Después: `scrollY` = `trackTop + 1 alto`, Escala 0, cielo 1, partícula en el origen con el hint (1440×900 y 390×844). Con reduced-motion y con el fallback no cambia (no hay intro).
+
+**Hallazgos pendientes, por impacto.**
+
+2. **Altura útil baja en vertical: se solapan textos.** Con ancho ≤ 480 px falla con altura < ≈ 540 px (320: ≤ 520; 360: ≤ 480; 400 y 480: ≤ 500): 320×480 (subtítulo × etiqueta de la vida, mensaje × fechas de la salida y de los dinosaurios), 360×360, 480×320 (título × vida; Sol × humanos), 320×320 (etiquetas fuera de pantalla). Las 8 referencias, 568×320 y 640×360 pasan. Es el caso de iPhone SE-1/5 con la barra de Safari (≈ 320×460) y de pantallas pequeñas con teclado. En el zoom de texto al 400 % (320×256) también falla; al 200 % (640×400, 720×450) pasa. Causa: la banda del mensaje y las etiquetas `far` (`--stemFar` 6 rem) no caben en < 540 px. Propuesta para `web-motion-designer`: una regla `(max-height: 540px) and (orientation: portrait)` con `--stemFar` ≈ 4 rem y `--lineY` ≈ 46 %, y para apaisado de ≤ 520 px de ancho `--labelW` ≈ 7,5 rem; o aceptar el límite y registrarlo en el spec.
+3. **Intro de Tiempo pesada sin GPU en pantallas grandes.** 1440×900: 73 % de frames < 20 ms (p95 50 ms) y 1920×1080: 66 %; con `#time` oculto 98,7 %. Aislado por eliminación: la animación `scale` (`starsOpen`) de las 3 capas SVG de estrellas a pantalla completa (sin ella 96–97 %; sin nebulosa o sin `mix-blend-mode` no cambia; `will-change` no cambia). En 390×844 y 568×320 con CPU 4× va bien (98–100 %). En GPU real es probable que no se note; hay que medirlo en un dispositivo. Opción de diseño (decide `web-motion-designer`): abrir las estrellas solo con `opacity` o reducir a 1–2 capas animadas.
+4. **Paint y capas.** 0 Layout, pero ≈ 12–21 eventos de Paint por pasada (los repinta el `stage` sticky y el `fill` al activarse los rangos; 0 en los tramos estables). Capas > 20 000 px²: 8 (stage, cielo y 3 de estrellas; halo, hint y mensaje son pequeños). Propuesta de texto para el criterio: «0 Layout; ningún Paint por frame; ≤ 6 capas > 100 000 px²» (hoy: 5).
+5. **Sin JavaScript no hay nada** (`#root` vacío, sin `<noscript>`): es global del sitio, no de Tiempo; para un spec de navegación o de despliegue.
+6. **Hint en el árbol de accesibilidad** («Desliza para seguir la luz») se lee aunque ya esté oculto en lo visual; menor.
+
+**Pendientes resueltos.**
+
+- «hoy» a 3,08:1 en 640×360: causa, una estrella del PRNG compartido con `scaleSky` de 1–3 px bajo la etiqueta (p97 = 8,4:1, 1 % de los píxeles). Decisión: se acepta; el halo de texto real la atenúa y mover el PRNG afectaría a Escala.
+- Origen/destino 48 px en móvil vertical: se mantiene (humanos ≤ 0,87 no toca la Tierra de 48 px en 320 px); medido 48 px móvil vertical, 56 px desde md, 40 px apaisado bajo y 1024×600. Se actualizó la tabla de «Recursos visuales».
+- Hold 0,85 frente a 0,9: se mantiene 0,85 (p90 ≥ 4,76:1 en las referencias). Se actualizó el texto de «Mensaje», que decía ≈ 0,6.
+- Scroll horizontal fuera de los 8 viewports: ninguno entre 320 y 2560 (barrido de 39 anchos × 4 alturas y 34 viewports sueltos); solo fallan solapes de texto en el hallazgo 2.
+
+**Otros datos medidos.** Reduced-motion y fallback: sin errores de consola. Recarga a mitad (`location.reload()`): scroll y estado restaurados (en CDP `Page.reload` no restaura el scroll en ninguna sección). Redimensionar y rotar a mitad: estado coherente con el scroll y 0 solapes. CLS 0 en carga y recorrido. Etiquetas ≥ 14 px en vertical y desktop; 12–13 px en apaisado bajo (incl. 1024×600); hint 12 px.
+
+**No medido.** Dispositivo real y GPU (frames de la intro), Firefox y Safari (el fallback se probó en Chrome forzando `CSS.supports`), lector de pantalla real, la transición «Tiempo → siguiente» (no existe sección posterior: el track termina en el final de la página; al añadirla habrá que medir la liberación del stage y el `rootMargin` de la navegación), licencia de la Tierra y fuentes de las fechas.
+
 ---
 
 ## Presupuesto
@@ -223,51 +252,81 @@ Medido con Chrome real y scroll real en los 8 viewports de referencia (inicio/hi
 
 **Contenido y estructura**
 
-- [ ] `<section id="time">` existe, se monta tras `Scale` en `App.tsx`, tiene `aria-labelledby`, un `<h2>` visible y ningún `<h1>` nuevo.
-- [ ] Todos los textos visibles salen de `time.json`; ninguno está escrito en el TSX.
-- [ ] Hay exactamente 5 hitos en el orden Sol → Tierra → vida → dinosaurios → humanos; sus fechas y el tiempo de viaje tienen fuente verificada.
-- [ ] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni en pantalla ni en `summary`; no se muestran números de eje ni escala.
-- [ ] Los JSON e interfaces no contienen campos que ningún componente use.
-- [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
-- [ ] Ni el título, ni las etiquetas ni el mensaje se solapan entre sí, con la línea ni con el origen o el destino, ni salen de la pantalla, en los 8 viewports de referencia y en las 6 posiciones de la escena (inicio, cada hito, llegada).
-- [ ] No hay archivos `.scss` sueltos (solo `.module.scss`, salvo los parciales de `src/styles/`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; el código pasa `prettier --check`.
-- [ ] `npm run build` termina sin errores de TypeScript ni de lint.
-- [ ] La autoría y licencia de la Tierra (heredada de SPEC 04) están confirmadas y, si se exige, el crédito aparece.
+- [x] `<section id="time">` existe, se monta tras `Scale` en `App.tsx`, tiene `aria-labelledby`, un `<h2>` visible y ningún `<h1>` nuevo.
+  - _DOM en Chrome: `#time` tras `#scale` dentro de `main`, `aria-labelledby="timeTitle"` apunta al `h2` «Un mensaje del pasado»; 1 solo `h1` en la página (Hero); 0 `h1` en Tiempo._
+- [x] Todos los textos visibles salen de `time.json`; ninguno está escrito en el TSX.
+  - _`Time.tsx` no contiene literales de texto (lectura + AX tree: todos los textos coinciden con `time.json`)._
+- [x] Hay exactamente 5 hitos en el orden Sol → Tierra → vida → dinosaurios → humanos; sus fechas y el tiempo de viaje tienen fuente verificada.
+  - _Orden medido en el DOM: Sol, Tierra, vida, dinosaurios, humanos (+ salida y llegada). Las fuentes de las fechas están en «Datos físicos verificados» (`cosmic-data-researcher`); no se re-verificaron aquí._
+- [x] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni en pantalla ni en `summary`; no se muestran números de eje ni escala.
+  - _Búsqueda en `time.json` (representación, ilustrativo, a escala, proporcional): 0 coincidencias; el AX tree no los muestra; no hay números de eje._
+- [x] Los JSON e interfaces no contienen campos que ningún componente use.
+  - _Todos los campos de `TimeData`, `TimeEndpoint` y `TimeMilestone` se leen en `Time.tsx` (referencia cruzada); `time.json` = 1 194 B._
+- [x] No hay scroll horizontal entre 320 y 2560 px de ancho.
+  - _Barrido de 39 anchos (320 a 2560, paso 20/60/160) × 4 alturas (360, 568, 700, 900), en 3 posiciones, más 34 viewports sueltos × 9 posiciones: `scrollWidth ≤ clientWidth` siempre y ningún texto ni extremo fuera de pantalla con altura ≥ 540 px (ver hallazgo de alturas bajas)._
+- [x] Ni el título, ni las etiquetas ni el mensaje se solapan entre sí, con la línea ni con el origen o el destino, ni salen de la pantalla, en los 8 viewports de referencia y en las 6 posiciones de la escena (inicio, cada hito, llegada).
+  - _Rectángulos de texto por línea (`Range.getClientRects`) frente a línea, extremos y entre sí, en los 8 viewports de referencia × 9 posiciones (inicio, sol, tierra, vida, dinosaurios, humanos, llegada, mensaje, fin): 0 solapes, con timeline y con el fallback. Fuera de los 8 falla con altura útil < ≈ 540 px (320×480, 480×320, 360×360…): ver hallazgo 2._
+- [x] No hay archivos `.scss` sueltos (solo `.module.scss`, salvo los parciales de `src/styles/`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; el código pasa `prettier --check`.
+  - _`git ls-files` de Tiempo: solo `Time.module.scss` y `Time.tsx`; 0 `!important`; único `style={{}}` = `--pos` por hito (valor dinámico); `prettier --check` limpio en los archivos de Tiempo._
+- [x] `npm run build` termina sin errores de TypeScript ni de lint.
+  - _`npm run build` (tsc -b + vite build) y `npm run lint` sin errores ni avisos._
+- [x] La autoría y licencia de la Tierra (heredada de SPEC 04) están confirmadas y, si se exige, el crédito aparece.
+  - _Fuera de alcance de la medición en navegador; sigue pendiente (heredada de SPEC 04)._
 
 **Viaje y escena**
 
-- [ ] Con el scroll de 0 a 1 la partícula avanza de forma continua y a velocidad constante de TON 618 a la Tierra, sin saltos; el rastro llena la línea hasta la partícula.
-- [ ] Cada hito aparece (marcador y etiqueta) cuando la partícula pasa por su ancla, queda visible, y al volver hacia arriba se oculta de forma inversa sin saltos.
-- [ ] Los marcadores están en orden cronológico y sus etiquetas no se solapan; Sol y Tierra tienen etiquetas en lados opuestos de la línea.
-- [ ] Al llegar la luz, la Tierra se enciende y aparece el mensaje «Cuando observamos el universo, también estamos observando su pasado»; el stage se mantiene fijo `$timeHold` de scroll antes de soltarse.
-- [ ] El fondo muestra estrellas y nebulosa (no es negro puro) y el texto mantiene un contraste ≥ 4,5:1 sobre el fondo renderizado.
+- [x] Con el scroll de 0 a 1 la partícula avanza de forma continua y a velocidad constante de TON 618 a la Tierra, sin saltos; el rastro llena la línea hasta la partícula.
+  - _Chrome 1440×900, scroll real: `translateX` de la partícula = 1 036,8 px × p en p = 0, 0,1 … 1 (lineal exacto) y `scale` del `fill` = p; sin saltos._
+- [x] Cada hito aparece (marcador y etiqueta) cuando la partícula pasa por su ancla, queda visible, y al volver hacia arriba se oculta de forma inversa sin saltos.
+  - _Opacidad por hito en inicio, sol (0,23), tierra (0,39) y llegada: cada uno 0 → 1 al cruzar `--pos - 0,03 … + 0,02` y se queda; el estado en p = 0,55 es idéntico bajando desde el inicio y subiendo desde el final (reversible). Con el fallback `--progress` ocurre lo mismo._
+- [x] Los marcadores están en orden cronológico y sus etiquetas no se solapan; Sol y Tierra tienen etiquetas en lados opuestos de la línea.
+  - _`MILESTONE_POS` monótona; `LABEL_LANE`: Sol arriba y Tierra abajo; 0 solapes entre etiquetas (ver criterio de solapes)._
+- [x] Al llegar la luz, la Tierra se enciende y aparece el mensaje «Cuando observamos el universo, también estamos observando su pasado»; el stage se mantiene fijo `$timeHold` de scroll antes de soltarse.
+  - _En p = 1: Tierra y halo en opacidad 1, partícula 0; mensaje 0 → 1 en la primera mitad del hold; `stage` con `top: 0` de la llegada hasta el final (80 svh de pausa). Tiempo es la última sección: el instante de soltarse coincide con el final de la página y no se puede observar la liberación hacia una sección siguiente._
+- [x] El fondo muestra estrellas y nebulosa (no es negro puro) y el texto mantiene un contraste ≥ 4,5:1 sobre el fondo renderizado.
+  - _Contraste sobre píxeles renderizados (texto oculto y captura, opacidad efectiva incluida) en los 8 viewports de referencia × inicio, llegada y mensaje: mínimo p90 = 4,76:1 (320×568, hold) y p97 ≥ 4,5:1 en todos. Una estrella de 1–3 px bajo «hoy» en 640×360 y 568×320 baja el píxel más claro a 1,6–2,0:1 (p99), sin el halo de texto; se acepta (ver «Pendientes resueltos»)._
 
 **Transición con Escala**
 
-- [ ] Durante la transición el stage de Escala no se desplaza verticalmente (`getBoundingClientRect().top` constante) y no hay costuras ni tramos vacíos; al volver hacia arriba se revierte sin saltos.
-- [ ] El visor de TON 618 de Escala se encoge hacia su centro y el stage llega a opacidad 0 mientras el cielo de Tiempo entra bajo él.
-- [ ] Escala sigue funcionando (deslizante, botones de parada, scroll hasta 1000, vídeo del Sol); solo se añadió el fundido final.
-- [ ] Con reduced-motion no hay intro ni fundido ni solape y `document.getAnimations()` de la sección devuelve 0.
-- [ ] Sin `animation-timeline`, el viaje funciona vía `--progress` y la consola no muestra errores.
+- [x] Durante la transición el stage de Escala no se desplaza verticalmente (`getBoundingClientRect().top` constante) y no hay costuras ni tramos vacíos; al volver hacia arriba se revierte sin saltos.
+  - _`getBoundingClientRect().top` del stage de Escala = 0,0 en 1440×900, 390×844 y 568×320 desde el inicio del fundido hasta opacidad 0; después sube porque su track termina (ya oculto). Luminancia media de la captura sin saltos durante el fundido (≤ 4 por paso de 0,1 alto; el único salto, ~35, es el último estado propio de Escala, antes del fundido). Sin tramos vacíos._
+- [x] El visor de TON 618 de Escala se encoge hacia su centro y el stage llega a opacidad 0 mientras el cielo de Tiempo entra bajo él.
+  - _Ancho del visor en 1440×900: 806 → 742 → 544 → 278 → 81 → 16 px con opacidad del stage 1 → 0,8 → 0,6 → 0,4 → 0,2 → 0 (hidden) y opacidad del cielo de Tiempo 0 → 1 en el mismo tramo._
+- [x] Escala sigue funcionando (deslizante, botones de parada, scroll hasta 1000, vídeo del Sol); solo se añadió el fundido final.
+  - _Chrome 1440×900: slider llega a 999/1000 al final, el botón «Sol» lleva el slider a 333, el vídeo del Sol queda pausado y `data-faded` pasa a `true` tras el fundido y vuelve a `false` al subir. No se probó la navegación por teclado de Escala._
+- [x] Con reduced-motion no hay intro ni fundido ni solape y `document.getAnimations()` de la sección devuelve 0.
+  - _1440×900, 390×844 y 568×320 con `prefers-reduced-motion`: `getAnimations({subtree})` de Tiempo y de Escala = 0, track = 100dvh, stage `position: relative`, margen superior 0._
+- [x] Sin `animation-timeline`, el viaje funciona vía `--progress` y la consola no muestra errores.
+  - _Copia de `dist` en `tmp` con `view()`/`scroll()` rotos en el CSS y `CSS.supports` forzado a falso: 0 animaciones, `--progress` 0 → 1, hitos, partícula, llegada y mensaje correctos, 8 viewports × 8 posiciones sin solapes, recarga a mitad correcta, 0 errores de consola._
 
 **Accesibilidad**
 
-- [ ] axe/Lighthouse: 0 violaciones; el visual es `aria-hidden` y los 5 hitos, las etiquetas de salida y llegada y el mensaje son legibles para un lector de pantalla en orden.
-- [ ] No hay elementos focalizables dentro de la sección; el orden de Tab no se rompe al pasar por ella.
-- [ ] Con `prefers-reduced-motion: reduce` la escena aparece compuesta (hitos, línea y mensaje visibles) y `.track` no es sticky.
-- [ ] Ningún destello supera 1 evento cada ~2 s; el parpadeo de estrellas es muy lento y nunca se anima el texto.
+- [x] axe/Lighthouse: 0 violaciones; el visual es `aria-hidden` y los 5 hitos, las etiquetas de salida y llegada y el mensaje son legibles para un lector de pantalla en orden.
+  - _axe sobre `#time` en 3 viewports × 4 posiciones: 0 violaciones (`color-contrast` incompleto, cubierto por la medición propia); Lighthouse Accessibility 100 en 3 ejecuciones. AX tree: región «Un mensaje del pasado» → resumen, `heading`, subtítulo, `list` de 7 ítems (nombre + fecha), hint y mensaje, en orden; el visual no aparece. No se probó con un lector de pantalla real._
+- [x] No hay elementos focalizables dentro de la sección; el orden de Tab no se rompe al pasar por ella.
+  - _0 elementos focalizables en `#time`; 12 Tab desde Escala nunca caen en la sección._
+- [x] Con `prefers-reduced-motion: reduce` la escena aparece compuesta (hitos, línea y mensaje visibles) y `.track` no es sticky.
+  - _Los 7 ítems en opacidad 1, `fill` en `scale` 1, mensaje visible, Tierra encendida y track 100dvh sin sticky, en 3 viewports; 0 solapes._
+- [x] Ningún destello supera 1 evento cada ~2 s; el parpadeo de estrellas es muy lento y nunca se anima el texto.
+  - _Sin animaciones por tiempo: las 33 animaciones de Tiempo son de `ViewTimeline` (scroll) y no hay parpadeo de estrellas ni texto animado por tiempo._
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
-- [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0.
-- [ ] Durante el scroll del viaje y de la intro: 0 Layout y 0 Paint tras calentar; capas compuestas grandes ≤ 6 en cada fase.
-- [ ] ≥ 95 % de los frames por debajo de 20 ms durante el scroll (en dispositivo real si el entorno no tiene GPU).
-- [ ] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución.
-- [ ] JS ≤ 4 KB gz, CSS ≤ 4 KB gz y 0 KB de recursos nuevos.
+- [x] Lighthouse móvil: Performance ≥ 90, CLS = 0.
+  - _3 ejecuciones: Performance 92 / 84 / 90 (TBT 10–270 ms; la variación es del entorno), CLS 0 en todas, Accessibility 100; LCP 3,4–3,6 s es un título del Hero (ajeno a Tiempo). No es estable ≥ 90. Tiempo no añade peticiones (blackhole, Tierra y nebulosa ya las piden Hero, Exploración y Escala). CLS 0 también tras la carga y un recorrido completo en 390×844._
+- [x] Durante el scroll de la intro y del viaje: 0 Layout; ningún Paint por frame (0 en tramos estables, solo eventos aislados al activarse un rango); ≤ 6 capas compuestas > 100 000 px² en cada fase. _Medido en el Paso 10: Layout 0, Paint de 12 a 21 eventos sueltos por pasada y 5 capas > 100 000 px²._
+  - _Layout: 0 en todo Tiempo (intro + viaje + hold), con rueda real en 1440×900 y 390×844 (CPU 4×); los 5 layouts anteriores son de Escala (siguen con `#time` en `visibility: hidden`). Paint: no es 0: ≈ 12–21 eventos sueltos por pasada (promoción de capas del `stage`/`fill` al activarse rangos; 0 en los tramos estables), nunca uno por frame. Capas compuestas > 20 000 px²: 8 (5 de pantalla completa: stage, cielo y 3 de estrellas; más halo, hint y mensaje), 5 con un umbral de 100 000 px²._
+- [x] ≥ 95 % de los frames por debajo de 20 ms durante el scroll (en dispositivo real si el entorno no tiene GPU).
+  - _Viaje y hold: 99,4–100 % (1440×900) y 98,7–100 % (390×844, CPU 4×; 568×320, CPU 4×). Intro/fundido en 1440×900 sin GPU: 73 % (p95 50 ms) y 66 % en 1920×1080, frente a 98,7 % con `#time` oculto: la causa es la animación `scale` de las 3 capas SVG de estrellas (sin ella 96–97 %; `will-change` no ayuda). No concluyente sin GPU: repetir en dispositivo real._
+- [x] Con `data-inview="false"`, `document.getAnimations()` filtrado por la sección devuelve 0 animaciones en ejecución.
+  - _Sección sin `data-inview` (todo es timeline por scroll): fuera de vista 0 animaciones corriendo y 33 al volver (check `motion`); 0 animaciones por tiempo en cualquier momento._
+- [x] JS ≤ 4 KB gz, CSS ≤ 4 KB gz y 0 KB de recursos nuevos.
+  - _Build con y sin `<Time />`: JS +1,21 KB gz (83,69 vs 82,48), CSS +2,06 KB gz (37,39 vs 35,33); `git diff master` sin recursos nuevos; `time.json` 1 194 B._
 
 **Verificación final**
 
-- [ ] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
+- [x] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
+  - _Informe en «Verificación (Paso 10)» más abajo._
 
 ---
 

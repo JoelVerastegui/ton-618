@@ -665,6 +665,9 @@
       // Escala (z-index 1) queda por encima durante el solape; Tiempo, sin z-index, se pinta bajo ella.
       margin-top: calc(-100vh - #{$scaleFade}svh);
       margin-top: calc(-100dvh - #{$scaleFade}svh);
+      // El ancla `#time` aterriza al terminar la intro (cielo ya presente, partícula en el origen);
+      // sin esto caería en el inicio del fundido de Escala, que aún se ve entera
+      scroll-margin-top: -#{$timeIntro}svh;
     }
 
     .track {
