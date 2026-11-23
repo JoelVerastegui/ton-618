@@ -1,56 +1,78 @@
 // Distorsión de transición tipo espaguetización (SPEC 06): parte del centro del stage, lo estira y
 // lo desvanece en un anillo que se expande, hasta dejarlo en `opacity: 0` y `visibility: hidden`.
 // Es la misma al salir de Tiempo y al salir de Experimento (la sección siguiente la reutilizará).
-// Solo `scale` y `opacity`; independiente del motor del agujero negro. Cada módulo pone su timeline
-// y su rango (ver `distortEffect`); aquí solo la forma, las duraciones y los keyframes.
+// Solo `scale` y `opacity` (más `visibility` discreta en el stage); independiente del motor del
+// agujero negro. Se importa tras `variables` en los módulos que la usan.
+//
+// Reparto: el stage de cada sección se anima con `distortStageEffect` (aquí) y las capas visuales
+// (anillos, estrías y velo) viven en `components/ui/Distortion`. Ambos leen del stage tres variables
+// que pone cada sección: `--distortTimeline` (nombre del `view-timeline` de su track),
+// `--distortFrom` y `--distortTo` (inicio y fin de la cola como posiciones `cover`), y, sin
+// `animation-timeline`, `--distortFade` (0 → 1, calculado desde `--progress`).
 
-// Escala final del stage al desvanecerse (se estira desde el centro)
-$distortStageScale: 1.12;
-// Anillos concéntricos: escala inicial y final, y desfase (fracción del tramo) entre cada uno
+// Anillos concéntricos: escala inicial y final, y tramo de la cola (fracción) en que vive cada uno
 $distortRingFrom: 0.15;
 $distortRingTo: 2.6;
-$distortRingDelay: 0.14;
-// Estrías radiales: estiramiento final
+$distortRingRanges: (
+  'ringA': (
+    0,
+    0.7,
+  ),
+  'ringB': (
+    0.15,
+    0.85,
+  ),
+  'ringC': (
+    0.3,
+    1,
+  ),
+);
+// Fracción del tramo de cada capa en que alcanza su máximo de opacidad
+$distortPeak: 0.35;
+// Estrías radiales: estiramiento final y opacidad máxima
 $distortStreakTo: 1.9;
 // Velo radial: opacidad máxima antes de que el stage quede oculto
 $distortVeilPeak: 0.85;
-// Mismo ritmo que el resto de transiciones del proyecto
-$distortEase: $easeCinematic;
-// Con `animation-timeline` la duración es nominal (la fija el rango del scroll); se usa solo
-// en el fallback de reloj (no hay: sin timeline se resuelve con `--progress`).
-$distortDuration: $motionSlow;
 
-// Caja de las capas de distorsión: cubren el stage y no capturan el puntero.
-@mixin distortLayer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transform-origin: 50% 50%;
-}
-
-// Keyframes del efecto. Nombres fijos por módulo (CSS Modules los hace locales).
-@mixin distortKeyframes {
+@mixin distortStageKeyframes {
   @keyframes distortStage {
     from {
       opacity: 1;
       visibility: visible;
-      scale: 1;
     }
 
     to {
       opacity: 0;
       visibility: hidden;
-      scale: $distortStageScale;
     }
   }
+}
 
+// Stage de la sección: se desvanece en su sitio durante la cola (sin moverse ni escalarse: el
+// estiramiento lo ponen los anillos y las estrías). Con `animation-timeline`
+// (el soporte y reduced-motion los pone el módulo).
+@mixin distortStageEffect {
+  animation: distortStage 1ms linear both;
+  animation-timeline: var(--distortTimeline);
+  animation-range: cover var(--distortFrom) cover var(--distortTo);
+}
+
+// Stage sin `animation-timeline`: lo mismo desde `--distortFade`. Al final se colapsa
+// (`scale: 0`) para no capturar el puntero, ya que `visibility` no se puede calcular.
+@mixin distortStageFallback {
+  opacity: calc(1 - var(--distortFade));
+  scale: calc(1 - clamp(0, calc((var(--distortFade) - 0.99) * 100), 1));
+}
+
+// Anillos, estrías y velo (capas de `Distortion`): aparecen, alcanzan el máximo y se apagan.
+@mixin distortLayerKeyframes {
   @keyframes distortRing {
     from {
       opacity: 0;
       scale: $distortRingFrom;
     }
 
-    35% {
+    #{$distortPeak * 100%} {
       opacity: 1;
     }
 
@@ -66,7 +88,7 @@ $distortDuration: $motionSlow;
       scale: 1;
     }
 
-    40% {
+    #{$distortPeak * 100%} {
       opacity: 1;
     }
 
@@ -88,37 +110,5 @@ $distortDuration: $motionSlow;
     to {
       opacity: 0;
     }
-  }
-}
-
-// Aplica la distorsión con `animation-timeline` (el soporte y reduced-motion los pone el módulo).
-// `$timeline`: nombre del `view-timeline` del track; `$range`: `animation-range` del tramo de la
-// cola pegajosa. `$stage`, `$rings`, `$streaks` y `$veil` son los selectores de cada capa.
-@mixin distortEffect($timeline, $range, $stage, $rings, $streaks, $veil) {
-  #{$stage},
-  #{$rings},
-  #{$streaks},
-  #{$veil} {
-    animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
-    animation-timing-function: $distortEase;
-    animation-fill-mode: both; // antes del rango no actúa; después se queda al final
-    animation-timeline: $timeline;
-    animation-range: $range;
-  }
-
-  #{$stage} {
-    animation-name: distortStage;
-  }
-
-  #{$rings} {
-    animation-name: distortRing;
-  }
-
-  #{$streaks} {
-    animation-name: distortStreaks;
-  }
-
-  #{$veil} {
-    animation-name: distortVeil;
   }
 }

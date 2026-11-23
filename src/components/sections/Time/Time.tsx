@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties } from 'react';
 import { useTrackProgress } from '@/hooks/useTrackProgress';
+import { Distortion } from '@/components/ui/Distortion/Distortion';
 import timeJson from '@/data/time.json';
 import type { TimeData } from '@/interfaces/time';
 import blackHole from '@/assets/images/hero/ton618-blackhole-1024.webp';
@@ -107,6 +108,9 @@ export function Time() {
 
           <p className={styles.hint}>{time.hint}</p>
           <p className={styles.message}>{time.message}</p>
+
+          {/* Salida hacia Experimento: distorsión desde el centro (solo anima en la cola final) */}
+          <Distortion />
         </div>
       </div>
     </section>

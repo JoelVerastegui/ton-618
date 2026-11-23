@@ -474,13 +474,22 @@ $timeIntro: 100;
 $timeTravel: 420;
 $timeHold: 80;
 // Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
+// Suma la cola de la transición con Experimento (`--timeFade`, ver `$timeFade`).
 @mixin timeTrackHeight {
   height: calc(
-    100vh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+    100vh +
+      (
+        #{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold}) +
+          var(--timeFade, #{$timeFade})
+      ) *
       1svh
   );
   height: calc(
-    100dvh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+    100dvh +
+      (
+        #{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold}) +
+          var(--timeFade, #{$timeFade})
+      ) *
       1svh
   );
 }
@@ -536,3 +545,18 @@ $experimentBg: #070d1e;
 // vale 0 (`--timeFade`, `--experimentFade`). Si cambia uno, revisar el solape del otro.
 $timeFade: 50;
 $experimentFade: 50;
+
+// Punto de la cola de transición (`$t` 0 → 1) como posición del timeline `cover` del track de
+// Tiempo: empieza donde acaba el hold y termina cuando el stage se suelta.
+@function timeFadeAt($t) {
+  @return calc(
+    100svh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+      1svh + #{$t * $timeFade}svh
+  );
+}
+
+// Punto de la cola de Experimento (`$t` 0 → 1): el stage se pega al llegar su track al borde
+// superior (`cover` 100svh) y la cola dura `$experimentFade`.
+@function experimentFadeAt($t) {
+  @return calc(100svh + #{$t * $experimentFade}svh);
+}

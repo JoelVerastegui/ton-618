@@ -1,0 +1,138 @@
+@use 'sass:list';
+@import '@/styles/variables';
+@import '@/styles/distortion';
+
+// Capas de la distorsión de transición (ver `styles/_distortion.scss`). Por defecto están
+// apagadas (`opacity: 0`): solo se animan con `prefers-reduced-motion: no-preference`, bien con el
+// `view-timeline` de la sección o, sin él, desde `--distortFade`. Solo `scale` y `opacity`.
+.distortion {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.ring,
+.streaks,
+.veil {
+  position: absolute;
+  opacity: 0;
+  transform-origin: 50% 50%;
+}
+
+// Anillos: círculos de 50 vmax que se expanden desde el centro hasta cubrir el stage.
+.ring {
+  top: 50%;
+  left: 50%;
+  width: 50vmax;
+  height: 50vmax;
+  translate: -50% -50%;
+  border: 2px solid rgba($starlight, 0.55);
+  border-radius: 50%;
+  box-shadow:
+    0 0 1.5rem rgba($solarAmber, 0.35),
+    inset 0 0 1.5rem rgba($solarAmber, 0.2);
+  scale: $distortRingFrom;
+}
+
+// Estrías radiales: rayos finos desde el centro, más intensos en el anillo medio.
+.streaks {
+  top: 50%;
+  left: 50%;
+  width: 140vmax;
+  height: 140vmax;
+  translate: -50% -50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba($starlight, 0.25) 0 0.5deg,
+    transparent 0.5deg 7.5deg
+  );
+  mask-image: radial-gradient(closest-side, transparent 4%, #000 18%, #000 55%, transparent 100%);
+}
+
+// Velo radial: tiñe de morado el centro mientras el stage se apaga.
+.veil {
+  inset: 0;
+  background: radial-gradient(
+    closest-side,
+    rgba($nebulaPurple, 0.9),
+    rgba($nebulaPurple, 0.4) 55%,
+    transparent 100%
+  );
+}
+
+@include distortLayerKeyframes;
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .ring,
+    .streaks,
+    .veil {
+      animation-duration: 1ms; // ignorado por el timeline; requerido por navegadores antiguos
+      animation-timing-function: linear;
+      animation-fill-mode: both; // antes del rango no actúa; después se queda al final
+      animation-timeline: var(--distortTimeline);
+    }
+
+    .ring {
+      animation-name: distortRing;
+    }
+
+    @each $id, $range in $distortRingRanges {
+      .#{$id} {
+        animation-range: cover
+          calc(
+            var(--distortFrom) + (var(--distortTo) - var(--distortFrom)) * #{list.nth($range, 1)}
+          )
+          cover
+          calc(
+            var(--distortFrom) + (var(--distortTo) - var(--distortFrom)) * #{list.nth($range, 2)}
+          );
+      }
+    }
+
+    .streaks {
+      animation-name: distortStreaks;
+      animation-range: cover var(--distortFrom) cover var(--distortTo);
+    }
+
+    .veil {
+      animation-name: distortVeil;
+      animation-range: cover var(--distortFrom) cover var(--distortTo);
+    }
+  }
+
+  // Sin `animation-timeline`: las mismas curvas (subida lineal hasta `$distortPeak` y bajada) desde
+  // `--distortFade`, que escribe la sección a partir de `--progress`.
+  @supports not (animation-timeline: view()) {
+    @each $id, $range in $distortRingRanges {
+      .#{$id} {
+        --p: clamp(
+          0,
+          calc(
+            (var(--distortFade) - #{list.nth($range, 1)}) /
+              #{list.nth($range, 2) - list.nth($range, 1)}
+          ),
+          1
+        );
+        opacity: min(calc(var(--p) / #{$distortPeak}), calc((1 - var(--p)) / #{1 - $distortPeak}));
+        scale: calc(#{$distortRingFrom} + #{$distortRingTo - $distortRingFrom} * var(--p));
+      }
+    }
+
+    .streaks {
+      opacity: min(
+        calc(var(--distortFade) / #{$distortPeak}),
+        calc((1 - var(--distortFade)) / #{1 - $distortPeak})
+      );
+      scale: calc(1 + #{$distortStreakTo - 1} * var(--distortFade));
+    }
+
+    .veil {
+      opacity: calc(
+        #{$distortVeilPeak} *
+          min(calc(var(--distortFade) / 0.6), calc((1 - var(--distortFade)) / 0.4))
+      );
+    }
+  }
+}

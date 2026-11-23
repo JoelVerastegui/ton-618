@@ -1,4 +1,5 @@
 @import '@/styles/variables';
+@import '@/styles/distortion';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -27,7 +28,24 @@ $trackHeight: 4px;
 .section {
   --viewportExtra: 0px;
   --canvasH: 50svh;
+  // Cola pegajosa de salida (svh): el stage queda pegado mientras la distorsión desde el centro
+  // lo desvanece (ver `styles/_distortion.scss`). Sin movimiento no hay cola ni solape.
+  --experimentFade: #{$experimentFade};
   position: relative;
+  // Solapa el final de Tiempo (cuyo stage sigue pegado y se desvanece encima): se pinta por debajo
+  // de él sin tocar el z-index de las demás secciones. Con z-index negativo, Experimento no recibe
+  // el puntero hasta que Tiempo queda oculto.
+  z-index: -1;
+
+  @media (prefers-reduced-motion: no-preference) {
+    margin-top: -100vh;
+    margin-top: -100dvh;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    --experimentFade: 0;
+    z-index: auto;
+  }
 
   @media (hover: none) and (pointer: coarse) {
     --viewportExtra: calc((100dvh - 100svh) / 2);
@@ -43,12 +61,65 @@ $trackHeight: 4px;
   }
 }
 
-.stage {
+// Track: el stage más la cola de salida. El stage se pega al llegar su track al borde superior.
+.track {
   position: relative;
+  height: calc(100vh + var(--experimentFade) * 1svh);
+  height: calc(100dvh + var(--experimentFade) * 1svh);
+}
+
+.stage {
+  position: sticky;
+  top: 0;
   height: 100vh;
   height: 100dvh; // sigue las barras del navegador
   overflow: clip;
   background-color: $experimentBg;
+
+  @media (prefers-reduced-motion: reduce) {
+    position: relative;
+  }
+}
+
+// Marcador al final del track: al llegar el final de la página la cola ha terminado, el stage está
+// oculto y `useSectionFaded` marca `data-faded` (pausa del motor).
+.fadedSentinel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  pointer-events: none;
+}
+
+@include distortStageKeyframes;
+
+@media (prefers-reduced-motion: no-preference) {
+  // Con `animation-timeline`: la cola es el tramo en que el track está pegado arriba
+  @supports (animation-timeline: view()) {
+    .track {
+      view-timeline: --experimentTrack block;
+    }
+
+    .stage {
+      --distortTimeline: --experimentTrack;
+      --distortFrom: #{experimentFadeAt(0)};
+      --distortTo: #{experimentFadeAt(1)};
+      @include distortStageEffect;
+    }
+  }
+
+  // Sin él: `useTrackProgress` escribe `--progress` (0 al pegarse, 1 al soltarse)
+  @supports not (animation-timeline: view()) {
+    .section {
+      --progress: 0; // antes de la primera medición
+      --distortFade: var(--progress);
+    }
+
+    .stage {
+      @include distortStageFallback;
+    }
+  }
 }
 
 .summary {

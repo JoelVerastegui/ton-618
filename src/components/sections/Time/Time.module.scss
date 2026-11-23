@@ -1,4 +1,5 @@
 @import '@/styles/variables';
+@import '@/styles/distortion';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -25,11 +26,15 @@
 .section {
   // Progreso total del track (0-1); el fallback sin timeline lo reescribe al hacer scroll
   --progress: 1;
+  // Cola pegajosa de la transición con Experimento (svh): el stage queda pegado mientras la
+  // distorsión desde el centro lo desvanece (ver `styles/_distortion.scss`). Sin movimiento no hay.
+  --timeFade: #{$timeFade};
   position: relative;
 
   @media (prefers-reduced-motion: reduce) {
     --timeIntro: 0;
     --timeHold: 0;
+    --timeFade: 0;
   }
 }
 
@@ -556,6 +561,16 @@
   }
 }
 
+@include distortStageKeyframes;
+
+// Experimento queda bajo el final de Tiempo (z-index negativo): el track de Tiempo, aunque sin
+// controles, no debe capturar el puntero mientras se solapan.
+@media (prefers-reduced-motion: no-preference) {
+  .section {
+    pointer-events: none;
+  }
+}
+
 // --- Intro y transición con Escala -----------------------------------------------------
 // El track solapa el fundido final de Escala (`$scaleFade`): su stage se pega mientras el de Escala
 // (z-index mayor por orden de capas, ver abajo) sigue pegado encima y se desvanece sobre el cielo
@@ -672,6 +687,15 @@
 
     .track {
       view-timeline: --timeTrack block;
+    }
+
+    // Salida: tras el hold el stage sigue pegado `$timeFade` svh más y se desvanece con la
+    // distorsión desde el centro, dejando ver Experimento, que solapa este tramo.
+    .stage {
+      --distortTimeline: --timeTrack;
+      --distortFrom: #{timeFadeAt(0)};
+      --distortTo: #{timeFadeAt(1)};
+      @include distortStageEffect;
     }
 
     .sky {
@@ -812,12 +836,18 @@
     .section {
       --timeIntro: 0;
       --progress: 0; // antes de la primera medición
-      --run: calc(var(--progress) * #{$timeTravel + $timeHold});
+      --run: calc(var(--progress) * #{$timeTravel + $timeHold + $timeFade});
       --travel: clamp(0, calc(var(--run) / #{$timeTravel}), 1);
       --hold: clamp(0, calc((var(--run) - #{$timeTravel}) / #{$timeHold}), 1);
       // Llegada (0,96 → 1) y mensaje (primera mitad del hold), 0-1
       --lit: clamp(0, calc((var(--travel) - 0.96) / 0.04), 1);
       --msg: clamp(0, calc(var(--hold) / 0.5), 1);
+      // Cola de la transición con Experimento, 0-1 (lee la distorsión de `Distortion`)
+      --distortFade: clamp(0, calc((var(--run) - #{$timeTravel + $timeHold}) / #{$timeFade}), 1);
+    }
+
+    .stage {
+      @include distortStageFallback;
     }
 
     .fill {

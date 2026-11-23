@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useBlackHole } from '@/hooks/useBlackHole';
+import { useSectionFaded } from '@/hooks/useSectionFaded';
+import { useTrackProgress } from '@/hooks/useTrackProgress';
+import { Distortion } from '@/components/ui/Distortion/Distortion';
 import { useInView } from '@/hooks/useInView';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import experimentJson from '@/data/experiment.json';
@@ -26,7 +29,9 @@ const GRID_FADE_MS = 600;
 
 export function Experiment() {
   const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const fadedSentinelRef = useRef<HTMLSpanElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLInputElement>(null);
   const tidalRef = useRef<HTMLElement>(null);
@@ -35,6 +40,9 @@ export function Experiment() {
   const rayBentRef = useRef<SVGPathElement>(null);
   const rayCameraRef = useRef<SVGPathElement>(null);
   useInView(sectionRef);
+  // Sin `animation-timeline` escribe `--progress` en la sección (la cola de salida es todo el track
+  // salvo el stage); con él, la cola la resuelve el CSS.
+  useTrackProgress(sectionRef, trackRef);
   const reducedMotion = useReducedMotion();
 
   // Los dos conmutadores son el único estado de React de la sección.
@@ -99,7 +107,7 @@ export function Experiment() {
 
   // Al estar listo el motor, el canvas hace un fundido corto (atributo directo, sin estado) y
   // toma la distancia que haya elegido la persona mientras se calculaba.
-  const { engineRef } = useBlackHole(canvasRef, {
+  const { engineRef, setPaused } = useBlackHole(canvasRef, {
     enabled: near,
     initialDistance: INITIAL_DISTANCE,
     onReady: (engine) => {
@@ -113,6 +121,10 @@ export function Experiment() {
       showDistance(distance);
     },
   });
+
+  // Al terminar la distorsión de salida el stage queda oculto: el bucle del motor se pausa (y se
+  // reanuda al volver). `setPaused` es estable.
+  useSectionFaded(stageRef, fadedSentinelRef, setPaused);
 
   // «Cuadrícula»: `gridAmount` sube de 0 a 1 (y baja) de forma suave; con reduced-motion cambia
   // sin interpolar.
@@ -150,83 +162,91 @@ export function Experiment() {
 
   return (
     <section id='experiment' ref={sectionRef} aria-labelledby={TITLE_ID} className={styles.section}>
-      <div ref={stageRef} className={styles.stage}>
-        {/* Equivalente textual de la escena */}
-        <p className={styles.summary}>{experiment.summary}</p>
+      <div ref={trackRef} className={styles.track}>
+        <div ref={stageRef} className={styles.stage}>
+          {/* Equivalente textual de la escena */}
+          <p className={styles.summary}>{experiment.summary}</p>
 
-        <canvas
-          ref={canvasRef}
-          className={styles.canvas}
-          role='img'
-          aria-label={experiment.canvasLabel}
-          tabIndex={0}
-        />
+          <canvas
+            ref={canvasRef}
+            className={styles.canvas}
+            role='img'
+            aria-label={experiment.canvasLabel}
+            tabIndex={0}
+          />
 
-        <header className={styles.header}>
-          <h2 id={TITLE_ID} className={styles.title}>
-            {experiment.title}
-          </h2>
-          <p className={styles.subtitle}>{experiment.subtitle}</p>
-        </header>
+          <header className={styles.header}>
+            <h2 id={TITLE_ID} className={styles.title}>
+              {experiment.title}
+            </h2>
+            <p className={styles.subtitle}>{experiment.subtitle}</p>
+          </header>
 
-        <div className={styles.controls}>
-          <p className={styles.hint}>{experiment.hint}</p>
-          <label className={styles.sliderLabel}>
-            <span className={styles.sliderName}>{experiment.slider.label}</span>
-            <input
-              ref={sliderRef}
-              className={styles.slider}
-              type='range'
-              min={0}
-              max={SLIDER_MAX}
-              step={1}
-              defaultValue={distanceToSlider(INITIAL_DISTANCE)}
-              aria-valuetext={formatDistance(experiment.slider.valueText, INITIAL_DISTANCE)}
-              onChange={handleSlider}
-            />
-          </label>
-          <div className={styles.toggles}>
-            <button
-              type='button'
-              className={styles.toggle}
-              aria-pressed={gridOn}
-              onClick={() => setGridOn((on) => !on)}
-            >
-              {experiment.grid.label}
-            </button>
-            <button
-              type='button'
-              className={styles.toggle}
-              aria-pressed={rayOn}
-              onClick={() => setRayOn((on) => !on)}
-            >
-              {experiment.ray.label}
-            </button>
+          <div className={styles.controls}>
+            <p className={styles.hint}>{experiment.hint}</p>
+            <label className={styles.sliderLabel}>
+              <span className={styles.sliderName}>{experiment.slider.label}</span>
+              <input
+                ref={sliderRef}
+                className={styles.slider}
+                type='range'
+                min={0}
+                max={SLIDER_MAX}
+                step={1}
+                defaultValue={distanceToSlider(INITIAL_DISTANCE)}
+                aria-valuetext={formatDistance(experiment.slider.valueText, INITIAL_DISTANCE)}
+                onChange={handleSlider}
+              />
+            </label>
+            <div className={styles.toggles}>
+              <button
+                type='button'
+                className={styles.toggle}
+                aria-pressed={gridOn}
+                onClick={() => setGridOn((on) => !on)}
+              >
+                {experiment.grid.label}
+              </button>
+              <button
+                type='button'
+                className={styles.toggle}
+                aria-pressed={rayOn}
+                onClick={() => setRayOn((on) => !on)}
+              >
+                {experiment.ray.label}
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Diagrama 2D del plano del rayo: la cámara a la distancia actual, el agujero negro de radio
+          {/* Diagrama 2D del plano del rayo: la cámara a la distancia actual, el agujero negro de radio
             1 y dos trazos con el mismo parámetro de impacto. Decorativo: lo explica el `summary`. */}
-        <div className={styles.side}>
-          <div className={styles.ray} data-on={rayOn} aria-hidden='true'>
-            <svg ref={raySvgRef} className={styles.raySvg} preserveAspectRatio='xMidYMid meet'>
-              <circle className={styles.rayHole} cx={0} cy={0} r={1} />
-              <path ref={rayStraightRef} className={styles.rayStraight} />
-              <path ref={rayBentRef} className={styles.rayBent} />
-              <path ref={rayCameraRef} className={styles.rayCamera} />
-            </svg>
-            <ul className={styles.rayLegend}>
-              <li className={styles.rayLegendStraight}>{experiment.rayLegend.straight}</li>
-              <li className={styles.rayLegendBent}>{experiment.rayLegend.bent}</li>
-            </ul>
+          <div className={styles.side}>
+            <div className={styles.ray} data-on={rayOn} aria-hidden='true'>
+              <svg ref={raySvgRef} className={styles.raySvg} preserveAspectRatio='xMidYMid meet'>
+                <circle className={styles.rayHole} cx={0} cy={0} r={1} />
+                <path ref={rayStraightRef} className={styles.rayStraight} />
+                <path ref={rayBentRef} className={styles.rayBent} />
+                <path ref={rayCameraRef} className={styles.rayCamera} />
+              </svg>
+              <ul className={styles.rayLegend}>
+                <li className={styles.rayLegendStraight}>{experiment.rayLegend.straight}</li>
+                <li className={styles.rayLegendBent}>{experiment.rayLegend.bent}</li>
+              </ul>
+            </div>
+
+            <aside ref={tidalRef} className={styles.tidal}>
+              <p className={styles.tidalKicker}>{experiment.tidal.kicker}</p>
+              <h3 className={styles.tidalTitle}>{experiment.tidal.title}</h3>
+              <p className={styles.tidalBody}>{experiment.tidal.body}</p>
+            </aside>
           </div>
 
-          <aside ref={tidalRef} className={styles.tidal}>
-            <p className={styles.tidalKicker}>{experiment.tidal.kicker}</p>
-            <h3 className={styles.tidalTitle}>{experiment.tidal.title}</h3>
-            <p className={styles.tidalBody}>{experiment.tidal.body}</p>
-          </aside>
+          {/* Salida: distorsión desde el centro en la cola pegajosa final */}
+          <Distortion />
         </div>
+
+        {/* Al final del track: cuando termina la cola el stage queda oculto (pausa del motor) */}
+        <span ref={fadedSentinelRef} className={styles.fadedSentinel} aria-hidden='true' />
       </div>
     </section>
   );
