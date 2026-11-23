@@ -3,12 +3,16 @@ import { useBlackHole } from '@/hooks/useBlackHole';
 import { useSectionFaded } from '@/hooks/useSectionFaded';
 import { useTrackProgress } from '@/hooks/useTrackProgress';
 import { Distortion } from '@/components/ui/Distortion/Distortion';
+import { Joystick } from '@/components/ui/Joystick/Joystick';
 import { useInView } from '@/hooks/useInView';
 import experimentJson from '@/data/experiment.json';
 import type { ExperimentData } from '@/interfaces/experiment';
+import { ORBIT_STEP, TILT_STEP } from '@/utils/blackHole/constants';
 import {
   INITIAL_DISTANCE,
+  ORBIT_RATE,
   SLIDER_MAX,
+  TILT_RATE,
   distanceToSlider,
   formatDistance,
   sliderToDistance,
@@ -17,8 +21,25 @@ import styles from '@/components/sections/Experiment/Experiment.module.scss';
 
 const experiment = experimentJson as ExperimentData;
 
-// Id del encabezado que nombra la sección (aria-labelledby).
+// Id del encabezado que nombra la sección (aria-labelledby) y de la tarjeta (aria-controls).
 const TITLE_ID = 'experimentTitle';
+const INFO_ID = 'experimentInfo';
+
+// Iconos del botón de la tarjeta (decorativos: el nombre accesible lo da `aria-label`): ojo para
+// mostrarla y ojo tachado para ocultarla.
+const EyeIcon = () => (
+  <svg viewBox='0 0 24 24' aria-hidden='true' focusable='false'>
+    <path d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z' />
+    <circle cx='12' cy='12' r='3' />
+  </svg>
+);
+const EyeOffIcon = () => (
+  <svg viewBox='0 0 24 24' aria-hidden='true' focusable='false'>
+    <path d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z' />
+    <circle cx='12' cy='12' r='3' />
+    <path d='M4 4l16 16' />
+  </svg>
+);
 
 export function Experiment() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -28,13 +49,15 @@ export function Experiment() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLInputElement>(null);
   useInView(sectionRef);
-  // Sin `animation-timeline` escribe `--progress` en la sección (la cola de salida es todo el track
-  // salvo el stage); con él, la cola la resuelve el CSS.
+  // Sin `animation-timeline` escribe `--progress` en la sección (pausa + cola de salida); con él,
+  // lo resuelve el CSS.
   useTrackProgress(sectionRef, trackRef);
 
   // El cálculo inicial del motor (tabla, textura, cielo) empieza cuando la sección está a ≤ 1
-  // viewport de entrar, no al montar la página. Es el único estado de React de la sección.
+  // viewport de entrar, no al montar la página. Junto con la tarjeta abierta o cerrada, es el único
+  // estado de React de la sección.
   const [near, setNear] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(true);
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -51,7 +74,7 @@ export function Experiment() {
   }, []);
 
   // La distancia (radios de Schwarzschild) vive en un ref y en el motor, no en estado de React: el
-  // deslizante, `+`/`-` sobre el canvas y el motor comparten este único valor.
+  // deslizante, el pellizco, `+`/`-` sobre el canvas y el motor comparten este valor.
   const distanceRef = useRef(INITIAL_DISTANCE);
 
   // Refleja la distancia en el deslizante y en su `aria-valuetext` (DOM directo, 0 renders).
@@ -61,6 +84,9 @@ export function Experiment() {
     slider.value = String(distanceToSlider(distance));
     slider.setAttribute('aria-valuetext', formatDistance(experiment.slider.valueText, distance));
   };
+
+  // El hint invita hasta la primera interacción con el deslizante.
+  const markTouched = () => stageRef.current?.setAttribute('data-touched', 'true');
 
   // Al estar listo el motor, el canvas hace un fundido corto (atributo directo, sin estado) y
   // toma la distancia que haya elegido la persona mientras se calculaba.
@@ -91,9 +117,11 @@ export function Experiment() {
       'aria-valuetext',
       formatDistance(experiment.slider.valueText, distance)
     );
-    // El hint invita hasta la primera interacción con el deslizante.
-    stageRef.current?.setAttribute('data-touched', 'true');
+    markTouched();
   };
+
+  // Joystick en pantalla (móvil): gira e inclina la cámara sin pasar por React.
+  const orbit = (azimuth: number, tilt: number) => engineRef.current?.orbitBy(azimuth, tilt);
 
   return (
     <section id='experiment' ref={sectionRef} aria-labelledby={TITLE_ID} className={styles.section}>
@@ -117,10 +145,13 @@ export function Experiment() {
             <p className={styles.subtitle}>{experiment.subtitle}</p>
           </header>
 
+          {/* Zoom: deslizante de distancia sobre el canvas (en el móvil también se pellizca) */}
           <div className={styles.controls}>
             <p className={styles.hint}>{experiment.hint}</p>
             <label className={styles.sliderLabel}>
-              <span className={styles.sliderName}>{experiment.slider.label}</span>
+              <span className={styles.sliderName} aria-hidden='true'>
+                {experiment.slider.label}
+              </span>
               <input
                 ref={sliderRef}
                 className={styles.slider}
@@ -129,16 +160,39 @@ export function Experiment() {
                 max={SLIDER_MAX}
                 step={1}
                 defaultValue={distanceToSlider(INITIAL_DISTANCE)}
+                aria-label={experiment.slider.label}
                 aria-valuetext={formatDistance(experiment.slider.valueText, INITIAL_DISTANCE)}
                 onChange={handleSlider}
               />
             </label>
           </div>
 
-          <aside className={styles.tidal}>
-            <p className={styles.tidalKicker}>{experiment.tidal.kicker}</p>
-            <h3 className={styles.tidalTitle}>{experiment.tidal.title}</h3>
-            <p className={styles.tidalBody}>{experiment.tidal.body}</p>
+          {/* Joystick: giro horizontal e inclinación vertical (solo en pantallas táctiles) */}
+          <div className={styles.joystick}>
+            <Joystick
+              label={experiment.controls.joystick}
+              onMove={(x, y, dt) => orbit(x * ORBIT_RATE * dt, y * TILT_RATE * dt)}
+              onStep={(dx, dy) => orbit(dx * ORBIT_STEP, dy * TILT_STEP)}
+            />
+          </div>
+
+          {/* Tarjeta de espaguetización sobre el canvas, con un botón para ocultarla */}
+          <aside className={styles.info} data-open={infoOpen}>
+            <div id={INFO_ID} className={styles.card} hidden={!infoOpen}>
+              <p className={styles.tidalKicker}>{experiment.tidal.kicker}</p>
+              <h3 className={styles.tidalTitle}>{experiment.tidal.title}</h3>
+              <p className={styles.tidalBody}>{experiment.tidal.body}</p>
+            </div>
+            <button
+              type='button'
+              className={styles.infoToggle}
+              aria-expanded={infoOpen}
+              aria-controls={INFO_ID}
+              aria-label={infoOpen ? experiment.info.hide : experiment.info.show}
+              onClick={() => setInfoOpen((open) => !open)}
+            >
+              {infoOpen ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
           </aside>
 
           {/* Salida: distorsión desde el centro en la cola pegajosa final */}

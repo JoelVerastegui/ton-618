@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
 import type { BlackHoleEngine, BlackHoleOptions, PrepareStats } from '../interfaces/blackHole';
 import { loadBlackHoleAssets } from '../utils/blackHole/assets';
+import {
+  ORBIT_STEP,
+  TILT_STEP,
+  ZOOM_IN_FACTOR,
+  ZOOM_OUT_FACTOR,
+} from '../utils/blackHole/constants';
 import { createBlackHole } from '../utils/blackHole/createBlackHole';
 import { useReducedMotion } from './useReducedMotion';
 
@@ -8,11 +14,7 @@ import { useReducedMotion } from './useReducedMotion';
 const MAX_DT = 1 / 30;
 const ORBIT_PER_PIXEL = 0.006;
 const TILT_PER_PIXEL = 0.005;
-const ORBIT_PER_KEY = 0.12;
-const TILT_PER_KEY = 0.06;
 const WHEEL_ZOOM = 0.0012;
-const KEY_ZOOM_IN = 0.9;
-const KEY_ZOOM_OUT = 1.1;
 
 interface UseBlackHoleOptions extends Omit<BlackHoleOptions, 'reducedMotion' | 'distance'> {
   // Empieza el cálculo inicial y monta el motor cuando es `true` (preparación diferida).
@@ -160,42 +162,64 @@ export function useBlackHole(
         if (!preview) {
           let dragX = 0;
           let dragY = 0;
-          let dragging = false;
+          // Punteros activos (para el pellizco): con dos dedos se hace zoom y no se orbita.
+          const pointers = new Map<number, { x: number; y: number }>();
+          let pinchDistance = 0;
           const zoomBy = (factor: number) => {
             engine.distance *= factor;
             latest.current.onDistanceChange?.(engine.distance);
           };
+          const measurePinch = () => {
+            const [a, b] = [...pointers.values()];
+            return Math.hypot(a.x - b.x, a.y - b.y);
+          };
           listen(canvas, 'pointerdown', (event: PointerEvent) => {
-            dragging = true;
+            pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
             dragX = event.clientX;
             dragY = event.clientY;
+            if (pointers.size === 2) pinchDistance = measurePinch();
             canvas.setPointerCapture?.(event.pointerId);
           });
           listen(canvas, 'pointermove', (event: PointerEvent) => {
-            if (!dragging) return;
-            // Horizontal gira (acimut); vertical inclina. Con `touch-action: none` (ver el CSS de
-            // la sección) el gesto sobre el canvas no hace scroll de página: se hace fuera de él.
-            engine.orbitBy(
-              -ORBIT_PER_PIXEL * (event.clientX - dragX),
-              TILT_PER_PIXEL * (event.clientY - dragY)
-            );
+            const pointer = pointers.get(event.pointerId);
+            if (!pointer) return;
+            pointer.x = event.clientX;
+            pointer.y = event.clientY;
+            if (pointers.size >= 2) {
+              // Pellizco: separar los dedos acerca (la distancia baja) y juntarlos aleja
+              const distance = measurePinch();
+              if (pinchDistance > 0 && distance > 0) zoomBy(pinchDistance / distance);
+              pinchDistance = distance;
+              return;
+            }
+            // Horizontal gira (acimut). Vertical inclina con ratón o lápiz; con el dedo el gesto
+            // vertical es scroll de página (`touch-action: pan-y`) y se inclina con el joystick.
+            const tilt =
+              event.pointerType === 'touch' ? 0 : TILT_PER_PIXEL * (event.clientY - dragY);
+            engine.orbitBy(-ORBIT_PER_PIXEL * (event.clientX - dragX), tilt);
             dragX = event.clientX;
             dragY = event.clientY;
           });
-          const endDrag = () => {
-            dragging = false;
+          const endDrag = (event: PointerEvent) => {
+            pointers.delete(event.pointerId);
+            // Al quedar un dedo, el arrastre sigue desde donde está
+            const [rest] = [...pointers.values()];
+            if (rest) {
+              dragX = rest.x;
+              dragY = rest.y;
+            }
           };
           listen(canvas, 'pointerup', endDrag);
           listen(canvas, 'pointercancel', endDrag);
           listen(canvas, 'contextmenu', (event: Event) => event.preventDefault());
           listen(canvas, 'keydown', (event: KeyboardEvent) => {
             let handled = true;
-            if (event.key === 'ArrowLeft') engine.orbitBy(-ORBIT_PER_KEY, 0);
-            else if (event.key === 'ArrowRight') engine.orbitBy(ORBIT_PER_KEY, 0);
-            else if (event.key === 'ArrowUp') engine.orbitBy(0, TILT_PER_KEY);
-            else if (event.key === 'ArrowDown') engine.orbitBy(0, -TILT_PER_KEY);
-            else if (event.key === '+' || event.key === '=') zoomBy(KEY_ZOOM_IN);
-            else if (event.key === '-') zoomBy(KEY_ZOOM_OUT);
+            if (event.key === 'ArrowLeft') engine.orbitBy(-ORBIT_STEP, 0);
+            else if (event.key === 'ArrowRight') engine.orbitBy(ORBIT_STEP, 0);
+            else if (event.key === 'ArrowUp') engine.orbitBy(0, TILT_STEP);
+            else if (event.key === 'ArrowDown') engine.orbitBy(0, -TILT_STEP);
+            else if (event.key === '+' || event.key === '=') zoomBy(ZOOM_IN_FACTOR);
+            else if (event.key === '-') zoomBy(ZOOM_OUT_FACTOR);
             else handled = false;
             if (handled) {
               event.preventDefault();

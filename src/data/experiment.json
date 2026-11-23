@@ -2,12 +2,19 @@
   "title": "Dentro de su gravedad",
   "subtitle": "Un agujero negro que dobla la luz",
   "hint": "Acércate al agujero negro",
-  "summary": "Un agujero negro rodeado de un disco de gas incandescente, que curva la luz de las estrellas de fondo. Un deslizante de distancia, medida en radios de Schwarzschild, acerca o aleja la cámara. Una tarjeta explica la espaguetización.",
+  "summary": "Un agujero negro rodeado de un disco de gas incandescente, que curva la luz de las estrellas de fondo. Un deslizante de distancia, medida en radios de Schwarzschild, acerca o aleja la cámara (en el móvil también se puede pellizcar), y un joystick en pantalla la gira e inclina. Una tarjeta explica la espaguetización y se puede ocultar.",
   "slider": {
     "label": "Distancia",
     "valueText": "{value} radios de Schwarzschild"
   },
-  "canvasLabel": "Agujero negro con disco de gas incandescente. Arrastra para girar o inclinar la cámara, o usa las flechas; usa más y menos para acercarte o alejarte.",
+  "canvasLabel": "Agujero negro con disco de gas incandescente. Arrastra para girar la cámara, pellizca o usa más y menos para acercarte o alejarte; también puedes usar las flechas.",
+  "controls": {
+    "joystick": "Mover la cámara"
+  },
+  "info": {
+    "hide": "Ocultar información",
+    "show": "Mostrar información"
+  },
   "tidal": {
     "kicker": "Fuerzas de marea",
     "title": "Espaguetización",

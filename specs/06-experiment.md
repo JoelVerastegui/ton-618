@@ -333,6 +333,15 @@ Decididos por el autor tras el Paso 11; **sustituyen** a lo que el resto del doc
 - **Movimiento vertical en el canvas.** Arrastrar en vertical inclina la cámara (como en el demo) y las flechas arriba y abajo también. El canvas lleva `touch-action: none`: en móvil vertical no ocupa toda la pantalla, así que el scroll de página se hace arrastrando fuera de él; la rueda del ratón sigue haciendo scroll. En móvil apaisado bajo, donde el canvas ocupa toda la pantalla, se mantiene `touch-action: pan-y` (solo orbita en horizontal) para no atrapar el scroll.
 - **Sin movimientos automáticos aleatorios.** Se eliminan la inclinación automática (`AUTO_TILTS`) y la deriva por inactividad. Solo queda la deriva constante e inicial del fondo respecto al agujero negro (azimut a 0,01 rad/s, desactivada con reduced-motion o `autoDrift = false`), la rotación del gas y lo que mueva la persona. La inclinación inicial es de 2,5° y solo cambia con el arrastre o las teclas.
 
+### Mejora del canvas en móvil (autor, 2026-11-23)
+
+- **Canvas a pantalla completa (100dvh)** en cualquier viewport. Título, tarjeta y controles van superpuestos y ya no hay maquetación apilada «canvas arriba, controles debajo» (se retiran `--canvasH` y `--viewportExtra`).
+- **Pausa pegada antes de la salida** (`$experimentHold` = 60 svh, también en escritorio): el stage queda fijo antes de su cola de 50 svh; el track mide 100dvh + 110 svh. Con reduced-motion no hay pausa. Sin `animation-timeline`, `--distortFade` se calcula desde `--progress` sobre pausa + cola.
+- **Joystick táctil** (sustituye a la cruceta de 4 flechas y a los botones − y +): un pad circular con pulgar arrastrable gira (horizontal) e inclina (vertical) la cámara a velocidad proporcional al desplazamiento, con zona muerta, y vuelve al centro al soltar (`Joystick`, sin estado de React). Solo es visible con `pointer: coarse`; con ratón se arrastra el canvas y con teclado se usan las flechas (también sobre el joystick enfocado).
+- **Zoom:** el deslizante de distancia, sin botones − y + a los lados, y el **pellizco** con dos dedos sobre el canvas (separar acerca, juntar aleja); con dos dedos no se orbita.
+- **`touch-action: pan-y` en el canvas:** como el canvas ocupa toda la pantalla, con el dedo el gesto vertical vuelve a ser scroll de página y la inclinación se hace con el joystick (con ratón, arrastrar en vertical sigue inclinando). Sustituye a lo dicho antes sobre `touch-action: none`.
+- **Tarjeta dentro del canvas** con un botón pequeño (36 px) para ocultarla: ojo tachado cuando está abierta (acción «ocultar») y ojo cuando está cerrada (acción «mostrar»); cerrada, queda solo el botón (`aria-expanded`, `aria-controls`). Textos en `experiment.json` (`controls.joystick`, `info`).
+
 ## Decisiones tomadas y descartadas
 
 **Tomadas**

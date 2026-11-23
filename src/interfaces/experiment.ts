@@ -11,5 +11,7 @@ export interface ExperimentData {
   summary: string; // equivalente textual de la escena para lectores
   slider: { label: string; valueText: string }; // `{value}` se sustituye por la distancia
   canvasLabel: string; // aria-label del canvas
+  controls: { joystick: string }; // nombre accesible del joystick
+  info: { hide: string; show: string }; // botón de la tarjeta
   tidal: ExperimentTidalCard;
 }

@@ -60,3 +60,10 @@ export const FINE_DELAY = 0.08;
 // Tiempo máximo (ms) que la pasada fina puede ocupar en un fotograma, y filas por trozo.
 export const FINE_SLICE_MS = 9;
 export const FINE_ROWS_PER_CHUNK = 6;
+
+// --- Pasos de entrada (teclas y botones en pantalla) -----------------------------------------
+// Giro del acimut y de la inclinación por pulsación (rad) y factores de distancia por pulsación.
+export const ORBIT_STEP = 0.12;
+export const TILT_STEP = 0.06;
+export const ZOOM_IN_FACTOR = 0.9;
+export const ZOOM_OUT_FACTOR = 1.1;

@@ -21,3 +21,7 @@ export const sliderToDistance = (position: number): number =>
 // Texto de `aria-valuetext` a partir de la plantilla del JSON.
 export const formatDistance = (template: string, distance: number): string =>
   template.replace('{value}', String(Math.round(distance)));
+
+// Velocidad máxima del joystick en pantalla (rad/s): giro del acimut y de la inclinación.
+export const ORBIT_RATE = 1.5;
+export const TILT_RATE = 1;

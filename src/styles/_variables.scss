@@ -545,6 +545,9 @@ $experimentBg: #070d1e;
 // vale 0 (`--timeFade`, `--experimentFade`). Si cambia uno, revisar el solape del otro.
 $timeFade: 50;
 $experimentFade: 50;
+// Pausa pegada de Experimento (svh) antes de su cola de salida: el stage queda fijo mientras se
+// usa el agujero negro y no se pasa de golpe a la transición. Con `prefers-reduced-motion` vale 0.
+$experimentHold: 60;
 
 // Punto de la cola de transición (`$t` 0 → 1) como posición del timeline `cover` del track de
 // Tiempo: empieza donde acaba el hold y termina cuando el stage se suelta.
@@ -555,10 +558,13 @@ $experimentFade: 50;
   );
 }
 
-// Punto de la cola de Experimento (`$t` 0 → 1): el stage se pega al llegar su track al borde
-// superior (`cover` 100svh) y la cola dura `$experimentFade`.
+// Punto de la cola de Experimento (`$t` 0 → 1) como posición del timeline `cover` de su track: el
+// stage se pega al llegar su track al borde superior (`cover` 100svh), sigue pegado durante la
+// pausa (`--experimentHold`) y después dura la cola `$experimentFade`.
 @function experimentFadeAt($t) {
-  @return calc(100svh + #{$t * $experimentFade}svh);
+  @return calc(
+    100svh + var(--experimentHold, #{$experimentHold}) * 1svh + #{$t * $experimentFade}svh
+  );
 }
 
 // ---------------------------------------------------------------------------
