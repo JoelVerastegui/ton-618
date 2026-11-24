@@ -61,6 +61,9 @@ export function createBlackHole(
   let fineScale = 0.7;
   let shadeMs = 6; // media móvil del coste del sombreado
   let gasTime = 0;
+  // Acimut y tiempo del gas con los que se dibujó la última imagen (para no repetirla)
+  let drawnAzimuth = NaN;
+  let drawnGasTime = NaN;
   let destroyed = false;
   let cameraVersion = 0;
   let lastTiltKey = NaN;
@@ -127,6 +130,17 @@ export function createBlackHole(
       cameraVersion += 1;
     }
 
+    // Con movimiento reducido y la imagen fina ya dibujada, si nada cambió no hay nada que repetir.
+    if (
+      reducedMotion &&
+      shown.fine &&
+      shown.version === cameraVersion &&
+      camera.azimuth === drawnAzimuth &&
+      gasTime === drawnGasTime
+    ) {
+      return;
+    }
+
     if (shown.version !== cameraVersion) {
       // La cámara cambió: pasada gruesa de inmediato; la fina empieza si se queda quieta.
       sinceChange = 0;
@@ -183,6 +197,8 @@ export function createBlackHole(
       }
     }
     draw();
+    drawnAzimuth = camera.azimuth;
+    drawnGasTime = gasTime;
   };
 
   return {

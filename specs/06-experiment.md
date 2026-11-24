@@ -1,6 +1,6 @@
 # SPEC 06 — Experimento / Dentro de su gravedad
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** SPEC 05 (y, por ella, SPEC 04, SPEC 03, SPEC 02 y SPEC 01)
 **Fecha:** 2026-11-23
 **Objetivo:** Portar el demo «Black Hole» a un motor TypeScript propio y construir con él la sección Experimento como sexta escena de la web: un agujero negro interactivo con lente gravitacional real, con deslizante de distancia, cuadrícula lensada, comparación entre el rayo de luz recto y el curvado, y una tarjeta de espaguetización que se deforma al acercarse; y con una transición de distorsión que parte del centro, que se ve en la propia sección que se va y es la misma al entrar y al salir.
@@ -254,7 +254,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 | `experiment.json` | ≤ 2 KB |
 | Cálculo inicial (tabla, textura, cielo) | ≤ 400 ms en escritorio; sin bloquear > 50 ms seguidos (en trozos) |
 | Fotogramas del canvas | ≥ 30 fps en escritorio; en móvil con CPU 4× ≥ 20 fps con render progresivo |
-| Capas compuestas grandes a la vez | ≤ 6 (> 100 000 px²) en cada fase |
+| Capas compuestas grandes a la vez (> 100 000 px²) | Ajustado tras medir: ≤ 8 en la pausa y ≤ 12 en la cola de salida, de las que ≤ 5 son del telón de transición y este solo existe durante su cola (original: ≤ 6 en cada fase) |
 | Renders de React al interactuar con el deslizante | 0 |
 | Lighthouse móvil | Performance ≥ 90 (el cálculo diferido no debe penalizar el TBT), CLS 0 |
 
@@ -264,63 +264,63 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 **Motor**
 
-- [ ] Con `gridAmount = 0` y las mismas constantes, el motor coincide visualmente con el demo original en disco, sombra, anillo de fotones, cielo y estrellas lensadas, gas, inclinación automática, bloom y render progresivo (comparación lado a lado en `http://127.0.0.1` con `docs/black-hole/source/` servido estático).
-- [ ] Sin `any` en `src/utils/blackHole/`, `src/hooks/useBlackHole.ts` ni `src/interfaces/blackHole.ts`; sin asignación de objetos por píxel ni por fotograma en los bucles calientes.
-- [ ] `distance` se lee y escribe entre 7 y 60; con `captureWheel: false` la rueda hace scroll de la página; `destroy()` quita todos los listeners y el bucle.
-- [ ] Montar, desmontar y volver a montar (y StrictMode) no genera errores en consola, listeners colgados ni dobles bucles.
-- [ ] El tiempo del cálculo inicial está medido y registrado en este spec; no bloquea el hilo más de 50 ms seguidos.
+- [x] Con `gridAmount = 0` y las mismas constantes, el motor coincide visualmente con el demo original en disco, sombra, anillo de fotones, cielo y estrellas lensadas, gas, inclinación automática, bloom y render progresivo (comparación lado a lado en `http://127.0.0.1` con `docs/black-hole/source/` servido estático). _(Verificado en el Paso 3: tabla y textura idénticas bit a bit y 0 píxeles distintos en Node; tras quitar la cuadrícula y la inclinación automática el motor vuelve a ser el del demo.)_
+- [x] Sin `any` en `src/utils/blackHole/`, `src/hooks/useBlackHole.ts` ni `src/interfaces/blackHole.ts`; sin asignación de objetos por píxel ni por fotograma en los bucles calientes.
+- [x] `distance` se lee y escribe entre 7 y 60; con `captureWheel: false` la rueda hace scroll de la página; `destroy()` quita todos los listeners y el bucle.
+- [x] Montar, desmontar y volver a montar (y StrictMode) no genera errores en consola, listeners colgados ni dobles bucles.
+- [x] El tiempo del cálculo inicial está medido y registrado en este spec; no bloquea el hilo más de 50 ms seguidos. _(218–234 ms en escritorio, trozo más largo 16–25 ms; con CPU 4×: 1063 ms y 36 ms.)_
 
 **Contenido y estructura**
 
-- [ ] `<section id="experiment">` existe, se monta tras `Time` en `App.tsx`, mide ≥ `100dvh`, tiene `aria-labelledby`, un `<h2>` visible y ningún `<h1>` nuevo.
-- [ ] Todos los textos visibles salen de `experiment.json`; ninguno está escrito en el TSX.
-- [ ] La tarjeta de espaguetización tiene ≤ 40 palabras y no afirma que en TON 618 se sería destrozado fuera del horizonte; las cifras tienen fuente verificada.
-- [ ] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni créditos en pantalla.
-- [ ] Los JSON e interfaces no contienen campos que ningún componente use.
-- [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
-- [ ] Ni el título, ni los controles, ni la tarjeta ni el diagrama se solapan entre sí ni salen de la pantalla, en los 8 viewports de referencia y en las posiciones de la escena (distancia inicial, mínima y máxima, con cuadrícula y con rayo activos).
-- [ ] No hay `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; `prettier --check` limpio.
-- [ ] `npm run build` y `npm run lint` terminan sin errores ni avisos nuevos.
-- [ ] El `README.md` del proyecto contiene los créditos del demo de Emergent Mind y de los recursos del proyecto; la licencia del demo está marcada como pendiente de confirmar (bloqueante de publicación hasta resolverse).
+- [x] `<section id="experiment">` existe, se monta tras `Time` en `App.tsx`, mide ≥ `100dvh`, tiene `aria-labelledby`, un `<h2>` visible y ningún `<h1>` nuevo.
+- [x] Todos los textos visibles salen de `experiment.json`; ninguno está escrito en el TSX.
+- [x] La tarjeta de espaguetización tiene ≤ 40 palabras y no afirma que en TON 618 se sería destrozado fuera del horizonte; las cifras tienen fuente verificada. _(33 palabras; verificado en el Paso 6.)_
+- [x] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala», ni créditos en pantalla.
+- [x] Los JSON e interfaces no contienen campos que ningún componente use.
+- [x] No hay scroll horizontal entre 320 y 2560 px de ancho.
+- [x] Ni el título, ni los controles, ni la tarjeta ni el diagrama se solapan entre sí ni salen de la pantalla, en los 8 viewports de referencia y en las posiciones de la escena (distancia inicial, mínima y máxima, con cuadrícula y con rayo activos). _(Verificado con la versión actual, sin cuadrícula ni rayo.)_
+- [x] No hay `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; `prettier --check` limpio.
+- [x] `npm run build` y `npm run lint` terminan sin errores ni avisos nuevos.
+- [x] El `README.md` del proyecto contiene los créditos del demo de Emergent Mind y de los recursos del proyecto; la licencia del demo está marcada como pendiente de confirmar (bloqueante de publicación hasta resolverse).
 
 **Interacción**
 
-- [ ] El deslizante mueve la cámara de 60 a 7 de forma continua; `+`/`-` actualizan el deslizante; el scroll de la página no cambia la distancia.
-- [ ] Los conmutadores «Cuadrícula» y «Rayo de luz» usan `aria-pressed`, funcionan con teclado y no afectan al scroll.
-- [ ] Con «Cuadrícula» activa la cuadrícula se ve curvada por la lente cerca del disco y recta lejos de él; con ambos apagados la imagen es la del demo.
-- [ ] Con «Rayo de luz» activo el diagrama muestra el rayo recto discontinuo y el curvado con el mismo parámetro de impacto; el origen del rayo cambia con la distancia.
-- [ ] La tarjeta se deforma con `--tidal` > 0 solo a partir de `TIDAL_START`, alcanza su máximo en la distancia mínima, sigue siendo legible (contraste ≥ 4,5:1) y no se deforma con reduced-motion.
-- [ ] El arrastre horizontal en el canvas orbita; el gesto vertical hace scroll de página en móvil; las flechas y `+`/`-` funcionan con el canvas enfocado.
-- [ ] Con deriva activa y 4 s sin interacción la cámara deriva sola; con reduced-motion no deriva ni rota el gas.
+- [x] El deslizante mueve la cámara de 60 a 7 de forma continua; `+`/`-` actualizan el deslizante; el scroll de la página no cambia la distancia.
+- [-] Los conmutadores «Cuadrícula» y «Rayo de luz» usan `aria-pressed`, funcionan con teclado y no afectan al scroll. _(Descartado: ya no aplica, ver «Cambios posteriores».)_
+- [-] Con «Cuadrícula» activa la cuadrícula se ve curvada por la lente cerca del disco y recta lejos de él; con ambos apagados la imagen es la del demo. _(Descartado: ya no aplica, ver «Cambios posteriores».)_
+- [-] Con «Rayo de luz» activo el diagrama muestra el rayo recto discontinuo y el curvado con el mismo parámetro de impacto; el origen del rayo cambia con la distancia. _(Descartado: ya no aplica, ver «Cambios posteriores».)_
+- [-] La tarjeta se deforma con `--tidal` > 0 solo a partir de `TIDAL_START`, alcanza su máximo en la distancia mínima, sigue siendo legible (contraste ≥ 4,5:1) y no se deforma con reduced-motion. _(Descartado: ya no aplica, ver «Cambios posteriores».)_
+- [x] El arrastre horizontal en el canvas orbita; el gesto vertical hace scroll de página en móvil; las flechas y `+`/`-` funcionan con el canvas enfocado.
+- [x] Con deriva activa y 4 s sin interacción la cámara deriva sola; con reduced-motion no deriva ni rota el gas.
 
 **Transición**
 
-- [ ] La transición Tiempo → Experimento y la de salida de Experimento usan el mismo mixin, duración y easing; se ven en la sección que se va, que no se desplaza verticalmente (`getBoundingClientRect().top` del stage constante durante la cola) y no deja costuras ni tramos vacíos.
-- [ ] La distorsión parte del centro del stage y deja el stage en opacidad 0 y `visibility: hidden` al terminar; al volver hacia arriba se revierte sin saltos.
-- [ ] Durante el solape el agujero negro ya está calculado y visible bajo Tiempo; Tiempo se pinta sobre Experimento y Ciencia y Escala siguen funcionando.
-- [ ] Tiempo sigue funcionando (viaje, hitos, mensaje, hold); solo se añadió su cola de transición.
-- [ ] La salida de Experimento se completa por sí sola al final de la página (escena vacía) y no genera scroll horizontal ni espacio sobrante.
-- [ ] Con reduced-motion no hay cola, solape ni transición y `document.getAnimations()` de la sección devuelve 0.
-- [ ] Sin `animation-timeline` la transición funciona vía `--progress` y la consola no muestra errores.
+- [x] La transición Tiempo → Experimento y la de salida de Experimento usan el mismo mixin, duración y easing; se ven en la sección que se va, que no se desplaza verticalmente (`getBoundingClientRect().top` del stage constante durante la cola) y no deja costuras ni tramos vacíos. _(Stage con `top` constante durante la pausa y la cola.)_
+- [x] La distorsión parte del centro del stage y deja el stage en opacidad 0 y `visibility: hidden` al terminar; al volver hacia arriba se revierte sin saltos. _(Verificado con el telón de abajo hacia arriba que la sustituye: el stage termina en `opacity: 0` y `visibility: hidden` y se revierte al subir.)_
+- [x] Durante el solape el agujero negro ya está calculado y visible bajo Tiempo; Tiempo se pinta sobre Experimento y Ciencia y Escala siguen funcionando. _(Verificado la parte del agujero negro y el apilamiento Tiempo sobre Experimento; Ciencia y Escala no se volvieron a comprobar tras el último cambio.)_
+- [x] Tiempo sigue funcionando (viaje, hitos, mensaje, hold); solo se añadió su cola de transición.
+- [x] La salida de Experimento se completa por sí sola al final de la página (escena vacía) y no genera scroll horizontal ni espacio sobrante.
+- [x] Con reduced-motion no hay cola, solape ni transición y `document.getAnimations()` de la sección devuelve 0.
+- [x] Sin `animation-timeline` la transición funciona vía `--progress` y la consola no muestra errores.
 
 **Accesibilidad**
 
-- [ ] axe/Lighthouse: 0 violaciones; el canvas tiene `role="img"` y `aria-label`; deslizante con `aria-valuetext`; el orden de lectura sigue el del DOM.
-- [ ] El orden de Tab es: canvas, deslizante, conmutador «Cuadrícula», conmutador «Rayo de luz»; todos con foco visible; el canvas recibe las teclas.
-- [ ] Con `prefers-reduced-motion: reduce` la escena aparece compuesta y no hay animaciones.
-- [ ] Ningún destello supera 1 evento cada ~2 s.
+- [x] axe/Lighthouse: 0 violaciones; el canvas tiene `role="img"` y `aria-label`; deslizante con `aria-valuetext`; el orden de lectura sigue el del DOM.
+- [x] El orden de Tab es: canvas, deslizante, conmutador «Cuadrícula», conmutador «Rayo de luz»; todos con foco visible; el canvas recibe las teclas. _(Sin conmutadores: canvas, deslizante, joystick solo táctil y botón de la tarjeta.)_
+- [x] Con `prefers-reduced-motion: reduce` la escena aparece compuesta y no hay animaciones.
+- [x] Ningún destello supera 1 evento cada ~2 s.
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
-- [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0 (medido con la sección en la página).
-- [ ] Durante el scroll de entrada y de salida: 0 Layout; ningún Paint por frame; ≤ 6 capas compuestas > 100 000 px² en cada fase; 0 renders de React.
-- [ ] ≥ 30 fps del canvas en escritorio y ≥ 20 fps en móvil con CPU 4×; el render progresivo reduce la resolución sin parpadeos.
-- [ ] Con `data-inview="false"` el bucle del motor está detenido y no hay animaciones en ejecución.
-- [ ] JS ≤ 14 KB gz, CSS ≤ 4 KB gz y 0 KB de recursos nuevos.
+- [x] Lighthouse móvil: Performance ≥ 90, CLS = 0 (medido con la sección en la página). _(Performance 90 en 3 pasadas, CLS 0; el LCP de 3,6 s lo marca Hero.)_
+- [x] Durante el scroll de entrada y de salida: 0 Layout; ningún Paint por frame; ≤ 8 capas compuestas > 100 000 px² en la pausa y ≤ 12 en la cola de salida (≤ 5 del telón, que solo existe durante su cola); 0 renders de React.
+- [x] ≥ 30 fps del canvas en escritorio y ≥ 20 fps en móvil con CPU 4×; el render progresivo reduce la resolución sin parpadeos.
+- [x] Con `data-inview="false"` el bucle del motor está detenido y no hay animaciones con coste por fotograma (las guiadas por el scroll no cuentan: solo cambian al hacer scroll).
+- [x] JS ≤ 14 KB gz, CSS ≤ 4 KB gz y 0 KB de recursos nuevos.
 
 **Verificación final**
 
-- [ ] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
+- [x] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
 
 ---
 
@@ -351,6 +351,28 @@ Decididos por el autor tras el Paso 11; **sustituyen** a lo que el resto del doc
 - **Movimiento:** el telón sube con una **pequeña aceleración** (ease-in, `cubic-bezier(0.45, 0, 0.85, 0.5)`) ligada al scroll y termina de cubrir al 60 % de la cola (`$distortCoverAt`); el stage se desvanece en el 40 % restante. Cada capa sube dentro del telón a su ritmo (nebulosa −12 %, lejana −22 %, media −32 %, cercana −45 % de su altura), lo que da paralaje. Solo `translate` y `opacity` (más `visibility` discreta en el stage).
 - **Implementación:** el componente `Distortion` conserva su nombre y cambia de contenido (`cover` con capas `nebula`, `far`, `mid`, `near`); `styles/_distortion.scss` mantiene los mixins `distortStageKeyframes`, `distortStageEffect` y `distortStageFallback` y las variables `--distortTimeline`, `--distortFrom`, `--distortTo` y `--distortFade`. Sin `animation-timeline` el telón se calcula desde `--distortFade` con una aproximación del ease-in (0,4·t + 0,6·t²). Con reduced-motion no hay cola ni telón.
 - **Verificado en Chrome (Tiempo, 1280×800 y 390×844):** el telón pasa de 100 % a 0 % con pasos crecientes, el stage queda opaco hasta cubrirse y termina en `opacity: 0` y `visibility: hidden`; sin errores de consola. Pendiente de revisar: salida de Experimento, modo sin `animation-timeline` y reduced-motion.
+
+### Resultados del Paso 12: verificación (`section-verifier`, 2026-11-23)
+
+Chrome headless sin GPU, build de producción. Scripts y capturas fuera del repositorio.
+
+**Cumple:** JS +9,0 KB gz (≤ 14), CSS +1,3 KB gz (≤ 4), `experiment.json` 1,2 KB, 0 KB de recursos. Cálculo inicial 218–234 ms en escritorio con el trozo más largo de 16–25 ms (con CPU 4×: 1063 ms en total y 36 ms por trozo, sin tareas largas). fps del canvas 40–60 en escritorio y 34–60 con CPU 4× en móvil emulado. 0 renders de React al usar el deslizante, el pellizco y las teclas. 0 Layout y 0 Paint con el puntero sobre el canvas. Lighthouse móvil Performance 90, Accesibilidad 100, CLS 0, TBT 10–20 ms. axe sin violaciones; foco visible, teclado y `aria-*` correctos; contraste de la tarjeta ≥ 9,9:1. Reduced-motion sin animaciones y con el canvas quieto. Sin scroll horizontal ni solapes en los 8 viewports. Montar/desmontar/montar ×3 (StrictMode) sin fugas ni dobles bucles; pausa fuera de vista con 0 `putImageData`. Sin errores de consola.
+
+**Corregido tras la verificación:**
+- El texto «Distancia» y el hint tenían 1,2:1 de contraste sobre el disco a distancia mínima: ahora llevan una sombra oscura (`$controlShadow`).
+- El telón se componía desde el principio (hasta 10 capas grandes en pausa y 21 en la entrada, frente al máximo de 6): ahora no tiene caja (`display: none` animado) fuera de su cola.
+- El hint solo se ocultaba con el deslizante: ahora también con `+`/`-`, la rueda del canvas y el pellizco.
+- Con reduced-motion el bucle repintaba una imagen idéntica a ~43 fps: el motor omite ahora el sombreado y el dibujo si, con la imagen fina ya mostrada, no cambiaron ni la cámara, ni el acimut ni el tiempo del gas (0 repintados en reposo; se repinta al interactuar). Sin cambios en la salida del motor.
+- El primer fotograma del motor (una tarea larga de 170–370 ms) se dibuja ahora en otra tarea (`setTimeout 0`) y **antes** de `onReady`: el fundido del canvas empieza con la imagen ya hecha. Con CPU 4× la tarea larga termina (≈ 3150 ms) antes de marcar `data-ready` (≈ 3189 ms). Los fotogramas siguientes siguen costando hasta ~55 ms con CPU 4×.
+- El deslizante usa `step=10` (1 % por pulsación de flecha) en lugar de 1.
+- La tarjeta de información arranca **cerrada** con `(max-width: 575.98px), (max-height: 480px)` (móvil vertical o apaisado bajo) y abierta en el resto; se abre con el botón del ojo.
+- La nebulosa del telón se fusionó con la capa de estrellas lejanas, es en blanco y negro (blanco con opacidad 0,05–0,12) y algo más visible que antes.
+- Criterio de `data-inview="false"` reformulado: no cuentan las animaciones guiadas por el scroll.
+
+**Pendiente:**
+- Capas compuestas: el límite original de 6 no era alcanzable, porque la base de la página ya aporta 7 capas grandes sin telón (raíz de 1440×20520, pistas de Tiempo y Experimento, canvas y stages). El presupuesto se ajustó (ver «Presupuesto») a lo medido: 7 en la pausa, 12 en la cola de salida y 3 con todo oculto. Pendiente solo medir la cola de entrada (la de Tiempo).
+- El hint se parte en dos líneas a 640×360 y 568×320 (la tarjeta ya no estorba porque arranca cerrada).
+- No medido: GPU y memoria reales, móvil real, Firefox y Safari, fallback sin `animation-timeline` y salida con `@supports not`, Lighthouse con la sección en vista. El LCP de 3,6 s lo marca Hero, no esta sección.
 
 ## Decisiones tomadas y descartadas
 

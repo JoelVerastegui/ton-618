@@ -98,21 +98,24 @@ $starsNear: (
   height: 200%;
 }
 
-// Nebulosa tenue (no debe tapar las estrellas): morado dominante y un toque ámbar y azul
-.nebula {
-  --travel: #{map.get($distortTravel, 'nebula') * 100%};
-  background:
-    radial-gradient(ellipse 55% 14% at 22% 26%, rgba($nebulaPurple, 0.1), transparent 100%),
-    radial-gradient(ellipse 45% 12% at 80% 44%, rgba($nebulaPurple, 0.1), transparent 100%),
-    radial-gradient(ellipse 32% 8% at 62% 18%, rgba($solarAmber, 0.04), transparent 100%),
-    radial-gradient(ellipse 38% 10% at 30% 70%, rgba($cosmicBlue, 0.12), transparent 100%),
-    radial-gradient(ellipse 30% 7% at 76% 82%, rgba($solarAmber, 0.03), transparent 100%);
-}
-
+// Estrellas lejanas, con la nebulosa debajo: tenue y en blanco y negro (no debe tapar las estrellas).
+// Comparten capa: así el telón tiene una capa grande menos.
 .far {
   --travel: #{map.get($distortTravel, 'far') * 100%};
   background-image: stars($starsFar, 1.2);
   background-size: 190px 190px;
+
+  &::before {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 55% 14% at 22% 26%, rgba(#fff, 0.12), transparent 100%),
+      radial-gradient(ellipse 45% 12% at 80% 44%, rgba(#fff, 0.09), transparent 100%),
+      radial-gradient(ellipse 32% 8% at 62% 18%, rgba(#fff, 0.06), transparent 100%),
+      radial-gradient(ellipse 38% 10% at 30% 70%, rgba(#fff, 0.08), transparent 100%),
+      radial-gradient(ellipse 30% 7% at 76% 82%, rgba(#fff, 0.05), transparent 100%);
+    content: '';
+  }
 }
 
 .mid {

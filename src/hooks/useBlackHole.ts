@@ -240,8 +240,24 @@ export function useBlackHole(
         }
 
         teardown = stop;
-        settings.onReady?.(engine, stats);
-        schedule();
+
+        // Pausa corta: el primer fotograma (el más caro, ~170–370 ms) se dibuja en otra tarea y antes
+        // de avisar de que el motor está listo, así el fundido del canvas empieza con la imagen
+        // hecha y no se queda parado a medias.
+        const warmup = window.setTimeout(() => {
+          if (stopped) return;
+          try {
+            engine.frame(1 / 60);
+          } catch (error) {
+            stop();
+            if (!settings.onError) throw error;
+            settings.onError(error);
+            return;
+          }
+          settings.onReady?.(engine, stats);
+          schedule();
+        }, 0);
+        cleanups.push(() => window.clearTimeout(warmup));
       })
       .catch((error: unknown) => {
         if (cancelled) return;

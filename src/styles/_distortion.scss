@@ -19,7 +19,6 @@ $distortEase: cubic-bezier(0.45, 0, 0.85, 0.5);
 // Recorrido de cada capa del telón (fracción de su altura, que es el doble de la del telón): la
 // lejana apenas se mueve y la cercana mucho, lo que da profundidad.
 $distortTravel: (
-  'nebula': -0.12,
   'far': -0.22,
   'mid': -0.32,
   'near': -0.45,
@@ -63,16 +62,24 @@ $distortTravel: (
 
 // Telón y capas de `Distortion`
 @mixin distortLayerKeyframes {
-  // El telón sube (acelerando) hasta cubrir el stage y se queda
+  // El telón sube (acelerando) hasta cubrir el stage. Sin caja (`display` discreto) antes y después
+  // de la cola: así ni el telón ni sus capas se componen mientras no se ven.
   @keyframes distortCover {
     from {
       translate: 0 100%;
+      display: none;
       animation-timing-function: $distortEase;
     }
 
-    #{$distortCoverAt * 100%},
+    #{$distortCoverAt * 100%} {
+      translate: 0 0;
+      display: block;
+    }
+
+    // Al terminar la cola el stage ya está oculto: el telón deja de existir otra vez
     to {
       translate: 0 0;
+      display: none;
     }
   }
 

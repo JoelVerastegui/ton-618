@@ -21,6 +21,10 @@ import styles from '@/components/sections/Experiment/Experiment.module.scss';
 
 const experiment = experimentJson as ExperimentData;
 
+// Pantallas pequeñas (móvil vertical o apaisado bajo): la tarjeta arranca cerrada para no tapar el
+// agujero negro; se abre con el botón del ojo.
+const SMALL_SCREEN = window.matchMedia('(max-width: 575.98px), (max-height: 480px)');
+
 // Id del encabezado que nombra la sección (aria-labelledby) y de la tarjeta (aria-controls).
 const TITLE_ID = 'experimentTitle';
 const INFO_ID = 'experimentInfo';
@@ -57,7 +61,7 @@ export function Experiment() {
   // viewport de entrar, no al montar la página. Junto con la tarjeta abierta o cerrada, es el único
   // estado de React de la sección.
   const [near, setNear] = useState(false);
-  const [infoOpen, setInfoOpen] = useState(true);
+  const [infoOpen, setInfoOpen] = useState(() => !SMALL_SCREEN.matches);
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -101,6 +105,7 @@ export function Experiment() {
     onDistanceChange: (distance) => {
       distanceRef.current = distance;
       showDistance(distance);
+      markTouched();
     },
   });
 
@@ -158,7 +163,7 @@ export function Experiment() {
                 type='range'
                 min={0}
                 max={SLIDER_MAX}
-                step={1}
+                step={10}
                 defaultValue={distanceToSlider(INITIAL_DISTANCE)}
                 aria-label={experiment.slider.label}
                 aria-valuetext={formatDistance(experiment.slider.valueText, INITIAL_DISTANCE)}
