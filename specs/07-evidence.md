@@ -351,3 +351,10 @@ Capturas en los 8 viewports (cerradas y con cada pregunta abierta) con Chrome + 
 - En escritorio ancho (1920) el comparador queda centrado en su columna y el título alineado a la izquierda del todo; hay aire a ambos lados. Es solo estético.
 - Los dos rótulos siguen visibles aunque su imagen esté oculta (a 0 o 100): decisión de diseño por simplicidad.
 - Probar el gesto táctil en un móvil real (emulación de puppeteer no valida `touch-action`).
+
+---
+
+## Cambios posteriores al Paso 8 (petición del autor)
+
+- **Fondo:** `$evidenceBg` pasa a `#000` y la sección lleva el mismo cielo del telón de la transición de Experimento (estrellas lejanas, medias y cercanas más nebulosa en blanco y negro), estático. Las estrellas y la nebulosa se extrajeron a `src/styles/_deepSky.scss`, compartido con `Distortion.module.scss` (el CSS del telón no cambia).
+- **Rótulos del comparador:** cuando el tirador pasa por encima de un rótulo, este se oculta (`opacity`) y solo queda el de la imagen visible. Las posiciones se miden al montar y al cambiar de tamaño (sin lecturas de layout al arrastrar).

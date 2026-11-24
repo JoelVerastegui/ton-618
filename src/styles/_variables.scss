@@ -570,8 +570,9 @@ $experimentHold: 60;
 // ---------------------------------------------------------------------------
 // Sección Evidencia (SPEC 07)
 // ---------------------------------------------------------------------------
-// Fondo: continúa el espacio oscuro de Experimento (`$experimentBg`); no es negro puro.
-$evidenceBg: #0a1022;
+// Fondo: negro como el telón de la transición de Experimento, con su campo de estrellas y nebulosa
+// (`styles/_deepSky.scss`).
+$evidenceBg: #000;
 
 // ---------------------------------------------------------------------------
 // Apilamiento de las secciones (z-index)

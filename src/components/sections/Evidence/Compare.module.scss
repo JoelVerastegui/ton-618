@@ -62,6 +62,17 @@ $knob: 2.75rem; // 44 px: área táctil mínima
   background-color: rgba(#000, 0.72);
   border-radius: 0.375rem;
   pointer-events: none;
+  transition: opacity $motionFast;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// Al pasar el tirador por encima de un rótulo, este se oculta y solo queda el de la imagen visible.
+.compare[data-hide-observation='true'] .labelObservation,
+.compare[data-hide-representation='true'] .labelRepresentation {
+  opacity: 0;
 }
 
 .labelObservation {

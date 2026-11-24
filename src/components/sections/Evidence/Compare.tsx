@@ -1,4 +1,4 @@
-import { useRef, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useEffect, useRef, type ChangeEvent, type KeyboardEvent } from 'react';
 import type { EvidenceData } from '@/interfaces/evidence';
 import observationDesktop from '@/assets/images/evidence/ton618-observation-768.webp';
 import observationMobile from '@/assets/images/evidence/ton618-observation-mobile-640.webp';
@@ -24,6 +24,11 @@ interface CompareProps {
 export function Compare({ hint, data }: CompareProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const observationLabelRef = useRef<HTMLSpanElement>(null);
+  const representationLabelRef = useRef<HTMLSpanElement>(null);
+  // Posiciones (0-100) a partir de las cuales el tirador pasa por encima de cada rótulo; se miden
+  // al montar y al cambiar de tamaño, nunca al arrastrar.
+  const labelEdges = useRef({ observation: 0, representation: 100 });
 
   const valueText = (value: number) => data.valueText.replace('{value}', String(value));
 
@@ -33,7 +38,36 @@ export function Compare({ hint, data }: CompareProps) {
     if (!root || !input) return;
     root.style.setProperty('--split', String(value));
     input.setAttribute('aria-valuetext', valueText(value));
+    // Un rótulo se oculta cuando el tirador pasa por encima de él: ya no está sobre su imagen.
+    root.dataset.hideObservation = String(value < labelEdges.current.observation);
+    root.dataset.hideRepresentation = String(value > labelEdges.current.representation);
   };
+
+  // Mide dónde acaba el rótulo de la observación y dónde empieza el de la representación.
+  useEffect(() => {
+    const root = rootRef.current;
+    const observation = observationLabelRef.current;
+    const representation = representationLabelRef.current;
+    const input = inputRef.current;
+    if (!root || !observation || !representation || !input) return;
+
+    const measure = () => {
+      const width = root.clientWidth;
+      if (!width) return;
+      labelEdges.current = {
+        observation: ((observation.offsetLeft + observation.offsetWidth) / width) * 100,
+        representation: (representation.offsetLeft / width) * 100,
+      };
+      apply(Number(input.value));
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    return () => observer.disconnect();
+    // `apply` solo usa refs: no depende del render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // El hint se oculta (por atributo, sin estado) con la primera interacción.
   const markTouched = () => {
@@ -64,7 +98,13 @@ export function Compare({ hint, data }: CompareProps) {
   };
 
   return (
-    <div ref={rootRef} className={styles.compare} data-touched='false'>
+    <div
+      ref={rootRef}
+      className={styles.compare}
+      data-touched='false'
+      data-hide-observation='false'
+      data-hide-representation='false'
+    >
       <picture>
         <source media={DESKTOP_MEDIA} srcSet={representationDesktop} />
         <img
@@ -86,8 +126,13 @@ export function Compare({ hint, data }: CompareProps) {
         />
       </picture>
 
-      <span className={`${styles.label} ${styles.labelObservation}`}>{data.observation.label}</span>
-      <span className={`${styles.label} ${styles.labelRepresentation}`}>
+      <span ref={observationLabelRef} className={`${styles.label} ${styles.labelObservation}`}>
+        {data.observation.label}
+      </span>
+      <span
+        ref={representationLabelRef}
+        className={`${styles.label} ${styles.labelRepresentation}`}
+      >
         {data.representation.label}
       </span>
 

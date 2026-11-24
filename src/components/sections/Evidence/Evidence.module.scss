@@ -1,4 +1,5 @@
 @import '@/styles/variables';
+@import '@/styles/deepSky';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -37,6 +38,39 @@
     margin-top: -100vh;
     margin-top: -100dvh;
   }
+}
+
+// Fondo: negro con estrellas de tres profundidades y nebulosa en blanco y negro, igual que el telón
+// de la transición de Experimento (ver `styles/_deepSky.scss`); estático y bajo el contenido.
+.sky {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.far {
+  background-image: stars($starsFar, 1.2);
+  background-size: 190px 190px;
+}
+
+.mid {
+  background-image: stars($starsMid, 2.4);
+  background-size: 251px 251px;
+}
+
+.near {
+  background-image: stars($starsNear, 5);
+  background-size: 397px 397px;
+}
+
+.nebula {
+  background: deepSkyNebula(2);
 }
 
 .summary {

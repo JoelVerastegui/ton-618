@@ -12,6 +12,14 @@ const TITLE_ID = 'evidenceTitle';
 export function Evidence() {
   return (
     <section id='evidence' aria-labelledby={TITLE_ID} className={styles.section}>
+      {/* Cielo decorativo: el mismo del telón de la transición de Experimento */}
+      <div className={styles.sky} aria-hidden='true'>
+        <span className={`${styles.layer} ${styles.far}`} />
+        <span className={`${styles.layer} ${styles.mid}`} />
+        <span className={`${styles.layer} ${styles.near}`} />
+        <span className={`${styles.layer} ${styles.nebula}`} />
+      </div>
+
       <p className={styles.summary}>{evidence.summary}</p>
 
       <header className={styles.header}>
