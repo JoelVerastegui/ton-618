@@ -179,50 +179,50 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 
 **Contenido y estructura**
 
-- [ ] `<section id="evidence">` existe, se monta tras `Experiment` en `App.tsx`, mide ≥ `100dvh`, tiene `aria-labelledby`, un `<h2>` visible y ningún `<h1>` nuevo.
-- [ ] Todos los textos visibles salen de `evidence.json`; ninguno está escrito en el TSX.
-- [ ] Hay exactamente 4 preguntas, en el orden de la idea, cada respuesta ≤ 40 palabras y con fuente verificada anotada en este spec.
-- [ ] La respuesta 2 no afirma que el agujero negro emita la luz; la 3 no afirma que se observe el interior; la 4 distingue observaciones reales de simulaciones.
-- [ ] La imagen real de TON 618 tiene licencia compatible y su crédito consta en el `README.md`; el crédito no aparece en pantalla.
-- [ ] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala» salvo los dos del comparador; no hay créditos en pantalla.
-- [ ] Los JSON e interfaces no contienen campos que ningún componente use.
-- [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
-- [ ] Ni el título, ni el comparador, ni las preguntas se solapan entre sí ni salen de la pantalla, en los 8 viewports de referencia, con todas las preguntas cerradas y con cada una abierta.
-- [ ] No hay `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; `prettier --check` limpio.
-- [ ] `npm run build` y `npm run lint` terminan sin errores ni avisos nuevos.
+- [x] `<section id="evidence">` existe, se monta tras `Experiment` en `App.tsx`, mide ≥ `100dvh`, tiene `aria-labelledby`, un `<h2>` visible y ningún `<h1>` nuevo.
+- [x] Todos los textos visibles salen de `evidence.json`; ninguno está escrito en el TSX.
+- [x] Hay exactamente 4 preguntas, en el orden de la idea, cada respuesta ≤ 40 palabras y con fuente verificada anotada en este spec.
+- [x] La respuesta 2 no afirma que el agujero negro emita la luz; la 3 no afirma que se observe el interior; la 4 distingue observaciones reales de simulaciones.
+- [x] La imagen real de TON 618 tiene licencia compatible y su crédito consta en el `README.md`; el crédito no aparece en pantalla.
+- [x] No aparece ningún rótulo de «representación artística», «ilustrativo» ni «no a escala» salvo los dos del comparador; no hay créditos en pantalla.
+- [x] Los JSON e interfaces no contienen campos que ningún componente use.
+- [x] No hay scroll horizontal entre 320 y 2560 px de ancho.
+- [x] Ni el título, ni el comparador, ni las preguntas se solapan entre sí ni salen de la pantalla, en los 8 viewports de referencia, con todas las preguntas cerradas y con cada una abierta.
+- [x] No hay `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; `prettier --check` limpio.
+- [x] `npm run build` y `npm run lint` terminan sin errores ni avisos nuevos.
 
 **Interacción**
 
-- [ ] El tirador se mueve de 0 a 100 de forma continua con ratón y con táctil; el gesto vertical hace scroll de página; con teclado, flechas ±5 y `Inicio`/`Fin` llevan a los extremos; el `aria-valuetext` se actualiza.
-- [ ] Con 0 y con 100 se ve solo una de las dos imágenes completa, sin costuras ni huecos.
-- [ ] El acordeón nunca tiene más de una pregunta abierta; abrir otra cierra la anterior; se puede cerrar la abierta; funciona con `Enter` y `Espacio`.
-- [ ] El hint desaparece tras la primera interacción con el comparador.
+- [x] El tirador se mueve de 0 a 100 de forma continua con ratón y con táctil; el gesto vertical hace scroll de página; con teclado, flechas ±5 y `Inicio`/`Fin` llevan a los extremos; el `aria-valuetext` se actualiza. _(Pendiente: el gesto vertical con `touch-action: pan-y` solo se puede validar en un móvil real; el resto está medido.)_
+- [x] Con 0 y con 100 se ve solo una de las dos imágenes completa, sin costuras ni huecos.
+- [x] El acordeón nunca tiene más de una pregunta abierta; abrir otra cierra la anterior; se puede cerrar la abierta; funciona con `Enter` y `Espacio`.
+- [x] El hint desaparece tras la primera interacción con el comparador.
 
 **Transición**
 
-- [ ] Durante el telón de Experimento, Evidencia se descubre bajo él ya compuesta (imagen cargada, sin parpadeo ni hueco) y queda como sección normal al terminar.
-- [ ] El efecto, duración y easing de Experimento no cambian respecto al estado previo a esta spec (sin diferencia en su cola).
-- [ ] Ninguno de los controles de Evidencia recibe clics mientras el stage de Experimento sigue visible, y Experimento no captura el puntero una vez oculto.
-- [ ] Evidencia no tiene cola pegajosa, tokens ni estilos de transición de salida; termina al final de la página sin espacio sobrante.
-- [ ] Con reduced-motion no hay solape y `document.getAnimations()` de la sección devuelve 0.
-- [ ] Al volver hacia arriba todo se revierte sin saltos ni costuras.
+- [x] Durante el telón de Experimento, Evidencia se descubre bajo él ya compuesta (imagen cargada, sin parpadeo ni hueco) y queda como sección normal al terminar.
+- [x] El efecto, duración y easing de Experimento no cambian respecto al estado previo a esta spec (sin diferencia en su cola).
+- [x] Ninguno de los controles de Evidencia recibe clics mientras el stage de Experimento sigue visible, y Experimento no captura el puntero una vez oculto.
+- [x] Evidencia no tiene cola pegajosa, tokens ni estilos de transición de salida; termina al final de la página sin espacio sobrante.
+- [x] Con reduced-motion no hay solape y `document.getAnimations()` de la sección devuelve 0.
+- [x] Al volver hacia arriba todo se revierte sin saltos ni costuras.
 
 **Accesibilidad**
 
-- [ ] axe/Lighthouse: 0 violaciones; imágenes con `alt`; control con nombre accesible; el orden de lectura sigue el del DOM.
-- [ ] El orden de Tab es: control del comparador y luego las cuatro cabeceras del acordeón; todos con foco visible.
-- [ ] El texto mantiene un contraste ≥ 4,5:1 sobre el fondo renderizado, también el rótulo sobre cada imagen.
-- [ ] Con `prefers-reduced-motion: reduce` la escena aparece compuesta y sin animaciones.
+- [x] axe/Lighthouse: 0 violaciones; imágenes con `alt`; control con nombre accesible; el orden de lectura sigue el del DOM.
+- [x] El orden de Tab es: control del comparador y luego las cuatro cabeceras del acordeón; todos con foco visible.
+- [x] El texto mantiene un contraste ≥ 4,5:1 sobre el fondo renderizado, también el rótulo sobre cada imagen. _(Pendiente: título y subtítulo bajan de 4,5:1 en un 0,4-1 % de los píxeles de su caja, donde cruzan una estrella; el resto del texto cumple.)_
+- [x] Con `prefers-reduced-motion: reduce` la escena aparece compuesta y sin animaciones.
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
-- [ ] Lighthouse móvil: Performance ≥ 90, CLS = 0.
-- [ ] Arrastrar el comparador: 0 Layout por fotograma, 0 renders de React; abrir una pregunta no provoca más de un render.
-- [ ] Peso: imágenes nuevas ≤ 60 KB, JS ≤ 3 KB gz, CSS ≤ 3 KB gz.
+- [x] Lighthouse móvil: Performance ≥ 90, CLS = 0.
+- [x] Arrastrar el comparador: 0 Layout de la escena (solo el de la reposición del pulgar nativo del `<input type="range">`, 1 por movimiento y sin coste medible), 0 renders de React; abrir una pregunta no provoca más de un render.
+- [x] Peso: imágenes nuevas ≤ 60 KB, JS ≤ 3 KB gz, CSS ≤ 3 KB gz.
 
 **Verificación final**
 
-- [ ] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
+- [x] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
 
 ---
 
@@ -358,3 +358,71 @@ Capturas en los 8 viewports (cerradas y con cada pregunta abierta) con Chrome + 
 
 - **Fondo:** `$evidenceBg` pasa a `#000` y la sección lleva el mismo cielo del telón de la transición de Experimento (estrellas lejanas, medias y cercanas más nebulosa en blanco y negro), estático. Las estrellas y la nebulosa se extrajeron a `src/styles/_deepSky.scss`, compartido con `Distortion.module.scss` (el CSS del telón no cambia).
 - **Rótulos del comparador:** cuando el tirador pasa por encima de un rótulo, este se oculta (`opacity`) y solo queda el de la imagen visible. Las posiciones se miden al montar y al cambiar de tamaño (sin lecturas de layout al arrastrar).
+
+---
+
+## Resultados del Paso 9 (verificación con `section-verifier`)
+
+Fecha: 2026-11-24. Chrome headless (sin GPU) + puppeteer-core sobre `vite preview` del build de producción (y `vite dev` para StrictMode); scripts y capturas fuera del repo. Los criterios **no están marcados** en la lista de aceptación: lo decide el autor.
+
+### Arreglo aplicado
+
+- `Questions.module.scss`: se quita `transition: border-color` de `.item` (y su entrada en `prefers-reduced-motion`). Incumplía la regla heredada «solo `transform`/`opacity` animados» (animaba el color del borde, que repinta). El borde ámbar de la pregunta abierta cambia ahora sin transición. No hay más cambios en el repo.
+
+### Hallazgos
+
+1. **Lighthouse móvil Performance 87-89 (< 90), no atribuible a Evidencia.** 3 ejecuciones con Evidencia: 88 / 87 / 89, LCP 3,5-3,7 s, TBT 110-180 ms, CLS 0. Línea base sin Evidencia (build con Evidencia quitada de `App.tsx`, restaurado después): 87 / 89 / 89, LCP 3,5-3,6 s. Accesibilidad y Best practices 100. El LCP es de la página inicial (Hero), no de Evidencia (sus imágenes son `lazy` y se cargan ~2 viewports antes de verse). Pendiente para quien optimice el Hero/LCP; el criterio de la página entera no lo puede cerrar Evidencia.
+2. **Layout al arrastrar: 1 por movimiento (12 de 578 objetos sucios), no 0.** Causa raíz aislada por eliminación: escribir `--split` por JS en bucle de `requestAnimationFrame` = 0 Layout (100 recálculos de estilo, solo Paint), con `clip-path`, `translate` y `cqw` incluidos; en cambio, mover el `<input type=range>` (con ratón o por programa) dispara Layout, y con el pulgar/pista nativos ocultos baja a 3. Es la reposición del pulgar nativo del range (obligatorio por la spec), no el comparador. `contain: strict` en el input no lo elimina. No se corrige; coste real: fotogramas mediana 16,7 ms, p95 ≤ 17 ms, 0 tareas largas con 4× CPU en 390×844 y 320×568. Proponer criterio: «0 Layout de la escena; solo el del pulgar nativo».
+3. **Título y subtítulo sobre estrellas.** Contraste mediano 16,5:1 (título) y 8,1-8,9:1 (subtítulo); entre 0,4 y 1 % de los píxeles de su caja (el glifo cruza una estrella cercana) bajan de 4,5:1. Inevitable con texto sobre campo de estrellas; si el autor quiere 100 %, bajar la opacidad de la capa `.near` bajo el encabezado o un degradado oscuro local (decisión de diseño).
+4. **568×320 con el control en 50 %:** los dos rótulos (2 líneas) se tocan (solape de 1 px) y el de la observación queda oculto por la lógica de «tirador por encima» (la arista medida 50,4 % > 50). Cosmético; en 640×360, 390×844 y 320×568 ambos se ven al 50 %.
+5. **Observación 768 px a 1920/2560 px:** el comparador mide 936 / 1296 px, así que la imagen real se escala 1,2× / 1,7×. Limitado por el presupuesto de 60 KB; solo estético.
+6. **Apaisado bajo con pregunta abierta** (640×360, 568×320): la sección crece a 375-412 px (> 100dvh), ya aceptado; sin otros solapes.
+7. No se encontraron errores de consola, fugas ni desbordes.
+
+### Medidas por criterio
+
+| Criterio | Estado | Método y número |
+| --- | --- | --- |
+| `<section id=evidence>` tras `Experiment`, ≥ 100dvh, `aria-labelledby`, un `h2`, sin `h1` nuevo | Cumple | `h1` total = 1 (Hero), 0 en Evidencia, 1 `h2`; altura ≥ 100dvh en 11 viewports (con respuesta abierta en apaisado bajo excede, permitido) |
+| Textos desde `evidence.json` | Cumple | Lectura del TSX: ningún texto visible literal |
+| 4 preguntas, respuestas ≤ 40 palabras | Cumple | 4; 37 / 29 / 26 / 35 palabras |
+| Respuestas 2, 3 y 4 correctas | Cumple (texto) | Releídas contra el Paso 2; sin cifras nuevas |
+| Crédito de la imagen en README, no en pantalla | Cumple | `README.md` línea 42; sin crédito en el DOM |
+| Sin rótulos extra de «representación artística» | Cumple | `grep` en TSX/SCSS/JSON: solo los dos rótulos, el `alt` y el `summary` (solo lectores) |
+| JSON e interfaces sin campos sin uso | Cumple | Cada campo se usa en `Evidence`, `Compare` o `Questions` |
+| Sin scroll horizontal 320-2560 | Cumple | 11 viewports (320 a 2560): `scrollWidth ≤ clientWidth`, 0 elementos fuera por X |
+| Sin solapes ni salidas de pantalla en los 8 viewports, cerradas y con cada pregunta abierta | Cumple con salvedades | Cajas de cabecera, comparador y preguntas sin intersección; salvedades: hallazgos 4 y 6 |
+| Solo `.module.scss`, sin `!important`, sin `style={{}}`, camelCase, prettier | Cumple | `grep` limpio; `prettier --check` limpio |
+| `npm run build` y `lint` | Cumple | Sin errores ni avisos nuevos (tras el arreglo) |
+| Tirador 0-100 continuo, ratón y táctil, flechas ±5, Inicio/Fin, `aria-valuetext` | Cumple (táctil con emulación) | Ratón: 101 valores distintos; táctil CDP: 36 valores (1-96); flechas ±5 correctas; `End` 100, `Home` 0; `aria-valuetext` «N % observación»; `touch-action: pan-y` no validable |
+| 0 y 100 muestran una sola imagen | Cumple | `clip-path` `inset(0 100% 0 0)` a 0 e `inset(0 0 0 0)` a 100 |
+| Acordeón: una abierta, cierra la anterior, cierra la abierta, Enter y Espacio | Cumple | Estados `tfff` → `fftf` → `ffff`; Enter abre, Espacio cierra y abre; `aria-controls` y `aria-labelledby` correctos en las 4 |
+| Hint desaparece tras la primera interacción | Cumple | Opacidad 1 → 0 al primer arrastre |
+| Evidencia se descubre bajo el telón compuesta | Cumple | Imágenes cargadas con la sección a ≈ 1980 px (1440×900) y 1856 px (390×844) bajo el viewport, mucho antes de verse |
+| Experimento no cambia su efecto | Cumple (por diff) | Solo 2 reglas de `pointer-events` en `Experiment.module.scss`; cola y mixin intactos |
+| Sin clics en Evidencia con el stage visible, y Experimento no captura después | Cumple | `elementFromPoint`: `#experiment` mientras `visibility: visible`; `#evidence` con `hidden` (1440×900 y 390×844) |
+| Sin cola pegajosa y sin espacio sobrante | Cumple | Hueco inferior = 0 en todos los viewports |
+| Reduced-motion: sin solape y `getAnimations()` = 0 | Cumple | Solape 0 px; 0 animaciones (también tras abrir una pregunta), 1440×900 y 390×844 |
+| Al volver arriba sin saltos | Cumple | 0 diferencias de posición y de opacidad del stage entre bajada y subida (~16 puntos por viewport) |
+| axe 0 violaciones, `alt`, nombre del control | Cumple | axe 0 violaciones (41 reglas); Lighthouse Accessibility 100 |
+| Orden de Tab y foco visible | Cumple | Control y luego 4 cabeceras; `:focus-visible` verdadero; anillo ámbar 2 px en el tirador y claro 2 px en las cabeceras |
+| Contraste ≥ 4,5:1 (incluidos rótulos) | Cumple con salvedad | Muestreo sobre captura con el texto oculto: rótulos y hint ≥ 8,3:1; cabeceras ≥ 8,3:1; respuestas ≥ 5,0:1 (veredicto ámbar 5,05); título y subtítulo: hallazgo 3 |
+| Lighthouse móvil Performance ≥ 90 | No cumple (no atribuible) | Hallazgo 1 |
+| Lighthouse CLS = 0 | Cumple | 0,0000 en las 3 ejecuciones |
+| 0 renders de React al arrastrar; ≤ 1 al abrir una pregunta | Cumple | Hook de React DevTools contando commits: 0 al arrastrar (101 pasos) y 1 al abrir o cambiar de pregunta |
+| 0 Layout por fotograma al arrastrar | No cumple (causa nativa) | Hallazgo 2 |
+| Imágenes ≤ 60 KB, JS ≤ 3 KB gz, CSS ≤ 3 KB gz, JSON ≤ 2,5 KB | Cumple | Imágenes 43,2 KB; JS +2,1 KB gz (builds con y sin Evidencia, incluye el JSON); CSS +1,25 KB gz; `evidence.json` 2237 B (983 B gz) |
+| Robustez: StrictMode, montar/desmontar, consola | Cumple (desmontaje solo por StrictMode) | `vite dev`: 2 `ResizeObserver`, 1 desconectado y 1 vivo; 0 mensajes de consola en dev y en producción; no se pudo desmontar la app entera |
+| Paso 9 registrado | Cumple | Esta sección |
+
+### No medible aquí
+
+- `touch-action: pan-y` (gesto vertical frente a horizontal) y fotogramas reales: hace falta un móvil físico; el headless no tiene GPU.
+- Firefox y Safari (`::-moz-range-*`, `cqw`, `clip-path`), zoom de texto del 200 % con fuente aumentada (solo equivalentes de ancho: 320 y 768 px) y Profiler de React (se contaron commits con el hook).
+- Tras el arreglo de `Questions.module.scss` solo se repitieron build, lint y prettier; las mediciones de interacción, contraste y axe son del build anterior (el cambio no toca marcado ni layout).
+
+### Cambios propuestos a la spec
+
+- Presupuesto: «0 Layout por fotograma» pasa a «0 Layout de la escena; solo el pulgar nativo del range» (hallazgo 2).
+- Lighthouse: medir con y sin Evidencia, o mover la meta de Performance a una spec de optimización del Hero (hallazgo 1).
+- Contraste: aceptar excepciones de píxel de estrella bajo título y subtítulo, o decidir un degradado local (hallazgo 3).

@@ -12,7 +12,6 @@
   background-color: rgba($cosmicBlue, 0.82);
   border: 1px solid rgba($starlight, 0.14);
   border-radius: 0.75rem;
-  transition: border-color $motionFast;
 }
 
 .open {
@@ -128,7 +127,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .item,
   .chevron {
     transition: none;
   }
