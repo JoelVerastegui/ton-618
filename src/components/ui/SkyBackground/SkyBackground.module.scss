@@ -1,0 +1,488 @@
+@use 'sass:math';
+
+@import '@/styles/variables';
+@import '@/styles/starfield';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// ---------------------------------------------------------------------------
+// Fondo espacial compartido (Hero y Epílogo)
+// ---------------------------------------------------------------------------
+.sky {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+
+  @include media-breakpoint-between(md, xl) {
+    --parallaxScale: 0.7;
+  }
+}
+
+// z 0 — Fondo
+.background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 35%,
+    color-mix(in srgb, #{$nebulaPurple} 18%, #{$cosmicBlue}) 0%,
+    #{$cosmicBlue} 45%,
+    #{$spaceVoid} 100%
+  );
+}
+
+.backgroundVoid {
+  background: $spaceBlack;
+}
+
+// Capas de profundidad. El contenedor externo queda libre para el parallax
+// y la transición por scroll; la entrada va en .layerBody.
+.layer {
+  position: absolute;
+  inset: -6%;
+  // Promueve la capa al compositor: el parallax solo la desplaza, sin repintar.
+  // Se retira fuera de vista y con reduced-motion (ver más abajo).
+  will-change: translate;
+}
+
+// Parallax con mouse: --px y --py (en [-1, 1]) los escribe useParallaxPointer.
+// El desplazamiento es opuesto al cursor; en Y la amplitud es el 60 %.
+// --parallaxScale reduce la amplitud en tablets (768–1199 px).
+//
+// En dispositivos sin mouse (el hook no se adjunta) cada capa deriva sola con
+// una animación CSS sobre `translate`: sin JavaScript ni listeners de puntero.
+// La condición es el complemento exacto de la que activa el hook.
+.layerFar {
+  z-index: 1;
+  translate: calc(var(--px, 0) * #{-$parallaxFar} * var(--parallaxScale, 1))
+    calc(var(--py, 0) * #{-$parallaxFar * 0.6} * var(--parallaxScale, 1));
+
+  @media ((hover: none) or (pointer: coarse)) and (prefers-reduced-motion: no-preference) {
+    --driftAmp: #{$driftFar};
+
+    animation: layerDrift $driftFarDuration ease-in-out infinite;
+  }
+}
+
+.layerMid {
+  z-index: 2;
+  translate: calc(var(--px, 0) * #{-$parallaxMid} * var(--parallaxScale, 1))
+    calc(var(--py, 0) * #{-$parallaxMid * 0.6} * var(--parallaxScale, 1));
+
+  @media ((hover: none) or (pointer: coarse)) and (prefers-reduced-motion: no-preference) {
+    --driftAmp: #{$driftMid};
+
+    animation: layerDrift $driftMidDuration ease-in-out -13s infinite;
+  }
+}
+
+.layerNear {
+  z-index: 3;
+  translate: calc(var(--px, 0) * #{-$parallaxNear} * var(--parallaxScale, 1))
+    calc(var(--py, 0) * #{-$parallaxNear * 0.6} * var(--parallaxScale, 1));
+
+  @media ((hover: none) or (pointer: coarse)) and (prefers-reduced-motion: no-preference) {
+    --driftAmp: #{$driftNear};
+
+    animation: layerDrift $driftNearDuration ease-in-out -7s infinite;
+  }
+}
+
+// Nivel intermedio: transición por scroll (zoom y fundido, solo variante hero).
+// Va separado del parallax (.layer) y de la entrada (.layerBody) para que no
+// se pisen.
+.layerScroll {
+  position: absolute;
+  inset: 0;
+}
+
+.layerBody {
+  position: absolute;
+  inset: 0;
+  animation: fadeIn 1200ms ease both;
+}
+
+// z 1 — Estrellas lejanas
+.farStars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  box-shadow: starField(1040, 0, 95, 100);
+}
+
+// z 2 — Nebulosa y partículas
+// La imagen va sobre los degradados, que quedan como fallback mientras carga.
+// `screen` hace desaparecer el negro de fondo de la imagen. Versión vertical
+// en móvil y horizontal desde md.
+.nebula {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background:
+    url('../../../assets/images/hero/nebula-mobile.webp') center / cover no-repeat,
+    radial-gradient(ellipse 45% 35% at 22% 28%, rgba($nebulaPurple, 0.7), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 38%, rgba(#2a3f7a, 0.45), transparent 70%),
+    radial-gradient(ellipse 50% 28% at 15% 86%, rgba($solarAmber, 0.22), transparent 70%);
+  background-blend-mode: screen, normal, normal, normal;
+
+  @include media-breakpoint-up(md) {
+    background-image:
+      url('../../../assets/images/hero/nebula.webp'),
+      radial-gradient(ellipse 45% 35% at 22% 28%, rgba($nebulaPurple, 0.7), transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 38%, rgba(#2a3f7a, 0.45), transparent 70%),
+      radial-gradient(ellipse 50% 28% at 15% 86%, rgba($solarAmber, 0.22), transparent 70%);
+  }
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba($starlight, 0.8);
+  opacity: 0;
+  animation: drift linear infinite;
+
+  @for $i from 1 through 18 {
+    &:nth-child(#{$i}) {
+      $size: math.div(9 + math.random(21), 10) * 1px;
+
+      top: math.random(100) * 1%;
+      left: math.random(100) * 1%;
+      width: $size;
+      height: $size;
+      --dx: #{math.random(21) - 11}vw;
+      --dy: #{math.random(21) - 11}vh;
+      animation-duration: #{17 + math.random(24)}s;
+      animation-delay: #{-1 * math.random(40)}s;
+    }
+  }
+
+  // En móvil solo se muestran 10 partículas
+  @include media-breakpoint-down(md) {
+    &:nth-child(n + 11) {
+      display: none;
+    }
+  }
+}
+
+// z 3 — Estrellas cercanas, centelleo y destellos
+.nearStars,
+.twinkleA,
+.twinkleB,
+.twinkleC {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+}
+
+.nearStars {
+  box-shadow: starField(260, 0.75, 95, 100);
+}
+
+// 12 estrellas con centelleo lento, repartidas en 3 grupos desfasados
+.twinkleA {
+  box-shadow: starField(8, 0.75, 70, 100);
+  animation: twinkle 5s ease-in-out infinite;
+}
+
+.twinkleB {
+  box-shadow: starField(8, 0.75, 70, 100);
+  animation: twinkle 6.5s ease-in-out -2s infinite;
+}
+
+.twinkleC {
+  box-shadow: starField(8, 0.75, 70, 100);
+  animation: twinkle 4.2s ease-in-out -1s infinite;
+}
+
+.sparkles {
+  position: absolute;
+  inset: 0;
+}
+
+// Destellos en cruz: desfasados 2 s entre sí para no superar 1 evento cada ~2 s
+.sparkle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  opacity: 0.15;
+  animation: sparkle 8s ease-in-out infinite;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+  }
+
+  &::before {
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $starlight, transparent);
+  }
+
+  &::after {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, $starlight, transparent);
+  }
+
+  &:nth-child(1) {
+    top: 22%;
+    left: 18%;
+    animation-delay: 0s;
+  }
+
+  &:nth-child(2) {
+    top: 16%;
+    left: 78%;
+    animation-delay: -2s;
+  }
+
+  &:nth-child(3) {
+    top: 62%;
+    left: 88%;
+    animation-delay: -4s;
+  }
+
+  &:nth-child(4) {
+    top: 70%;
+    left: 10%;
+    animation-delay: -6s;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Animaciones (solo transform/opacity)
+// ---------------------------------------------------------------------------
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Transición por scroll (solo variante hero, clase .zoom): zoom hacia el
+// agujero negro (progreso p de 0 a 1 sobre los primeros 100svh de scroll).
+// ---------------------------------------------------------------------------
+@supports (animation-timeline: scroll()) {
+  // Las animaciones van dentro de @supports: sin soporte de animation-timeline
+  // correrían por tiempo y dejarían la escena ya ampliada.
+  .zoom .layerFar .layerScroll {
+    animation: scrollFar linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+
+  .zoom .layerMid .layerScroll {
+    animation: scrollMid ease-in both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+
+  .zoom .layerNear .layerScroll {
+    animation: scrollNear linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+}
+
+// Fallback sin animation-timeline: useScrollProgress escribe --progress (0–1)
+// en la sección. Se conserva el efecto pero con easing lineal.
+@supports not (animation-timeline: scroll()) {
+  .zoom .layerFar .layerScroll {
+    scale: calc(1 + 0.12 * var(--progress, 0));
+  }
+
+  .zoom .layerMid .layerScroll {
+    scale: calc(1 + 0.5 * var(--progress, 0));
+    opacity: calc(1 - 0.6 * var(--progress, 0));
+  }
+
+  .zoom .layerNear .layerScroll {
+    scale: calc(1 + 1.2 * var(--progress, 0));
+    opacity: calc(1 - clamp(0, (var(--progress, 0) - 0.7) / 0.3, 1));
+  }
+}
+
+@keyframes scrollFar {
+  from {
+    scale: 1;
+  }
+
+  to {
+    scale: 1.12;
+  }
+}
+
+@keyframes scrollMid {
+  from {
+    scale: 1;
+    opacity: 1;
+  }
+
+  to {
+    scale: 1.5;
+    opacity: 0.4;
+  }
+}
+
+// La escala avanza de 0 a 100 %; el fundido solo entre el 70 y el 100 %
+@keyframes scrollNear {
+  0% {
+    scale: 1;
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    scale: 2.2;
+    opacity: 0;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+// Ciclo cerrado de deriva de una capa. La amplitud llega en --driftAmp; los
+// puntos X e Y no están en fase, para que el movimiento no parezca una
+// oscilación simple. En Y la amplitud máxima es el 60 %.
+@keyframes layerDrift {
+  0%,
+  100% {
+    translate: calc(var(--driftAmp) * -1) calc(var(--driftAmp) * -0.3);
+  }
+
+  25% {
+    translate: calc(var(--driftAmp) * 0.4) calc(var(--driftAmp) * 0.6);
+  }
+
+  50% {
+    translate: var(--driftAmp) calc(var(--driftAmp) * 0.2);
+  }
+
+  75% {
+    translate: calc(var(--driftAmp) * -0.3) calc(var(--driftAmp) * -0.6);
+  }
+}
+
+@keyframes drift {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+
+  20%,
+  80% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    translate: var(--dx) var(--dy);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pausa fuera de vista: useInView marca la sección con data-inview="false"
+// cuando sale del viewport. Se pausan todas las animaciones del fondo.
+// ---------------------------------------------------------------------------
+:global([data-inview='false']) {
+  .layerFar,
+  .layerMid,
+  .layerNear,
+  .layerFar .layerScroll,
+  .layerMid .layerScroll,
+  .layerNear .layerScroll,
+  .particle,
+  .twinkleA,
+  .twinkleB,
+  .twinkleC,
+  .sparkle {
+    animation-play-state: paused;
+  }
+
+  .layer {
+    will-change: auto;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// prefers-reduced-motion: sin parallax (el hook no se adjunta), sin deriva
+// (ver arriba), sin centelleo ni zoom por scroll. Partículas y destellos
+// quedan estáticos y no hay animación de entrada.
+// ---------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    will-change: auto;
+  }
+
+  .layerBody {
+    animation: none;
+  }
+
+  .particle {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .twinkleA,
+  .twinkleB,
+  .twinkleC {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .sparkle {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .zoom .layerFar .layerScroll,
+  .zoom .layerMid .layerScroll,
+  .zoom .layerNear .layerScroll {
+    animation: none;
+    scale: none;
+    opacity: 1;
+  }
+}
