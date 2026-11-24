@@ -1,4 +1,5 @@
 import { Experiment } from '@/components/sections/Experiment/Experiment';
+import { Epilogue } from '@/components/sections/Epilogue/Epilogue';
 import { Evidence } from '@/components/sections/Evidence/Evidence';
 import { Exploration } from '@/components/sections/Exploration/Exploration';
 import { Hero } from '@/components/sections/Hero/Hero';
@@ -16,6 +17,7 @@ function App() {
       <Time />
       <Experiment />
       <Evidence />
+      <Epilogue />
     </main>
   );
 }
