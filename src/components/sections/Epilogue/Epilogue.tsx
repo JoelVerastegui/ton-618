@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { SkyBackground } from '@/components/ui/SkyBackground/SkyBackground';
+import greatAttractor from '@/assets/images/epilogue/great-attractor.webp';
 import epilogueJson from '@/data/epilogue.json';
 import { useInView } from '@/hooks/useInView';
 import { useParallaxPointer } from '@/hooks/useParallaxPointer';
@@ -19,6 +20,18 @@ export function Epilogue() {
   return (
     <section ref={sectionRef} id='epilogue' aria-labelledby={TITLE_ID} className={styles.section}>
       <SkyBackground variant='void' />
+
+      <div className={styles.art} aria-hidden='true'>
+        <img
+          className={styles.image}
+          src={greatAttractor}
+          width={1024}
+          height={1024}
+          alt=''
+          loading='lazy'
+          decoding='async'
+        />
+      </div>
 
       <p className={styles.summary}>{epilogue.summary}</p>
 
