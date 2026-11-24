@@ -272,3 +272,43 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `cosmic-data-researc
 - Navegación completa, Navbar y Footer.
 
 Cada una de estas cosas, si se hace, va en su propio spec.
+
+---
+
+## Resultados del Paso 2 (datos e imagen real)
+
+Consulta: 2026-11-24.
+
+### Imagen real de la observación
+
+- **Fuente:** Legacy Surveys (DR9), recorte generado con el visor `https://www.legacysurvey.org/viewer/jpeg-cutout?ra=187.1040&dec=31.4772&layer=ls-dr9&pixscale=0.262&size=512` (coordenadas de TON 618: 12h 28m 24,97s, +31° 28′ 37,7″).
+- **Autor/crédito exigido:** «Legacy Surveys / D. Lang (Perimeter Institute)», sin alterar el texto.
+- **Licencia:** Creative Commons Attribution 4.0 International (CC BY 4.0) para las imágenes del visor; fuente: `https://www.legacysurvey.org/acknowledgment/`. Permite recortar y reprocesar con crédito (README, Paso 7).
+- **Procesado:** recorte de 300×300 px alrededor del cuásar (0,262″/px), reducción de ruido suave, escalado y WebP. El cuásar queda centrado. Se descartó SDSS DR9 (la imagen de Wikipedia) por no tener una licencia de imagen tan explícita.
+- **Archivos** (`src/assets/images/evidence/`): `ton618-observation-768.webp` (768×768, 1:1, 31,2 KB) y `ton618-observation-mobile-640.webp` (640×320, 2:1, 12,0 KB). Total 43,2 KB (≤ 60 KB). Mismos aspectos que `ton618-blackhole-1024.webp` (1:1) y `ton618-blackhole-mobile-800.webp` (2:1); se muestran con `object-fit: cover` al tamaño del contenedor.
+- **Desviación:** el desktop es 768 px (no 1024) para cumplir el presupuesto; el grano del cielo no comprime mejor.
+
+### Verificación de las hipótesis
+
+1. **Foto directa: confirmada.** TON 618 (z ≈ 2,219) es un punto brillante en SDSS/Legacy Survey; no existe imagen resuelta. Tiempo de viaje de la luz ≈ 10,8 mil millones de años (cálculo propio, H0 = 67,7, Ωm = 0,31); el texto dice «más de 10 mil millones».
+2. **Luz del cuásar: confirmada.** NASA (Anatomy of a black hole): el disco de acreción es «la principal fuente de luz»; los agujeros negros no emiten ni reflejan luz. ESA/Hubble (glosario): los cuásares brillan por el gas que cae, calentado por gravedad y fricción. Que eclipsa a su galaxia anfitriona figura en la literatura de TON 618 (Wikipedia como puerta; pendiente de cita primaria si se quiere citar).
+3. **Horizonte: confirmado.** NASA: nada que cruce el horizonte, ni la luz, puede salir; lo observable es el gas y la sombra, no el interior.
+4. **EHT: confirmado.** M87*: anunciada el 10-04-2019, observaciones de 2017 a 1,3 mm, anillo de 42 ± 3 µas (EHT Paper I, ApJL 875 L1; ESO eso1907). Sgr A*: anunciada el 12-05-2022, datos de 2017 (ESO eso2208). Ambas son reconstrucciones de observaciones reales (VLBI), no fotografías ópticas. **TON 618 no se resuelve:** con M ≈ 6,6·10¹⁰ M☉ (radio de Schwarzschild ≈ 1,95·10¹¹ km), distancia angular ≈ 1,75 Gpc (cosmología plana H0 = 67,7, Ωm = 0,31), la sombra (≈ 5,2 R_s) mide ≈ 4 µas, unas diez veces menos que el anillo de M87* (42 µas). Cálculo propio; el texto no incluye cifras para no depender de la masa adoptada (con 4·10¹⁰ M☉ sale ≈ 2,4 µas). El texto dice solo «demasiado pequeña en el cielo».
+
+### Textos finales (en `src/data/evidence.json`, respuestas ≤ 40 palabras)
+
+| # | Veredicto | Respuesta | Palabras |
+| --- | --- | --- | --- |
+| 1 | No | Ningún telescopio ha resuelto TON 618. En las imágenes de los grandes sondeos del cielo es solo un punto brillante: su luz viajó más de 10 mil millones de años y está demasiado lejos para mostrar detalle. | 37 |
+| 2 | No directamente | El agujero negro no emite luz. Brilla el gas que cae hacia él: forma un disco que la gravedad y la fricción calientan hasta eclipsar a toda su galaxia. | 29 |
+| 3 | No | Nada que cruce el horizonte puede enviarnos información, ni siquiera la luz. Vemos el gas que lo rodea y la sombra que proyecta, nunca su interior. | 26 |
+| 4 | No, casi todas son arte | Las imágenes reales son las del Event Horizon Telescope: M87* (2019) y Sagitario A* (2022). El resto son simulaciones o ilustraciones. TON 618 está demasiado lejos y su sombra es demasiado pequeña en el cielo. | 35 |
+
+### Fuentes
+
+- Legacy Surveys, Acknowledgment: https://www.legacysurvey.org/acknowledgment/
+- ESO eso1907 (EHT, M87*): https://www.eso.org/public/news/eso1907/
+- ESO eso2208 (EHT, Sgr A*): https://www.eso.org/public/news/eso2208-eht-mw/
+- EHT Collaboration 2019, ApJL 875 L1: https://arxiv.org/abs/1906.11238
+- NASA, Anatomy of a Black Hole: https://science.nasa.gov/universe/black-holes/anatomy/
+- ESA/Hubble, Quasar: https://esahubble.org/wordbank/quasar/
