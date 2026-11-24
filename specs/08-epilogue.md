@@ -126,6 +126,18 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `web-motion-designer
 
 ---
 
+## Valores finales (Paso 8)
+
+Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900, 1920×1080): sin scroll horizontal, sin solapes y todo dentro de pantalla.
+
+- **Imagen:** `great-attractor.webp`, 1024×1024, 106 KB, negro opaco sobre `mix-blend-mode: screen` (en lugar de alfa real: con alfa pesaba 410–640 KB). Lado `--size: min(100vw, 100dvh)`, centrada.
+- **Marcador:** punta de la rama en `--markerX: 0.88`, `--markerY: 0.839` (relativos a la imagen); etiqueta bajo el punto, alineada a su derecha, 14 px.
+- **Núcleo:** `--coreX: 0.404`, `--coreY: 0.313`; brillo de 34 % del lado, respira 6 s.
+- **Texto:** pregunta `clamp(1.5rem, 5vw, 2.5rem)`, mensaje 15 px (≥ 14 px en móvil); vela radial oscura tras el texto para el contraste.
+- **Unión con Evidencia:** había costura visible (Evidencia es negro liso, el Epílogo entraba con nebulosa). Se añadió un degradado de `10rem` de negro a transparente en el borde superior del Epílogo (`.section::after`, sobre la imagen y bajo el texto); Evidencia no se modifica.
+
+---
+
 ## Presupuesto
 
 | Concepto | Límite |

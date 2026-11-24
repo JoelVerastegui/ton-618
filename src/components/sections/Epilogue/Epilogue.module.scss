@@ -41,6 +41,25 @@
   color: $starlight;
 }
 
+// Costura con Evidencia (negro puro): el cielo del Epílogo entra desde el negro
+// con un degradado en el borde superior, sobre la imagen y bajo el texto.
+.section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 4;
+  height: 10rem;
+  background: linear-gradient(
+    to bottom,
+    rgba($spaceBlack, 1) 0%,
+    rgba($spaceBlack, 0.7) 35%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
 // Gran Atractor: proporción fija (CLS 0) y centrado. La imagen es WebP sobre
 // negro puro: `screen` hace desaparecer el negro sobre el cielo (como la
 // nebulosa del Hero) sin necesitar canal alfa, que triplicaría el peso.
