@@ -29,6 +29,14 @@
   padding: 2rem 1.25rem 2.5rem;
   background-color: $evidenceBg;
   color: $starlight;
+
+  // Solapa la cola de Experimento (cuyo stage sigue pegado y se desvanece encima): se pinta por
+  // debajo (ver `$sectionLayers`). Sus imágenes ya están dentro del viewport bajo el stage durante
+  // la pausa de Experimento, así que `loading="lazy"` las carga antes de que suba el telón.
+  @media (prefers-reduced-motion: no-preference) {
+    margin-top: -100vh;
+    margin-top: -100dvh;
+  }
 }
 
 .summary {
