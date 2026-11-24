@@ -474,13 +474,22 @@ $timeIntro: 100;
 $timeTravel: 420;
 $timeHold: 80;
 // Altura del track: `vh` de fallback y `dvh` (se ajusta a las barras del navegador).
+// Suma la cola de la transición con Experimento (`--timeFade`, ver `$timeFade`).
 @mixin timeTrackHeight {
   height: calc(
-    100vh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+    100vh +
+      (
+        #{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold}) +
+          var(--timeFade, #{$timeFade})
+      ) *
       1svh
   );
   height: calc(
-    100dvh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+    100dvh +
+      (
+        #{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold}) +
+          var(--timeFade, #{$timeFade})
+      ) *
       1svh
   );
 }
@@ -521,4 +530,58 @@ $timeHold: 80;
 // Rango de animación dentro del hold (fracciones 0 → 1 de `$timeHold`).
 @function timeHoldRangeOf($from: 0, $to: 1) {
   @return cover timeHoldAt($from) cover timeHoldAt($to);
+}
+
+// ---------------------------------------------------------------------------
+// Sección Experimento (SPEC 06)
+// ---------------------------------------------------------------------------
+// Fondo: continúa el cielo oscuro de Tiempo (`$timeBg`), algo más profundo; no es negro puro.
+$experimentBg: #070d1e;
+
+// Cola pegajosa de transición (svh de scroll): al terminar su contenido, el stage queda pegado
+// mientras la transición de estrellas de abajo hacia arriba lo desvanece (ver `_distortion.scss`). Tiempo la añade
+// al final de su track; Experimento recibe esa misma distorsión solapándose bajo Tiempo y la
+// aplica sobre sí misma con la suya. Con `prefers-reduced-motion` o sin `animation-timeline`
+// vale 0 (`--timeFade`, `--experimentFade`). Si cambia uno, revisar el solape del otro.
+$timeFade: 50;
+$experimentFade: 50;
+// Pausa pegada de Experimento (svh) antes de su cola de salida: el stage queda fijo mientras se
+// usa el agujero negro y no se pasa de golpe a la transición. Con `prefers-reduced-motion` vale 0.
+$experimentHold: 60;
+
+// Punto de la cola de transición (`$t` 0 → 1) como posición del timeline `cover` del track de
+// Tiempo: empieza donde acaba el hold y termina cuando el stage se suelta.
+@function timeFadeAt($t) {
+  @return calc(
+    100svh + (#{$timeTravel} + var(--timeIntro, #{$timeIntro}) + var(--timeHold, #{$timeHold})) *
+      1svh + #{$t * $timeFade}svh
+  );
+}
+
+// Punto de la cola de Experimento (`$t` 0 → 1) como posición del timeline `cover` de su track: el
+// stage se pega al llegar su track al borde superior (`cover` 100svh), sigue pegado durante la
+// pausa (`--experimentHold`) y después dura la cola `$experimentFade`.
+@function experimentFadeAt($t) {
+  @return calc(
+    100svh + var(--experimentHold, #{$experimentHold}) * 1svh + #{$t * $experimentFade}svh
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Apilamiento de las secciones (z-index)
+// ---------------------------------------------------------------------------
+// Las secciones que solapan a la anterior con un margen negativo se apilan en orden inverso al del
+// documento: la que se va queda por encima de la que entra (su stage pegado se desvanece sobre
+// ella). Cada módulo usa `sectionLayer('nombre')`; al añadir una sección nueva se añade aquí con el
+// siguiente número libre (07 → 8, 08 → 7…). Hero y Exploración no solapan a una posterior con su
+// raíz: su contenido va en stages `sticky` (contexto propio) y quedan por debajo.
+$sectionLayers: (
+  'science': 12,
+  'scale': 11,
+  'time': 10,
+  'experiment': 9,
+);
+
+@function sectionLayer($name) {
+  @return map-get($sectionLayers, $name);
 }

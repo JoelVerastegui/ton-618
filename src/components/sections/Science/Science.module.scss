@@ -23,8 +23,9 @@
   --explUnit: #{$explUnitMobile};
   --explRatio: #{$explUnitRatioMobile};
   position: relative;
-  // Por encima de Escala (z-index 1), que solapa su inicio con el fundido final (ver «Fundido final»)
-  z-index: 2;
+  // Por encima de Escala, que solapa su inicio con el fundido final (ver «Fundido final» y
+  // `$sectionLayers`)
+  z-index: sectionLayer('science');
   // Solapa a Exploración (ver «Intro con el scroll»): no intercepta clics; solo el stage.
   pointer-events: none;
   --viewportExtra: 0px;

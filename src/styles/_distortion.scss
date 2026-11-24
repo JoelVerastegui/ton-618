@@ -1,0 +1,97 @@
+// Transición entre secciones (SPEC 06): un telón de espacio profundo (fondo oscuro, estrellas con
+// profundidad y algo de nebulosa) sube desde abajo, cubre el stage y, ya cubierto, el stage se
+// desvanece hasta `opacity: 0` y `visibility: hidden`. Es la misma al salir de Tiempo y al salir de
+// Experimento (la sección siguiente la reutilizará).
+// Solo `translate` y `opacity` (más `visibility` discreta en el stage); independiente del motor del
+// agujero negro. Se importa tras `variables` en los módulos que la usan.
+//
+// Reparto: el stage de cada sección se anima con `distortStageEffect` (aquí) y el telón vive en
+// `components/ui/Distortion`. Ambos leen del stage tres variables que pone cada sección:
+// `--distortTimeline` (nombre del `view-timeline` de su track), `--distortFrom` y `--distortTo`
+// (inicio y fin de la cola como posiciones `cover`), y, sin `animation-timeline`, `--distortFade`
+// (0 → 1, calculado desde `--progress`).
+
+// Fracción de la cola en que el telón termina de subir y cubre el stage; después el stage se
+// desvanece con el telón encima.
+$distortCoverAt: 0.6;
+// Aceleración del ascenso: empieza lento y gana velocidad al seguir el scroll (ease-in suave)
+$distortEase: cubic-bezier(0.45, 0, 0.85, 0.5);
+// Recorrido de cada capa del telón (fracción de su altura, que es el doble de la del telón): la
+// lejana apenas se mueve y la cercana mucho, lo que da profundidad.
+$distortTravel: (
+  'far': -0.22,
+  'mid': -0.32,
+  'near': -0.45,
+);
+
+@mixin distortStageKeyframes {
+  @keyframes distortStage {
+    from {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #{$distortCoverAt * 100%} {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+}
+
+// Stage de la sección: opaco mientras sube el telón y se desvanece en su sitio después (sin
+// moverse ni escalarse). Con `animation-timeline` (el soporte y reduced-motion los pone el módulo).
+@mixin distortStageEffect {
+  animation: distortStage 1ms linear both;
+  animation-timeline: var(--distortTimeline);
+  animation-range: cover var(--distortFrom) cover var(--distortTo);
+}
+
+// Stage sin `animation-timeline`: lo mismo desde `--distortFade`. Al final se colapsa
+// (`scale: 0`) para no capturar el puntero, ya que `visibility` no se puede calcular.
+@mixin distortStageFallback {
+  opacity: calc(
+    1 - clamp(0, calc((var(--distortFade) - #{$distortCoverAt}) / #{1 - $distortCoverAt}), 1)
+  );
+  scale: calc(1 - clamp(0, calc((var(--distortFade) - 0.99) * 100), 1));
+}
+
+// Telón y capas de `Distortion`
+@mixin distortLayerKeyframes {
+  // El telón sube (acelerando) hasta cubrir el stage. Sin caja (`display` discreto) antes y después
+  // de la cola: así ni el telón ni sus capas se componen mientras no se ven.
+  @keyframes distortCover {
+    from {
+      translate: 0 100%;
+      display: none;
+      animation-timing-function: $distortEase;
+    }
+
+    #{$distortCoverAt * 100%} {
+      translate: 0 0;
+      display: block;
+    }
+
+    // Al terminar la cola el stage ya está oculto: el telón deja de existir otra vez
+    to {
+      translate: 0 0;
+      display: none;
+    }
+  }
+
+  // Capas de estrellas y nebulosa: suben dentro del telón, cada una a su ritmo (`--travel`)
+  @keyframes distortDrift {
+    from {
+      translate: 0 0;
+      animation-timing-function: $distortEase;
+    }
+
+    to {
+      translate: 0 var(--travel);
+    }
+  }
+}

@@ -1,0 +1,37 @@
+@import '@/styles/variables';
+
+$baseSize: 6.5rem;
+$thumbSize: 2.75rem;
+
+// Base circular con una cruz tenue; el pulgar se desplaza desde el centro (lo mueve el componente
+// con `transform`). `touch-action: none`: arrastrar el pulgar no hace scroll.
+.base {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: $baseSize;
+  height: $baseSize;
+  touch-action: none;
+  user-select: none;
+  background:
+    linear-gradient(rgba($starlight, 0.14), rgba($starlight, 0.14)) center / 1px 60% no-repeat,
+    linear-gradient(rgba($starlight, 0.14), rgba($starlight, 0.14)) center / 60% 1px no-repeat,
+    rgba($cosmicBlue, 0.82);
+  border: 1px solid rgba($starlight, 0.3);
+  border-radius: 50%;
+
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 2px;
+  }
+}
+
+.thumb {
+  width: $thumbSize;
+  height: $thumbSize;
+  pointer-events: none;
+  background-color: $starlight;
+  border: 2px solid $solarAmber;
+  border-radius: 50%;
+  box-shadow: 0 0 0.75rem rgba($solarAmber, 0.4);
+}
