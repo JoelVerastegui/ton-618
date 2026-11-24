@@ -14,7 +14,10 @@ const TITLE_ID = 'epilogueTitle';
 
 export function Epilogue() {
   const sectionRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  // Sección: pausa de animaciones fuera de vista. Texto: reveal de una sola vez.
   useInView(sectionRef);
+  useInView(contentRef, true);
   useParallaxPointer(sectionRef);
 
   return (
@@ -41,7 +44,7 @@ export function Epilogue() {
 
       <p className={styles.summary}>{epilogue.summary}</p>
 
-      <div className={styles.content}>
+      <div ref={contentRef} className={styles.content}>
         <p className={styles.message}>{epilogue.message}</p>
         <h2 id={TITLE_ID} className={styles.question}>
           {epilogue.question}
