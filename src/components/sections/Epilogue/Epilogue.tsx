@@ -31,6 +31,12 @@ export function Epilogue() {
           loading='lazy'
           decoding='async'
         />
+        <div className={styles.core} />
+      </div>
+
+      <div className={styles.marker} aria-hidden='true'>
+        <span className={styles.markerDot} />
+        <span className={styles.markerLabel}>{epilogue.markerLabel}</span>
       </div>
 
       <p className={styles.summary}>{epilogue.summary}</p>
