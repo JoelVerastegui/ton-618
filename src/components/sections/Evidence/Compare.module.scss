@@ -12,8 +12,11 @@ $knob: 2.75rem; // 44 px: área táctil mínima
 .compare {
   --split: 50;
   position: relative;
-  width: 100%;
-  aspect-ratio: 2 / 1;
+  --ratio: 2; // ancho / alto de las imágenes (2:1 en móvil)
+  aspect-ratio: var(--ratio);
+  // El alto lo limita la sección (`--compareMaxH`) para que quepa en pantalla
+  width: min(100%, calc(var(--compareMaxH, 100rem) * var(--ratio)));
+  margin-inline: auto;
   overflow: clip;
   container-type: inline-size;
   background-color: $cosmicBlue;
@@ -21,7 +24,7 @@ $knob: 2.75rem; // 44 px: área táctil mínima
   border-radius: 0.75rem;
 
   @include media-breakpoint-up(md) {
-    aspect-ratio: 1 / 1;
+    --ratio: 1;
   }
 }
 
