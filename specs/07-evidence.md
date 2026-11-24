@@ -312,3 +312,42 @@ Consulta: 2026-11-24.
 - EHT Collaboration 2019, ApJL 875 L1: https://arxiv.org/abs/1906.11238
 - NASA, Anatomy of a Black Hole: https://science.nasa.gov/universe/black-holes/anatomy/
 - ESA/Hubble, Quasar: https://esahubble.org/wordbank/quasar/
+
+---
+
+## Resultados del Paso 8 (revisión visual y calibración)
+
+Capturas en los 8 viewports (cerradas y con cada pregunta abierta) con Chrome + puppeteer-core fuera del repo; también transición con Experimento, reduced-motion y comparador a 0/50/100.
+
+### Qué fallaba y qué se cambió (solo `src/components/sections/Evidence/*`)
+
+- **Escritorio 1440×900 y 1920×1080:** la sección medía 909 / 1089 px (9 px de más, scroll sobrante). `--compareMaxH` pasa de `100dvh - 8rem` a `100dvh - 9rem`: ahora mide exactamente `100dvh` en 1024×600, 1440×900 y 1920×1080 con todas las preguntas, cerradas o abiertas.
+- **Móvil vertical:** el comparador 2:1 era muy bajo (140 px a 320) y el hint (abajo) tapaba el tirador y los rótulos. `--ratio` pasa a `1.333` (4:3; las imágenes 2:1 se recortan con `cover`, el sujeto está centrado) y el hint sube a `top: 0.75rem`.
+- **Apaisado bajo (640×360, 568×320):** el comparador medía ~200×100 y los rótulos se solapaban. Columna de preguntas `minmax(15rem, 18rem)`, `--compareMaxH: 100dvh - 8.5rem`, `--ratio: 1.5` en apaisado bajo (menor que `md`), comparador alineado arriba (`align-items: flex-start`, no salta al abrir una pregunta) y acordeón compacto (`Questions.module.scss`: botón 14 px, padding y gaps menores).
+- **Tirador en los extremos:** a 0 y 100 quedaba cortado a la mitad por `overflow: clip`. Se desplaza con `translate: clamp(...)` para quedar entero dentro de la caja (la línea sigue en el borde).
+
+### Comprobado por viewport (todo OK salvo lo indicado)
+
+- 320×568, 360×640, 390×844: sin scroll horizontal; título, comparador y preguntas apilados sin solapes; la sección excede `100dvh` y se recorre con scroll (390×844 cerrada = 844). Texto mínimo 14 px.
+- 640×360, 568×320: sin scroll horizontal, sin solapes, comparador 304×203 / 232×155. Cerradas caben en `100dvh`; **con una pregunta abierta la sección crece** a 412 px (ver pendiente).
+- 1024×600, 1440×900, 1920×1080: sin scroll horizontal, sección = `100dvh` exacta con cualquier pregunta abierta; comparador 464 / 756 / 936 px (cuadrado).
+- Comparador: a 0 el `clip-path` es `inset(0 100% 0 0)` (solo la representación) y a 100 `inset(0 0 0 0)` (solo la observación); sin costuras. Flechas ±5 y `Inicio`/`Fin` correctos; `--split` y `aria-valuetext` se actualizan.
+- Hint visible al cargar (opacity 1, `data-touched=false`) y oculto tras la primera interacción.
+- Contraste de rótulos y hint: texto `$starlight` sobre `rgba(#000, .72)`, peor caso (imagen blanca) ≈ 7:1.
+
+### Unión con el telón de Experimento
+
+- Evidencia se descubre compuesta bajo el telón (capturas del solape sin hueco ni costura; título, comparador y preguntas visibles bajo las estrellas); al terminar, `evidence.top = 0` y el stage de Experimento queda `visibility: hidden`.
+- `document.elementFromPoint` sobre el control y la primera pregunta: mientras el stage sigue visible el clic va a `#experiment`; con el stage oculto va a `#evidence` (en 1440×900 y 390×844). Experimento no se modificó en este paso.
+- `prefers-reduced-motion: reduce`: `margin-top: 0` (sin solape; `evidence.top == experiment.bottom`), `getAnimations()` de la sección = 0, sin scroll horizontal.
+
+### Valores finales
+
+`--compareMaxH`: `100dvh - 9rem` (sideBySide) / `100dvh - 8.5rem` (apaisado bajo). `--ratio`: 1.333 (móvil vertical), 1.5 (apaisado bajo), 1 (≥ `md`). Columnas: `1fr` + `minmax(17rem, 26rem)` / `minmax(15rem, 18rem)` (apaisado bajo).
+
+### Pendiente / dudoso
+
+- Apaisado bajo con pregunta abierta (640×360, 568×320): la respuesta no cabe en `100dvh` (la columna mide ~388 px frente a ~336 disponibles); la sección crece ~52–92 px y se hace scroll. Aceptado para no reducir más el texto (≥ 14 px).
+- En escritorio ancho (1920) el comparador queda centrado en su columna y el título alineado a la izquierda del todo; hay aire a ambos lados. Es solo estético.
+- Los dos rótulos siguen visibles aunque su imagen esté oculta (a 0 o 100): decisión de diseño por simplicidad.
+- Probar el gesto táctil en un móvil real (emulación de puppeteer no valida `touch-action`).

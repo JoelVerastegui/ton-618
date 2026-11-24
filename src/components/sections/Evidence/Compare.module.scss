@@ -12,7 +12,7 @@ $knob: 2.75rem; // 44 px: área táctil mínima
 .compare {
   --split: 50;
   position: relative;
-  --ratio: 2; // ancho / alto de las imágenes (2:1 en móvil)
+  --ratio: 1.333; // ancho / alto de la caja en móvil vertical (las imágenes 2:1 se recortan con cover)
   aspect-ratio: var(--ratio);
   // El alto lo limita la sección (`--compareMaxH`) para que quepa en pantalla
   width: min(100%, calc(var(--compareMaxH, 100rem) * var(--ratio)));
@@ -22,6 +22,11 @@ $knob: 2.75rem; // 44 px: área táctil mínima
   background-color: $cosmicBlue;
   border: 1px solid rgba($starlight, 0.14);
   border-radius: 0.75rem;
+
+  // Apaisado bajo: la caja es más ancha que alta para ocupar el hueco junto al título.
+  @media (max-height: $shortHeight) and (orientation: landscape) {
+    --ratio: 1.5;
+  }
 
   @include media-breakpoint-up(md) {
     --ratio: 1;
@@ -136,6 +141,12 @@ $knob: 2.75rem; // 44 px: área táctil mínima
   fill: rgba($cosmicBlue, 0.85);
   stroke: $starlight;
   stroke-width: 2;
+  // En los extremos el botón se queda dentro de la caja (la línea sigue en el borde).
+  translate: clamp(
+    calc(#{$knob} / 2 - var(--split) * 1cqw),
+    0px,
+    calc(100cqw - #{$knob} / 2 - var(--split) * 1cqw)
+  );
 
   path {
     fill: none;
@@ -153,7 +164,7 @@ $knob: 2.75rem; // 44 px: área táctil mínima
 
 .hint {
   position: absolute;
-  bottom: 3.25rem;
+  top: 0.75rem;
   left: 50%;
   margin: 0;
   padding: 0.25rem 0.75rem;

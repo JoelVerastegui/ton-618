@@ -81,7 +81,7 @@
 // que queda para el comparador (pantalla menos paddings, título y huecos).
 @media #{$sideBySide} {
   .section {
-    --compareMaxH: calc(100dvh - 8rem);
+    --compareMaxH: calc(100dvh - 9rem);
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(17rem, 26rem);
     grid-template-rows: auto minmax(0, 1fr);
@@ -113,10 +113,15 @@
 // Móvil apaisado bajo: todo más compacto.
 @media (max-height: $shortHeight) and (orientation: landscape) {
   .section {
-    --compareMaxH: calc(100dvh - 5.5rem);
-    grid-template-columns: minmax(0, 1fr) minmax(15rem, 20rem);
+    --compareMaxH: calc(100dvh - 8.5rem);
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 18rem);
     column-gap: 1rem;
     row-gap: 0.5rem;
     padding: 0.75rem 1rem;
+  }
+
+  // Si una respuesta abierta hace crecer la sección, el comparador no se desplaza.
+  .compare {
+    align-items: flex-start;
   }
 }
