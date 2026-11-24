@@ -1,3 +1,4 @@
+import { Compare } from '@/components/sections/Evidence/Compare';
 import evidenceJson from '@/data/evidence.json';
 import type { EvidenceData } from '@/interfaces/evidence';
 import styles from '@/components/sections/Evidence/Evidence.module.scss';
@@ -19,7 +20,9 @@ export function Evidence() {
         <p className={styles.subtitle}>{evidence.subtitle}</p>
       </header>
 
-      <div className={styles.compare} />
+      <div className={styles.compare}>
+        <Compare hint={evidence.hint} data={evidence.compare} />
+      </div>
       <div className={styles.questions} />
     </section>
   );

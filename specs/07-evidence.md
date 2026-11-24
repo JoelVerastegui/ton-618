@@ -300,7 +300,7 @@ Consulta: 2026-11-24.
 | # | Veredicto | Respuesta | Palabras |
 | --- | --- | --- | --- |
 | 1 | No | Ningún telescopio ha resuelto TON 618. En las imágenes de los grandes sondeos del cielo es solo un punto brillante: su luz viajó más de 10 mil millones de años y está demasiado lejos para mostrar detalle. | 37 |
-| 2 | No directamente | El agujero negro no emite luz. Brilla el gas que cae hacia él: forma un disco que la gravedad y la fricción calientan hasta eclipsar a toda su galaxia. | 29 |
+| 2 | No directamente | El agujero negro no emite luz. Brilla el gas que cae hacia él: forma un disco que la gravedad y la fricción calientan hasta brillar más que su galaxia. | 29 |
 | 3 | No | Nada que cruce el horizonte puede enviarnos información, ni siquiera la luz. Vemos el gas que lo rodea y la sombra que proyecta, nunca su interior. | 26 |
 | 4 | No, casi todas son arte | Las imágenes reales son las del Event Horizon Telescope: M87* (2019) y Sagitario A* (2022). El resto son simulaciones o ilustraciones. TON 618 está demasiado lejos y su sombra es demasiado pequeña en el cielo. | 35 |
 

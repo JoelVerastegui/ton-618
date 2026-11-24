@@ -1,0 +1,173 @@
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+$knob: 2.75rem; // 44 px: área táctil mínima
+
+// Comparador. `--split` (0-100, % de observación visible) lo escribe el componente en el DOM.
+// El tirador se mueve con `transform` y la observación se revela con `clip-path`: sin layout al
+// arrastrar. La caja tiene proporción fija (2:1 en móvil, 1:1 desde `md`, como las imágenes) para
+// que no haya CLS.
+.compare {
+  --split: 50;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  overflow: clip;
+  container-type: inline-size;
+  background-color: $cosmicBlue;
+  border: 1px solid rgba($starlight, 0.14);
+  border-radius: 0.75rem;
+
+  @include media-breakpoint-up(md) {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+// La observación va encima y solo se ve a la izquierda del tirador.
+.observation {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 calc(100% - var(--split) * 1%) 0 0);
+}
+
+// Rótulos de cada lado, sobre fondo oscuro para mantener el contraste sobre cualquier imagen.
+.label {
+  position: absolute;
+  bottom: 0.75rem;
+  max-width: 45%;
+  padding: 0.25rem 0.625rem;
+  color: $starlight;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  background-color: rgba(#000, 0.72);
+  border-radius: 0.375rem;
+  pointer-events: none;
+}
+
+.labelObservation {
+  left: 0.75rem;
+}
+
+.labelRepresentation {
+  right: 0.75rem;
+  text-align: right;
+}
+
+// Control real: cubre toda la escena, invisible; el tirador visible se dibuja aparte. Pulgar de
+// 2 px para que la posición del puntero coincida con el valor.
+@mixin thumb {
+  width: 2px;
+  height: 100%;
+  background: transparent;
+  border: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: ew-resize;
+  opacity: 0;
+  appearance: none;
+  background: transparent;
+  touch-action: pan-y; // el gesto vertical siempre es scroll de página
+
+  &::-webkit-slider-runnable-track {
+    height: 100%;
+    background: transparent;
+  }
+
+  &::-moz-range-track {
+    height: 100%;
+    background: transparent;
+  }
+
+  &::-webkit-slider-thumb {
+    @include thumb;
+    appearance: none;
+  }
+
+  &::-moz-range-thumb {
+    @include thumb;
+  }
+}
+
+.handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  transform: translateX(calc(var(--split) * 1cqw));
+  pointer-events: none;
+}
+
+.line {
+  position: absolute;
+  inset: 0 auto 0 -1px;
+  width: 2px;
+  background: $starlight;
+}
+
+.knob {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: $knob;
+  height: $knob;
+  margin: calc(#{$knob} / -2) 0 0 calc(#{$knob} / -2);
+  fill: rgba($cosmicBlue, 0.85);
+  stroke: $starlight;
+  stroke-width: 2;
+
+  path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+// Foco de teclado: el input es invisible, así que el anillo se dibuja en el tirador.
+.slider:focus-visible ~ .handle .knob {
+  outline: 2px solid $solarAmber;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.hint {
+  position: absolute;
+  bottom: 3.25rem;
+  left: 50%;
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  color: $starlight;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  background-color: rgba(#000, 0.72);
+  border-radius: 999px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: opacity $motionFast;
+
+  .compare[data-touched='true'] & {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
