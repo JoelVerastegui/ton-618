@@ -61,6 +61,15 @@
   pointer-events: none;
 }
 
+// Escenario del Gran Atractor y su marcador: cubre la sección (sin crear contexto
+// de apilamiento, para que el `screen` de la imagen siga mezclando con el cielo).
+// Se observa con un umbral del 75 % para revelarlo (ver más abajo).
+.stage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 // Gran Atractor: proporción fija (CLS 0) y centrado. La imagen es WebP sobre
 // negro puro: `screen` hace desaparecer el negro sobre el cielo (como la
 // nebulosa del Hero) sin necesitar canal alfa, que triplicaría el peso.
@@ -75,6 +84,9 @@
   translate: var(--artX) var(--artY);
   mix-blend-mode: screen;
   pointer-events: none;
+  transition:
+    opacity $motionSlow ease-out,
+    scale $motionSlow $easeOutExpo;
 }
 
 .image {
@@ -113,7 +125,7 @@
   height: 0.5rem;
   translate: calc(-50% + var(--artX)) calc(-50% + var(--artY));
   pointer-events: none;
-  transition: opacity $motionSlow ease-out 1.1s;
+  transition: opacity $motionSlow ease-out 1.4s;
 }
 
 .markerDot {
@@ -246,8 +258,18 @@
   }
 }
 
-.section:has(.content[data-inview='false']) .marker {
-  opacity: 0;
+// Gran Atractor y marcador: ocultos hasta que se ve el 75 % de la sección; entonces
+// la imagen se funde y el marcador aparece después. Sin el atributo (sin
+// IntersectionObserver) o con reduced-motion se ven siempre.
+.stage[data-inview='false'] {
+  .art {
+    opacity: 0;
+    scale: 0.96;
+  }
+
+  .marker {
+    opacity: 0;
+  }
 }
 
 // Fuera de vista (useInView) las animaciones de la sección se pausan.
@@ -260,6 +282,7 @@
 
 // Con reduced-motion la escena queda compuesta y estática.
 @media (prefers-reduced-motion: reduce) {
+  .art,
   .message,
   .question,
   .marker,
@@ -286,8 +309,15 @@
     }
   }
 
-  .section:has(.content[data-inview='false']) .marker {
-    opacity: 1;
+  .stage[data-inview='false'] {
+    .art {
+      opacity: 1;
+      scale: none;
+    }
+
+    .marker {
+      opacity: 1;
+    }
   }
 
   .core {

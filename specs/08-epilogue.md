@@ -17,13 +17,15 @@ Recursos: **una imagen nueva** (el Gran Atractor, generada con IA por la persona
 
 ### Incluido
 
-- Componente `Epilogue` (`<section id="epilogue">`) montado en `App.tsx` tras `Evidence`. Es una **sección normal**: contenido ≥ `100dvh`, pasa con el scroll de la página, sin track pegajoso, sin cola y sin transición propia de entrada ni de salida (ver «Decisiones»).
+- Componente `Epilogue` (`<section id="epilogue">`) montado en `App.tsx` tras `Evidence`. Es una **sección normal**: contenido ≥ `100dvh`, pasa con el scroll de la página, sin track pegajoso propio, sin cola y sin transición propia de entrada ni de salida. La única «cola» es la pegajosa que se añadió a **Evidencia** para que no salga tan rápido (ver «Decisiones»).
 - **Fondo del Hero reutilizado:** se extrae de `HeroScene` un componente compartido (fondo, capas de estrellas lejanas/medias/cercanas, nebulosa, partículas, centelleo y destellos, y parallax por capas) que usan Hero y Epílogo. En Epílogo el color base es `#000` (no el degradado azul del Hero) y no se aplican el agujero negro, el scrim ni el zoom por scroll del Hero.
 - **Refactor mínimo en Hero** para extraer ese fondo: su aspecto y comportamiento no cambian (misma escena, mismas animaciones, mismo parallax, mismo zoom por scroll).
-- **Imagen del Gran Atractor:** líneas de flujo doradas que convergen hacia un punto brillante, con ramas y un vacío interior oscuro, sobre fondo transparente (negro → alfa). Ocupa el centro de la sección. Sin texto, sin rótulos y sin estrellas propias.
-- **Indicador de la Vía Láctea** en código: punto + anillo que pulsa + etiqueta «VÍA LÁCTEA», colocado en el extremo de una de las ramas. Su posición se calibra sobre la imagen final (en escritorio y en móvil, si el recorte cambia).
-- **Cliffhanger:** la pregunta «¿Has oído hablar del Gran Atractor?» en el centro de la composición, con el mensaje de cierre como **subtítulo encima de ella** (tipografía discreta). Ningún texto, dato ni enlace después de la pregunta.
-- **Reveal suave** del mensaje, la pregunta y el marcador al entrar en vista (una sola vez, orden y tiempos los fija `web-motion-designer`).
+- **Imagen del Gran Atractor:** líneas de flujo doradas que convergen hacia un punto brillante, con ramas y un vacío interior oscuro, sobre negro puro integrada con `mix-blend-mode: screen` (el negro desaparece sobre el cielo; no se usa alfa real por peso, ver «Decisiones»). Ocupa el centro de la sección. Sin texto, sin rótulos y sin estrellas propias.
+- **Indicador de la Vía Láctea** en código: punto + anillo que pulsa + etiqueta «VÍA LÁCTEA», colocado en el extremo de la rama corta que baja desde la rama superior derecha, como en la imagen de referencia. Su posición es relativa a la imagen y se calibró sobre la imagen final; la etiqueta va a la derecha del punto (bajo él en móvil vertical).
+- **Cliffhanger:** la pregunta «¿Has oído hablar del Gran Atractor?» en la **parte inferior** de la pantalla, sobre la imagen pero sin tapar el Gran Atractor, con el mensaje de cierre como **subtítulo encima de ella** (tipografía discreta). Ningún texto, dato ni enlace después de la pregunta.
+- **Reveal suave** (una sola vez): el **Gran Atractor y su marcador aparecen cuando se ve el 75 % de la sección** (antes permanecen ocultos); el mensaje y la pregunta se revelan al entrar en vista. Para ello `useInView` recibe un parámetro opcional `threshold`.
+- **Cola pegajosa en Evidencia** (cambio mínimo en la sección anterior): Evidencia se queda fija ~60dvh de scroll al llegar a su final antes de dar paso al Epílogo.
+- **Costura con Evidencia:** degradado de negro a transparente en el borde superior del Epílogo.
 - **Interactividad:** parallax con el mouse (el del fondo, compartido), brillo del núcleo que respira y movimiento ambiental continuo en móvil en lugar de hover; con `prefers-reduced-motion` la escena aparece compuesta y estática.
 - Layout adaptado a escritorio y móvil (vertical y apaisado).
 - Accesibilidad: textos en el DOM, `summary` solo para lectores (descripción de la escena), imagen decorativa (`alt=""`/`aria-hidden`), `prefers-reduced-motion`.
@@ -32,11 +34,12 @@ Recursos: **una imagen nueva** (el Gran Atractor, generada con IA por la persona
 
 ### Excluido (otros specs)
 
-- Cualquier transición Evidencia → Epílogo (cola pegajosa, efecto, solape, apilamiento). Evidencia **no se modifica**.
+- Cualquier transición propia del Epílogo desde Evidencia (efecto, solape, apilamiento). Evidencia solo recibe la cola pegajosa indicada arriba; ningún otro cambio en ella.
 - Botón para volver al inicio, enlaces a fuentes, explicación del Gran Atractor y cualquier texto tras la pregunta.
 - Rótulos de «representación artística», «ilustrativo» o «no a escala»; créditos en pantalla.
 - Prototipo SVG/CSS del Gran Atractor como imagen principal (solo sirve como referencia de movimiento).
-- Cambios en Exploración, Ciencia, Escala, Tiempo, Experimento y Evidencia.
+- Cambios en Exploración, Ciencia, Escala, Tiempo y Experimento, y en Evidencia salvo su cola pegajosa.
+- Efectos interactivos adicionales sobre la imagen (linterna con el puntero, capas que oscilan, onda al clic): se probaron y se descartaron.
 - Audio.
 - Navegación completa (rutas, `history.replaceState`, `React.lazy`), Navbar y Footer.
 
@@ -70,10 +73,10 @@ Convenciones:
 | Elemento | Recurso | Notas |
 | --- | --- | --- |
 | Fondo | Componente compartido extraído de `HeroScene` | Base `#000`; estrellas, nebulosa y destellos del Hero; sin agujero negro ni scrim |
-| Gran Atractor | `src/assets/images/epilogue/great-attractor*.webp` (nueva, IA) | Fondo transparente; versión móvil si hace falta; peso a fijar tras recibirla |
-| Indicador Vía Láctea | Punto + anillo + etiqueta, en HTML/CSS | Posición calibrada sobre la imagen final; el anillo pulsa con `transform`/`opacity` |
+| Gran Atractor | `src/assets/images/epilogue/great-attractor.webp` (nueva, IA) | 1024×1024, 106 KB, negro opaco + `screen`; sin versión móvil |
+| Indicador Vía Láctea | Punto + anillo + etiqueta, en HTML/CSS | Sobre la punta de la rama corta, posición relativa a la imagen; el anillo pulsa con `transform`/`opacity` |
 | Brillo del núcleo | Gradiente radial CSS sobre el punto brillante | «Respira» con `opacity`/`scale` |
-| Pregunta y mensaje | Texto HTML | Pregunta como protagonista, mensaje como subtítulo discreto encima |
+| Pregunta y mensaje | Texto HTML | En la parte inferior; pregunta como protagonista, mensaje como subtítulo discreto encima |
 
 **Reglas heredadas:** solo `transform`/`translate`/`scale` y `opacity` animados por CSS (más `visibility` discreta); sin `filter` ni `backdrop-filter`; `will-change` solo mientras se mueve; sin `!important`; animaciones pausadas con `data-inview="false"`; mismos tokens de duración y easing que el resto de secciones.
 
@@ -83,7 +86,7 @@ Convenciones:
 
 ### Layout
 
-- **Desktop:** la imagen centrada, a gran tamaño sin salirse de `100dvh`; la pregunta en el centro de la composición con el mensaje como subtítulo encima; el marcador sobre el extremo de la rama. La pregunta no oculta el punto brillante ni el marcador.
+- **Desktop:** la imagen centrada, a gran tamaño sin salirse de `100dvh`; la pregunta y el mensaje (subtítulo encima) en la parte inferior de la pantalla; el marcador sobre el extremo de la rama corta. El texto no oculta el punto brillante ni el marcador.
 - **Móvil vertical:** imagen ancha y centrada con el texto sin solaparse con el marcador; texto ≥ 14 px; la sección puede exceder 100dvh.
 - **Móvil apaisado bajo:** composición compacta; nada sale de pantalla.
 - Posición exacta de la pregunta respecto de la imagen, tamaños y puntos de ruptura los fija `web-motion-designer` y se calibran en el Paso 8.
@@ -91,13 +94,13 @@ Convenciones:
 ### Interacción y estados
 
 - Parallax con el mouse (fondo compartido; la imagen puede desplazarse a un ritmo propio). En móvil, deriva ambiental continua (la misma del fallback del Hero).
-- Entrada por scroll normal: al ser visible se revela el contenido una sola vez (mensaje, pregunta y marcador con retraso suave).
+- Entrada por scroll normal: al verse el 75 % de la sección se funde el Gran Atractor y después aparece el marcador; el texto se revela al entrar en vista. Todo una sola vez.
 - Sin estados de carga complejos: la imagen carga perezosa con contenedor de proporción fija (CLS 0).
 - Sin controles: no hay nada interactivo salvo el parallax; no hay elementos focalizables nuevos.
 
 ### Transiciones
 
-- **Entrada:** ninguna (scroll normal, como Hero → Exploración). Evidencia termina como sección normal y el Epílogo empieza justo debajo; ambas tienen fondo negro, de modo que no hay costura visible.
+- **Entrada:** scroll normal, sin efecto propio. Evidencia se queda fija ~60dvh (cola pegajosa) al llegar a su final y luego sale con normalidad; el Epílogo empieza justo debajo con un degradado de negro en su borde superior, de modo que no hay costura visible.
 - **Salida:** ninguna; es la última sección.
 
 ### Reduced-motion
@@ -131,10 +134,12 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `web-motion-designer
 Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900, 1920×1080): sin scroll horizontal, sin solapes y todo dentro de pantalla.
 
 - **Imagen:** `great-attractor.webp`, 1024×1024, 106 KB, negro opaco sobre `mix-blend-mode: screen` (en lugar de alfa real: con alfa pesaba 410–640 KB). Lado `--size: min(100vw, 100dvh)`, centrada.
-- **Marcador:** punta de la rama en `--markerX: 0.88`, `--markerY: 0.839` (relativos a la imagen); etiqueta bajo el punto, alineada a su derecha, 14 px.
+- **Marcador:** punta de la rama corta en `--markerX: 0.737`, `--markerY: 0.521` (relativos a la imagen). Etiqueta a la derecha del punto (como en la referencia) desde 576 px o en apaisado; en móvil vertical, bajo el punto y alineada a su derecha. 14 px.
 - **Núcleo:** `--coreX: 0.404`, `--coreY: 0.313`; brillo de 34 % del lado, respira 6 s.
-- **Texto:** pregunta `clamp(1.5rem, 5vw, 2.5rem)`, mensaje 15 px (≥ 14 px en móvil); vela radial oscura tras el texto para el contraste.
-- **Unión con Evidencia:** había costura visible (Evidencia es negro liso, el Epílogo entraba con nebulosa). Se añadió un degradado de `10rem` de negro a transparente en el borde superior del Epílogo (`.section::after`, sobre la imagen y bajo el texto); Evidencia no se modifica.
+- **Texto:** en la parte inferior (`align-items: flex-end`, relleno inferior `clamp(1.5rem, 7dvh, 4rem)`); pregunta `clamp(1.5rem, 5vw, 2.5rem)`, mensaje 15 px (≥ 14 px en móvil); vela radial oscura tras el texto para el contraste. Con poca altura (≤ 600 px) el texto se compacta (mensaje 13 px, pregunta `clamp(1.25rem, 3.6vw, 2rem)`).
+- **Unión con Evidencia:** había costura visible (Evidencia es negro liso, el Epílogo entraba con nebulosa). Se añadió un degradado de `10rem` de negro a transparente en el borde superior del Epílogo (`.section::after`, sobre la imagen y bajo el texto).
+- **Cola pegajosa de Evidencia:** `Evidence.tsx` envuelve la sección en `.tail`; la sección es `position: sticky; bottom: 0` y `.tail::before` añade 60dvh de tramo vacío (no relleno: un sticky no sube por encima del contenido de su contenedor). Medido en 1440×900, 390×844 y 320×568 (Evidencia de 685 px): queda fija exactamente 60dvh y no se pierde contenido. El solape de −100dvh con la cola de Experimento pasó de la sección a `.tail`.
+- **Reveal del Gran Atractor:** `.stage` (cubre la sección) observado con `useInView(stageRef, true, 0.75)`; la imagen se funde en 1,6 s (`opacity` y `scale` 0.96→1) y el marcador aparece 1,4 s después. Medido: oculto hasta el 70 % visible, visible desde el 80 %, sin repetirse.
 
 ---
 
@@ -158,9 +163,9 @@ Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×3
 
 - [ ] `<section id="epilogue">` existe, se monta tras `Evidence` en `App.tsx`, mide ≥ `100dvh`, tiene `aria-labelledby` y ningún `<h1>` nuevo.
 - [ ] Todos los textos visibles salen de `epilogue.json`; ninguno está escrito en el TSX.
-- [ ] La pregunta «¿Has oído hablar del Gran Atractor?» está en el centro de la composición con el mensaje de cierre como subtítulo encima; no hay ningún texto, dato ni enlace después de la pregunta.
+- [ ] La pregunta «¿Has oído hablar del Gran Atractor?» está en la parte inferior con el mensaje de cierre como subtítulo encima; no hay ningún texto, dato ni enlace después de la pregunta.
 - [ ] No hay botón de volver al inicio, enlaces a fuentes, créditos en pantalla ni rótulos de «representación artística», «ilustrativo» o «no a escala».
-- [ ] El punto de la Vía Láctea con su etiqueta «VÍA LÁCTEA» es código (no parte de la imagen), está sobre el extremo de una rama y la imagen no contiene texto ni rótulos.
+- [ ] El punto de la Vía Láctea con su etiqueta «VÍA LÁCTEA» es código (no parte de la imagen), está sobre el extremo de la rama corta (como en la referencia) y la imagen no contiene texto ni rótulos.
 - [ ] Hero y Epílogo usan el mismo componente de fondo; el fondo del Epílogo es `#000`.
 - [ ] Los JSON e interfaces no contienen campos que ningún componente use.
 - [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
@@ -170,19 +175,19 @@ Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×3
 
 **Hero (regresión)**
 
-- [ ] Tras el refactor, el Hero se ve y se mueve igual (capturas antes/después, parallax, zoom por scroll, deriva móvil); `Evidence` y el resto de secciones no se modificaron.
+- [ ] Tras el refactor, el Hero se ve y se mueve igual (capturas antes/después, parallax, zoom por scroll, deriva móvil); el resto de secciones no se modificaron y `Evidence` solo recibió la cola pegajosa.
 
 **Interacción y movimiento**
 
 - [ ] El parallax con el mouse mueve el fondo del Epílogo; en móvil hay movimiento ambiental continuo y no hay dependencia de hover.
 - [ ] El anillo del marcador pulsa y el brillo del núcleo respira; los destellos de estrellas no superan 1 evento cada ~2 s.
-- [ ] El reveal ocurre una sola vez al entrar en vista y no vuelve a dispararse.
+- [ ] El Gran Atractor y el marcador permanecen ocultos hasta que se ve el 75 % de la sección; el reveal ocurre una sola vez y no vuelve a dispararse.
 - [ ] Con `prefers-reduced-motion: reduce` la escena aparece compuesta y estática y `document.getAnimations()` de la sección devuelve 0.
 - [ ] Con `data-inview="false"` las animaciones de la sección están pausadas.
 
 **Transición**
 
-- [ ] Evidencia → Epílogo es scroll normal: sin solape, sin cola pegajosa y sin costura visible entre ambos fondos; el Epílogo termina al final de la página sin espacio sobrante.
+- [ ] Evidencia → Epílogo: Evidencia se queda fija ~60dvh al llegar a su final y luego sale con scroll normal; sin solape del Epílogo, sin costura visible entre ambos fondos y sin espacio sobrante al final de la página. Con reduced-motion no hay cola pegajosa.
 
 **Accesibilidad**
 
@@ -205,7 +210,11 @@ Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×3
 
 **Tomadas**
 
-- **Transición Evidencia → Epílogo: scroll normal (autor).** Manda la idea 08 sobre lo que dejaba abierto la SPEC 07 («SPEC 08 se hace cargo del final de Evidencia»). Sin cola ni efecto, Evidencia no se toca; el final no cierra la historia con espectáculo, la deja abierta.
+- **Transición Evidencia → Epílogo: scroll normal, con una cola pegajosa mínima en Evidencia (autor).** Se pidió al ver que al llegar «casi se notaba la última sección» y Evidencia salía demasiado rápido. Es un cambio acotado a Evidencia (`.tail` + `position: sticky; bottom: 0`, ~60dvh, solo sin reduced-motion); el Epílogo sigue sin efecto de entrada.
+- **Gran Atractor como negro opaco + `screen` (autor).** Con alfa real el WebP pesaba 410–640 KB frente al límite de 120 KB; así pesa 106 KB y se ve igual sobre el cielo.
+- **Texto en la parte inferior (autor).** Sustituye la idea de ponerlo en el centro: deja a la vista el Gran Atractor.
+- **Marcador en la rama corta (autor).** Coincide con la imagen de referencia (la Vía Láctea está al final de esa rama, no de la larga).
+- **Reveal del Gran Atractor al 75 % de la sección (autor).** No aparece antes de que la sección esté casi entera en pantalla.
 - **Esperar a la imagen generada con IA (autor).** La implementación se detiene en el Paso 3 hasta recibir la imagen; la de referencia queda solo como plan de respaldo si el resultado no sirve (con eliminación del rótulo «MILKY WAY» y atribución pendiente).
 - **Fondo del Hero extraído a un componente compartido (autor).** Cumple «se reutiliza, no se reimplementa» sin duplicar CSS; implica un refactor mínimo en Hero con verificación de regresión.
 - **Mensaje como subtítulo sobre la pregunta (autor).** Sustituye la idea de situarlo descentrado: va encima de la pregunta, discreto, y la pregunta sigue siendo el centro y el protagonista.
@@ -216,7 +225,8 @@ Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×3
 
 **Descartadas**
 
-- **Efecto de salida nuevo en Evidencia.** Añade cola pegajosa y solape para una sección que debe pasar sin ceremonia.
+- **Efecto de salida complejo en Evidencia** (solape, apilamiento, telón). Solo se admite la cola pegajosa mínima.
+- **Efectos interactivos sobre la imagen** (linterna que sigue al puntero, copias que oscilan alrededor del núcleo, onda al clic): implementados y descartados por el autor; no convencían.
 - **Copiar el fondo del Hero al Epílogo.** Duplica código y se incumple la decisión de reutilizarlo.
 - **Prototipo SVG/CSS del Gran Atractor como imagen principal.** Ya descartado en la idea; solo referencia de movimiento.
 - **Implementar con la referencia como provisional.** Se prefirió esperar a la imagen definitiva.
@@ -240,10 +250,10 @@ Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×3
 
 ## Qué **no** está en este spec
 
-- Transición entre Evidencia y Epílogo.
+- Efectos de transición entre Evidencia y Epílogo más allá de la cola pegajosa.
 - Botón de reinicio, enlaces, fuentes o cualquier explicación del Gran Atractor.
 - Prototipo SVG/CSS como imagen principal.
-- Cambios en las demás secciones salvo el refactor mínimo del fondo del Hero.
+- Cambios en las demás secciones salvo el refactor mínimo del fondo del Hero y la cola pegajosa de Evidencia.
 - Audio, navegación completa, Navbar y Footer.
 
 Cada una de estas cosas, si se hace, va en su propio spec.
