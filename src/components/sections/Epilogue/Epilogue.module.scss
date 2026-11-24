@@ -20,10 +20,10 @@
 // el scroll de la página. El fondo (negro) lo pone SkyBackground.
 .section {
   // Lado de la imagen y posiciones (0–1, relativas a la imagen) de la punta de
-  // la rama (marcador) y del punto brillante (núcleo).
+  // la rama corta (marcador) y del punto brillante (núcleo).
   --size: min(100vw, 100dvh);
-  --markerX: 0.88;
-  --markerY: 0.839;
+  --markerX: 0.737;
+  --markerY: 0.521;
   --coreX: 0.404;
   --coreY: 0.313;
   // Desplazamiento de la imagen y del marcador con el parallax del mouse
@@ -33,7 +33,8 @@
   position: relative;
   display: flex;
   min-height: 100dvh;
-  align-items: center;
+  // El texto va abajo para dejar a la vista el Gran Atractor
+  align-items: flex-end;
   justify-content: center;
   overflow: clip;
   isolation: isolate;
@@ -132,7 +133,8 @@
   }
 }
 
-// Etiqueta bajo el punto y alineada a su derecha, para no salirse de pantalla
+// Etiqueta a la derecha del punto (como en la referencia). En móvil vertical
+// va bajo el punto, alineada a su derecha, para no salirse.
 .markerLabel {
   position: absolute;
   top: calc(100% + 0.75rem);
@@ -141,6 +143,13 @@
   font-weight: 500;
   letter-spacing: 0.14em;
   white-space: nowrap;
+
+  @media (min-width: 576px), (orientation: landscape) {
+    top: 50%;
+    right: auto;
+    left: calc(100% + 0.75rem);
+    translate: 0 -50%;
+  }
 }
 
 .summary {
@@ -154,7 +163,7 @@
   flex-direction: column;
   align-items: center;
   max-width: 40rem;
-  padding: 3rem 1.5rem;
+  padding: 3rem 1.5rem clamp(1.5rem, 7dvh, 4rem);
   text-align: center;
 
   // Vela oscura tras el texto: atenúa las líneas doradas bajo él para
@@ -288,5 +297,22 @@
   .markerDot::after {
     animation: none;
     opacity: 0.5;
+  }
+}
+
+// Poca altura (móvil apaisado): texto más compacto para no tapar la imagen.
+@media (max-height: $shortHeight) {
+  .content {
+    padding-bottom: 1rem;
+  }
+
+  .message {
+    margin-bottom: 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .question {
+    font-size: clamp(1.25rem, 3.6vw, 2rem);
   }
 }
