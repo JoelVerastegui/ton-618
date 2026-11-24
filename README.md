@@ -39,6 +39,7 @@ Todos los créditos de los recursos del proyecto se declaran aquí, no en pantal
 | Vídeo del Sol | Escala (`src/assets/videos/scale/`) | GIF de Pinterest sin autor ni licencia verificables; provisional. **Pendiente:** sustituir o licenciar. |
 | Sprites de los 8 planetas | Escala (`src/assets/images/scale/planets/`) | Imagen de Pinterest sin autor ni licencia verificables; provisional. **Pendiente:** sustituir por sprites con licencia clara. |
 | Agujero negro, nebulosa, campo profundo y Vía Láctea | Hero, Exploración, Escala y Tiempo (`src/assets/images/hero/`, `src/assets/images/exploration/`) | Imágenes generadas con IA a partir de los prompts de los specs 01 y 02. **Pendiente:** anotar herramienta y fecha de generación; los términos dependen del generador. |
+| Observación de TON 618 | Evidencia (`src/assets/images/evidence/`) | Legacy Surveys (DR9), crédito: «Legacy Surveys / D. Lang (Perimeter Institute)». Licencia CC BY 4.0 (https://www.legacysurvey.org/acknowledgment/). Recortada, con reducción de ruido y reescalada a WebP. |
 | Space Grotesk | Tipografía (`src/assets/fonts/`) | SIL Open Font License 1.1 (`src/assets/fonts/SpaceGrotesk-OFL.txt`). |
 
 Las estrellas, el disco de gas, el cielo del agujero negro interactivo y la distorsión de transición se generan en código: no hay recursos adicionales.

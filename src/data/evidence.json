@@ -1,0 +1,40 @@
+{
+  "title": "Lo que vemos y lo que imaginamos",
+  "subtitle": "Qué se ha observado de TON 618 y qué es representación",
+  "hint": "Desliza para comparar",
+  "summary": "Comparador entre la observación astronómica de TON 618, un punto brillante de color azulado sobre un cielo oscuro, y una representación artística de su entorno. Debajo, cuatro preguntas sobre lo que se ha observado de verdad.",
+  "compare": {
+    "observation": {
+      "label": "Observación astronómica",
+      "alt": "Imagen de un sondeo del cielo: TON 618 aparece como un punto brillante azulado entre galaxias lejanas débiles."
+    },
+    "representation": {
+      "label": "Representación artística",
+      "alt": "Representación artística de un agujero negro rodeado por un disco de gas incandescente."
+    },
+    "sliderLabel": "Comparar observación y representación",
+    "valueText": "{value} % observación"
+  },
+  "questions": [
+    {
+      "question": "¿Tenemos una fotografía directa de TON 618?",
+      "verdict": "No",
+      "answer": "Ningún telescopio ha resuelto TON 618. En las imágenes de los grandes sondeos del cielo es solo un punto brillante: su luz viajó más de 10 mil millones de años y está demasiado lejos para mostrar detalle."
+    },
+    {
+      "question": "¿El agujero negro es lo que produce la luz del cuásar?",
+      "verdict": "No directamente",
+      "answer": "El agujero negro no emite luz. Brilla el gas que cae hacia él: forma un disco que la gravedad y la fricción calientan hasta brillar más que su galaxia."
+    },
+    {
+      "question": "¿Podemos observar lo que sucede dentro del horizonte de sucesos?",
+      "verdict": "No",
+      "answer": "Nada que cruce el horizonte puede enviarnos información, ni siquiera la luz. Vemos el gas que lo rodea y la sombra que proyecta, nunca su interior."
+    },
+    {
+      "question": "¿Todas las imágenes de agujeros negros representan observaciones reales?",
+      "verdict": "No, casi todas son arte",
+      "answer": "Las imágenes reales son las del Event Horizon Telescope: M87* (2019) y Sagitario A* (2022). El resto son simulaciones o ilustraciones. TON 618 está demasiado lejos y su sombra es demasiado pequeña en el cielo."
+    }
+  ]
+}

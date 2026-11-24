@@ -568,6 +568,13 @@ $experimentHold: 60;
 }
 
 // ---------------------------------------------------------------------------
+// Sección Evidencia (SPEC 07)
+// ---------------------------------------------------------------------------
+// Fondo: negro como el telón de la transición de Experimento, con su campo de estrellas y nebulosa
+// (`styles/_deepSky.scss`).
+$evidenceBg: #000;
+
+// ---------------------------------------------------------------------------
 // Apilamiento de las secciones (z-index)
 // ---------------------------------------------------------------------------
 // Las secciones que solapan a la anterior con un margen negativo se apilan en orden inverso al del
@@ -580,6 +587,7 @@ $sectionLayers: (
   'scale': 11,
   'time': 10,
   'experiment': 9,
+  'evidence': 8,
 );
 
 @function sectionLayer($name) {
