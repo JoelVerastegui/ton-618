@@ -1,7 +1,166 @@
-// Puntos de llegada de las secciones (SPEC 09): dónde queda la página al ir directamente a una
-// sección, con su escena ya compuesta. Cada sección declara un elemento `[data-arrival='<id>']`, no
-// pegajoso, y fija su posición con estos mixins. Salen de los mismos tokens que animan la sección.
+// Geometría que comparten cada sección y su marcador de posición mientras no está cargada (SPEC 09):
+// alturas, solapes con la sección anterior y puntos de llegada. Si la sección y su marcador no
+// miden lo mismo, la carga desplaza el contenido. Todo sale de los tokens que animan cada sección.
 // Solo mixins (sin salida CSS); se importa después de `variables`.
+
+// --- Exploración ---------------------------------------------------------------
+// Unidad de recorrido (`--explUnit`), compartida con Ciencia.
+@mixin explorationUnit {
+  --explUnit: #{$explUnitMobile};
+
+  @media #{$sideBySide} {
+    --explUnit: 1svh;
+  }
+}
+
+// --- Ciencia -------------------------------------------------------------------
+// El track solapa los últimos 100dvh de Exploración: su stage se pega justo cuando el de
+// Exploración se suelta (mismo scroll), sin tramo intermedio que repita el gráfico. Sin
+// movimiento o sin timeline no hay solape.
+@mixin scienceOverlap {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      margin-top: -100vh;
+      margin-top: -100dvh;
+    }
+  }
+}
+
+@mixin scienceTrackSize {
+  @include scienceTrackHeight;
+
+  @media (prefers-reduced-motion: reduce) {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
+// --- Escala --------------------------------------------------------------------
+@mixin scaleSpans {
+  // Scroll de la intro (svh) antes del valor 0; sin movimiento no hay intro
+  --scaleIntro: #{$scaleIntro};
+  // Scroll del fundido final (svh) tras el último estado; sin movimiento o sin timeline no hay
+  --scaleFade: #{$scaleFade};
+
+  @media (prefers-reduced-motion: reduce) {
+    --scaleIntro: 0;
+    --scaleFade: 0;
+  }
+
+  @supports not (animation-timeline: view()) {
+    --scaleFade: 0;
+  }
+}
+
+// El track solapa el fundido final de Ciencia (`$scienceFade`): su stage se pega mientras el de
+// Ciencia sigue pegado encima, que se desvanece sobre el cielo de la intro. Sin esto, Ciencia se
+// soltaría y subiría antes de empezar. Con reduced-motion no hay solape: corte directo.
+@mixin scaleOverlap {
+  @media (prefers-reduced-motion: no-preference) {
+    margin-top: calc(-100vh - #{$scienceFade}svh);
+    margin-top: calc(-100dvh - #{$scienceFade}svh);
+  }
+}
+
+// --- Tiempo --------------------------------------------------------------------
+@mixin timeSpans {
+  // Cola pegajosa de la transición con Experimento (svh): el stage queda pegado mientras la
+  // transición de estrellas de abajo hacia arriba lo desvanece (ver `styles/_distortion.scss`).
+  // Sin movimiento no hay.
+  --timeFade: #{$timeFade};
+
+  @media (prefers-reduced-motion: reduce) {
+    --timeIntro: 0;
+    --timeHold: 0;
+    --timeFade: 0;
+  }
+
+  // Sin timeline no hay solape con Escala ni intro
+  @media (prefers-reduced-motion: no-preference) {
+    @supports not (animation-timeline: view()) {
+      --timeIntro: 0;
+    }
+  }
+}
+
+// El track solapa el fundido final de Escala (ver `Time.module.scss`).
+@mixin timeOverlap {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      margin-top: calc(-100vh - #{$scaleFade}svh);
+      margin-top: calc(-100dvh - #{$scaleFade}svh);
+    }
+  }
+}
+
+@mixin timeTrackSize {
+  @include timeTrackHeight;
+
+  @media (prefers-reduced-motion: reduce) {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
+// --- Experimento ---------------------------------------------------------------
+// Pausa pegada y cola de salida (svh). Sin movimiento no hay pausa, cola ni solape.
+@mixin experimentSpans {
+  --experimentHold: #{$experimentHold};
+  --experimentFade: #{$experimentFade};
+
+  @media (prefers-reduced-motion: reduce) {
+    --experimentHold: 0;
+    --experimentFade: 0;
+  }
+}
+
+// Solapa el final de Tiempo, cuyo stage sigue pegado y se desvanece encima.
+@mixin experimentOverlap {
+  @media (prefers-reduced-motion: no-preference) {
+    margin-top: -100vh;
+    margin-top: -100dvh;
+  }
+}
+
+// Track: el stage más la pausa y la cola de salida.
+@mixin experimentTrackSize {
+  height: calc(100vh + (var(--experimentHold) + var(--experimentFade)) * 1svh);
+  height: calc(100dvh + (var(--experimentHold) + var(--experimentFade)) * 1svh);
+}
+
+// --- Evidencia -----------------------------------------------------------------
+// Envoltorio: solapa la cola de Experimento y añade el tramo vacío en el que la sección queda
+// pegada antes del Epílogo (ver `Evidence.module.scss`).
+@mixin evidenceTail {
+  position: relative; // referencia de su punto de llegada
+
+  @media (prefers-reduced-motion: no-preference) {
+    margin-top: -100vh;
+    margin-top: -100dvh;
+
+    // Tramo vacío (no relleno: un sticky no sube por encima del contenido de su contenedor)
+    &::before {
+      content: '';
+      display: block;
+      height: 60vh;
+      height: 60dvh;
+    }
+  }
+}
+
+@mixin evidenceMinHeight {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+// --- Epílogo -------------------------------------------------------------------
+@mixin epilogueMinHeight {
+  min-height: 100dvh;
+}
+
+// --- Puntos de llegada ---------------------------------------------------------
+// Dónde queda la página al ir directamente a una sección, con su escena ya compuesta. Cada sección
+// (y su marcador de posición) declara un elemento `[data-arrival='<id>']`, no pegajoso.
 
 // Marca invisible y fuera del flujo, a `$top` del borde superior de su contenedor posicionado.
 @mixin arrivalMarker($top: 0) {

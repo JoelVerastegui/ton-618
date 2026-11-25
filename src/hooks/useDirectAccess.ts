@@ -1,6 +1,7 @@
 import { useLayoutEffect } from 'react';
 import { sectionFromPath, sectionPath } from '@/utils/routes';
 import { jumpToArrival } from '@/utils/sectionArrival';
+import { loadSections, neighborhood } from '@/utils/sectionLoader';
 import { settleSection } from '@/utils/settleSection';
 
 // Entradas con las que la persona toma el control de la página.
@@ -35,12 +36,21 @@ export function useDirectAccess() {
       });
     }
 
-    jumpToArrival(id);
-    settleSection(id).then(() => {
-      // Se vuelve a medir: fuentes e imágenes pueden haber cambiado las alturas anteriores
+    // Se vuelve a medir en cada fase, salvo que la persona ya haya tomado el control
+    const reposition = () => {
       if (!input.signal.aborted && !touched) jumpToArrival(id);
-      input.abort();
-    });
+    };
+
+    // Primer salto sobre los marcadores de posición; el definitivo, con las secciones montadas
+    reposition();
+    loadSections(neighborhood(id))
+      .then(() => {
+        reposition();
+        return settleSection(id);
+      })
+      // Si la carga falla queda el marcador de posición, sin reintentos
+      .then(reposition, () => {})
+      .finally(() => input.abort());
 
     return () => input.abort();
   }, []);

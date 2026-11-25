@@ -30,7 +30,7 @@
 
 // Borde superior liso en $scene2Bg: sin costura con el overlay final del Hero.
 .section {
-  --explUnit: #{$explUnitMobile};
+  @include explorationUnit;
   position: relative;
   background-color: $scene2Bg;
 
@@ -44,7 +44,6 @@
   }
 
   @media #{$sideBySide} {
-    --explUnit: 1svh;
     --viewportExtra: 0px;
   }
 }

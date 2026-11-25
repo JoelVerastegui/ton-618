@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import navigationJson from '@/data/navigation.json';
 import type { NavigationData, SectionId } from '@/interfaces/navigation';
 import { sectionFromPath, sectionPath } from '@/utils/routes';
+import { getSectionsVersion, subscribeSections } from '@/utils/sectionLoader';
 
 const { links } = navigationJson as NavigationData;
 
@@ -16,14 +17,21 @@ const ABOVE_CENTER = '1000000px 0px -50% 0px';
  */
 export function useActiveSection(): SectionId {
   const [active, setActive] = useState<SectionId>('hero');
+  // Al cargarse una sección su punto de llegada es un elemento nuevo: se vuelve a observar
+  const version = useSyncExternalStore(subscribeSections, getSectionsVersion);
 
   useEffect(() => {
-    const above = new Set<string | null>();
     // Sección que dice la URL (`null` si la ruta es desconocida)
     let current = sectionFromPath(window.location.pathname);
 
+    // Cada observador recibe de una vez el estado de todos los marcadores
+    const above = new Set<string | null>();
+
     const observer = new IntersectionObserver(
       (entries) => {
+        // Aviso con marcadores ya sustituidos: decide el observador siguiente, con los nuevos
+        if (entries.some(({ target }) => !target.isConnected)) return;
+
         for (const { target, isIntersecting } of entries) {
           const id = target.getAttribute('data-arrival');
           if (isIntersecting) above.add(id);
@@ -43,7 +51,7 @@ export function useActiveSection(): SectionId {
 
     document.querySelectorAll('[data-arrival]').forEach((marker) => observer.observe(marker));
     return () => observer.disconnect();
-  }, []);
+  }, [version]);
 
   return active;
 }

@@ -23,8 +23,7 @@
 .section {
   position: relative;
   z-index: sectionLayer('evidence');
-  min-height: 100vh;
-  min-height: 100dvh;
+  @include evidenceMinHeight;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -47,20 +46,7 @@
 // toca el borde inferior de la pantalla y se queda ahí ese tramo de scroll antes de dar paso al
 // Epílogo (la sección, con `bottom: 0`, no puede subir más que el inicio del contenedor).
 .tail {
-  position: relative; // referencia de su punto de llegada
-
-  @media (prefers-reduced-motion: no-preference) {
-    margin-top: -100vh;
-    margin-top: -100dvh;
-
-    // Tramo vacío (no relleno: un sticky no sube por encima del contenido de su contenedor)
-    &::before {
-      content: '';
-      display: block;
-      height: 60vh;
-      height: 60dvh;
-    }
-  }
+  @include evidenceTail;
 }
 
 // Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)

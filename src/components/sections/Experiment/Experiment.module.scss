@@ -31,26 +31,19 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
 // El stage se queda pegado `$experimentHold` svh antes de su cola de salida, para poder usarlo sin
 // pasar de golpe a la transición.
 .section {
-  // Pausa pegada y cola de salida (svh): durante la cola el stage se desvanece bajo el telón
-  // de estrellas que sube (ver `styles/_distortion.scss`). Sin movimiento no hay pausa, cola ni solape.
-  --experimentHold: #{$experimentHold};
-  --experimentFade: #{$experimentFade};
+  // Durante la cola el stage se desvanece bajo el telón de estrellas que sube (ver
+  // `styles/_distortion.scss`).
+  @include experimentSpans;
+  @include experimentOverlap;
   position: relative;
   // Solapa el final de Tiempo (cuyo stage sigue pegado y se desvanece encima): se pinta por debajo
   // de él (ver `$sectionLayers`) y no recibe el puntero hasta que Tiempo queda oculto.
   z-index: sectionLayer('experiment');
 
   @media (prefers-reduced-motion: no-preference) {
-    margin-top: -100vh;
-    margin-top: -100dvh;
     // Evidencia queda bajo la cola (ver `$sectionLayers`): el track, sin controles, no captura el
     // puntero mientras se solapan. El stage (`.stage`) sí, hasta quedar `visibility: hidden`.
     pointer-events: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    --experimentHold: 0;
-    --experimentFade: 0;
   }
 }
 
@@ -58,8 +51,7 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
 // superior.
 .track {
   position: relative;
-  height: calc(100vh + (var(--experimentHold) + var(--experimentFade)) * 1svh);
-  height: calc(100dvh + (var(--experimentHold) + var(--experimentFade)) * 1svh);
+  @include experimentTrackSize;
 }
 
 // Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)

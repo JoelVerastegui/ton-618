@@ -33,7 +33,7 @@
 
   position: relative;
   display: flex;
-  min-height: 100dvh;
+  @include epilogueMinHeight;
   // El texto va abajo para dejar a la vista el Gran Atractor
   align-items: flex-end;
   justify-content: center;

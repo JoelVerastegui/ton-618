@@ -21,7 +21,8 @@
 // Misma geometría que Exploración (`--explUnit`, `--viewportExtra`) para que el
 // primer fotograma de la intro coincida con el final del nivel 4.
 .section {
-  --explUnit: #{$explUnitMobile};
+  @include explorationUnit;
+  @include scienceOverlap;
   --explRatio: #{$explUnitRatioMobile};
   position: relative;
   // Por encima de Escala, que solapa su inicio con el fundido final (ver «Fundido final» y
@@ -36,7 +37,6 @@
   }
 
   @media #{$sideBySide} {
-    --explUnit: 1svh;
     --explRatio: 1;
     --viewportExtra: 0px;
   }
@@ -46,7 +46,7 @@
 // `cover 100svh` y termina en `cover (100svh + $scienceTravel unidades)`.
 .track {
   position: relative;
-  @include scienceTrackHeight;
+  @include scienceTrackSize;
   view-timeline: --scienceTrack block;
 }
 
@@ -317,13 +317,6 @@
 }
 
 @supports (animation-timeline: view()) {
-  // El track solapa los últimos 100dvh de Exploración: su stage se pega justo cuando el de
-  // Exploración se suelta (mismo scroll), sin tramo intermedio que repita el gráfico.
-  .section {
-    margin-top: -100vh;
-    margin-top: -100dvh;
-  }
-
   .stage,
   .viewer,
   .camera,
@@ -461,17 +454,11 @@
 // y al fallback con `--x`.
 @media (prefers-reduced-motion: reduce) {
   .track {
-    height: 100vh;
-    height: 100dvh;
     view-timeline: none;
   }
 
   .stage {
     position: relative;
-  }
-
-  .section {
-    margin-top: 0;
   }
 
   .sentinel,

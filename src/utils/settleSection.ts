@@ -53,14 +53,16 @@ const finishEntrances = (section: Element) => {
  * imágenes visibles decodificadas; tope de 8 s) y completa sus animaciones de entrada.
  */
 export async function settleSection(id: SectionId): Promise<void> {
-  const section = document.getElementById(id);
-  if (!section) return;
+  // Se busca cada vez: el marcador de posición se sustituye por la sección al cargarla
+  const find = () => document.getElementById(id);
+  if (!find()) return;
   const deadline = performance.now() + TIMEOUT_MS;
 
   await twoFrames();
-  finishEntrances(section); // lo que ya arrancó no se ve a medias durante la espera
+  finishEntrances(find()!); // lo que ya arrancó no se ve a medias durante la espera
 
-  while (isPending(section) && performance.now() < deadline) await nextFrame();
+  while (isPending(find()!) && performance.now() < deadline) await nextFrame();
+  const section = find()!;
   await Promise.race([loadVisibleMedia(section), delay(deadline - performance.now())]);
 
   // Dos pasadas: lo que acaba de quedar listo puede arrancar otra animación
