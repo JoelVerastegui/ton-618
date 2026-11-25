@@ -6,20 +6,27 @@ import { Hero } from '@/components/sections/Hero/Hero';
 import { Scale } from '@/components/sections/Scale/Scale';
 import { Science } from '@/components/sections/Science/Science';
 import { Time } from '@/components/sections/Time/Time';
+import { useActiveSection } from '@/hooks/useActiveSection';
+
+// Elemento constante: cambiar la sección activa no vuelve a renderizar las secciones.
+const sections = (
+  <main>
+    <Hero />
+    <Exploration />
+    <Science />
+    <Scale />
+    <Time />
+    <Experiment />
+    <Evidence />
+    <Epilogue />
+  </main>
+);
 
 function App() {
-  return (
-    <main>
-      <Hero />
-      <Exploration />
-      <Science />
-      <Scale />
-      <Time />
-      <Experiment />
-      <Evidence />
-      <Epilogue />
-    </main>
-  );
+  // Mantiene la URL al día con la sección visible
+  useActiveSection();
+
+  return sections;
 }
 
 export default App;
