@@ -1,6 +1,6 @@
 # SPEC 09 — Navegación entre secciones
 
-**Estado:** Draft
+**Estado:** Approved
 **Depende de:** SPEC 08 (y, por ella, SPEC 07, SPEC 06, SPEC 05, SPEC 04, SPEC 03, SPEC 02 y SPEC 01)
 **Fecha:** 2026-11-25
 **Objetivo:** Implementar la navegación de `docs/navigation.md`: una ruta por sección con carga bajo demanda y un menú lateral cuyos enlaces saltan al inicio de la sección elegida, cubiertos por una transición de salto hiperespacial.
