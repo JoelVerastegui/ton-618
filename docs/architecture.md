@@ -5,7 +5,8 @@
 ```
 ton-618/
 ├── docs/
-│   └── architecture.md     # Este documento
+│   ├── architecture.md     # Este documento
+│   └── navigation.md       # Detalle de la navegación
 ├── public/
 │   ├── favicon.svg         # Ícono de la web
 │   └── icons.svg           # Declaración de symbols de los SVG (Crear un componente Icon que use los symbols y reciba el id)
@@ -39,10 +40,6 @@ ton-618/
 ## Navegación
 
 Cada sección (a excepción del Hero, que sería "/"), tendrá su ruta propia, y al hacer scroll cambiará de manera dinámica por cada sección.
-Para lograr un scroll suave desde el navbar, actualización silenciosa de la URL y carga dinámica bajo demanda, se usará:
+La navegación desde el menú lateral es un salto instantáneo cubierto por una transición, con actualización silenciosa de la URL y carga dinámica bajo demanda.
 
-- scrollIntoView para la navegación
-- window.history.replaceState para evitar re-renders innecesarios en React
-- React.lazy junto con IntersectionObserver para ahorrar memoria
-
-No se usará librería de terceros para la navegación.
+El detalle (rutas, menú lateral, transición, punto de llegada y validaciones) está en [navigation.md](navigation.md), que es la referencia para todo lo relacionado con la navegación.
