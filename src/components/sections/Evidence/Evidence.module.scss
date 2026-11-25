@@ -31,12 +31,32 @@
   background-color: $evidenceBg;
   color: $starlight;
 
-  // Solapa la cola de Experimento (cuyo stage sigue pegado y se desvanece encima): se pinta por
-  // debajo (ver `$sectionLayers`). Sus imágenes ya están dentro del viewport bajo el stage durante
-  // la pausa de Experimento, así que `loading="lazy"` las carga antes de que suba el telón.
+  // Pegada al borde inferior dentro de `.tail`: al llegar su final se queda fija mientras se
+  // consume la cola (ver `.tail`) y luego sale con normalidad hacia el Epílogo.
+  @media (prefers-reduced-motion: no-preference) {
+    position: sticky;
+    bottom: 0;
+  }
+}
+
+// Contenedor de la sección. Solapa la cola de Experimento (cuyo stage sigue pegado y se desvanece
+// encima): la sección se pinta por debajo (ver `$sectionLayers`). Sus imágenes ya están dentro del
+// viewport bajo el stage durante la pausa de Experimento, así que `loading="lazy"` las carga antes
+// de que suba el telón. El tramo vacío superior es la cola pegajosa: Evidencia sube hasta que su final
+// toca el borde inferior de la pantalla y se queda ahí ese tramo de scroll antes de dar paso al
+// Epílogo (la sección, con `bottom: 0`, no puede subir más que el inicio del contenedor).
+.tail {
   @media (prefers-reduced-motion: no-preference) {
     margin-top: -100vh;
     margin-top: -100dvh;
+
+    // Tramo vacío (no relleno: un sticky no sube por encima del contenido de su contenedor)
+    &::before {
+      content: '';
+      display: block;
+      height: 60vh;
+      height: 60dvh;
+    }
   }
 }
 

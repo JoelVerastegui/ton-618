@@ -1,0 +1,348 @@
+@import '@/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Texto solo para lectores de pantalla
+%srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Sección normal (sin track pegajoso ni cola): mide al menos 100dvh y pasa con
+// el scroll de la página. El fondo (negro) lo pone SkyBackground.
+.section {
+  // Lado de la imagen y posiciones (0–1, relativas a la imagen) de la punta de
+  // la rama corta (marcador) y del punto brillante (núcleo).
+  --size: min(100vw, 100dvh);
+  --markerX: 0.737;
+  --markerY: 0.521;
+  --coreX: 0.404;
+  --coreY: 0.313;
+  // Desplazamiento de la imagen y del marcador con el parallax del mouse
+  --artX: calc(var(--px, 0) * -20px);
+  --artY: calc(var(--py, 0) * -12px);
+
+  position: relative;
+  display: flex;
+  min-height: 100dvh;
+  // El texto va abajo para dejar a la vista el Gran Atractor
+  align-items: flex-end;
+  justify-content: center;
+  overflow: clip;
+  isolation: isolate;
+  background: $spaceBlack;
+  color: $starlight;
+}
+
+// Costura con Evidencia (negro puro): el cielo del Epílogo entra desde el negro
+// con un degradado en el borde superior, sobre la imagen y bajo el texto.
+.section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 4;
+  height: 10rem;
+  background: linear-gradient(
+    to bottom,
+    rgba($spaceBlack, 1) 0%,
+    rgba($spaceBlack, 0.7) 35%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+// Escenario del Gran Atractor y su marcador: cubre la sección (sin crear contexto
+// de apilamiento, para que el `screen` de la imagen siga mezclando con el cielo).
+// Se observa con un umbral del 75 % para revelarlo (ver más abajo).
+.stage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+// Gran Atractor: proporción fija (CLS 0) y centrado. La imagen es WebP sobre
+// negro puro: `screen` hace desaparecer el negro sobre el cielo (como la
+// nebulosa del Hero) sin necesitar canal alfa, que triplicaría el peso.
+.art {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+  width: var(--size);
+  aspect-ratio: 1;
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  translate: var(--artX) var(--artY);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition:
+    opacity $motionSlow ease-out,
+    scale $motionSlow $easeOutExpo;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+// Brillo del núcleo: gradiente radial sobre el punto brillante que respira
+.core {
+  position: absolute;
+  top: calc(var(--coreY) * 100%);
+  left: calc(var(--coreX) * 100%);
+  width: 34%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 226, 170, 0.5) 0%,
+    rgba($solarAmber, 0.18) 38%,
+    transparent 68%
+  );
+  animation: breathe 6s ease-in-out infinite alternate;
+}
+
+// Indicador de la Vía Láctea: punto + anillo que pulsa + etiqueta, sobre la
+// punta de la rama corta. Posición relativa a la imagen, no al viewport.
+.marker {
+  position: absolute;
+  top: calc(50% + (var(--markerY) - 0.5) * var(--size));
+  left: calc(50% + (var(--markerX) - 0.5) * var(--size));
+  z-index: 5;
+  width: 0.5rem;
+  height: 0.5rem;
+  translate: calc(-50% + var(--artX)) calc(-50% + var(--artY));
+  pointer-events: none;
+  transition: opacity $motionSlow ease-out 1.4s;
+}
+
+.markerDot {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: $starlight;
+  box-shadow: 0 0 0.5rem 0.125rem rgba($starlight, 0.6);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.25rem;
+    border: 1px solid rgba($starlight, 0.8);
+    border-radius: 50%;
+    animation: ring 2.8s ease-out infinite;
+  }
+}
+
+// Etiqueta a la derecha del punto (como en la referencia). En móvil vertical
+// va bajo el punto, alineada a su derecha, para no salirse.
+.markerLabel {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: -0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+
+  @media (min-width: 576px), (orientation: landscape) {
+    top: 50%;
+    right: auto;
+    left: calc(100% + 0.75rem);
+    translate: 0 -50%;
+  }
+}
+
+.summary {
+  @extend %srOnly;
+}
+
+.content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 40rem;
+  padding: 3rem 1.5rem clamp(1.5rem, 7dvh, 4rem);
+  text-align: center;
+
+  // Vela oscura tras el texto: atenúa las líneas doradas bajo él para
+  // garantizar el contraste.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2rem -4rem;
+    z-index: -1;
+    background: radial-gradient(
+      ellipse closest-side,
+      rgba($spaceBlack, 0.78) 0%,
+      rgba($spaceBlack, 0.55) 55%,
+      transparent 100%
+    );
+    transition: opacity $motionSlow ease-out;
+  }
+}
+
+// Subtítulo discreto encima de la pregunta
+.message {
+  margin: 0 0 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  opacity: 0.75;
+  text-wrap: balance;
+  transition:
+    opacity $motionSlow ease-out,
+    translate $motionSlow $easeOutExpo;
+}
+
+.question {
+  margin: 0;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-weight: 300;
+  line-height: 1.2;
+  text-wrap: balance;
+  transition:
+    opacity $motionSlow ease-out 0.5s,
+    translate $motionSlow $easeOutExpo 0.5s;
+}
+
+@keyframes breathe {
+  from {
+    opacity: 0.55;
+    scale: 0.92;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1.08;
+  }
+}
+
+@keyframes ring {
+  from {
+    opacity: 0.8;
+    scale: 0.6;
+  }
+
+  to {
+    opacity: 0;
+    scale: 2.6;
+  }
+}
+
+// Reveal de una sola vez: useInView(once) deja data-inview="false" en el texto
+// hasta que entra en vista y lo pasa a "true" para siempre. Sin el atributo
+// (sin IntersectionObserver) o con reduced-motion todo es visible.
+.content[data-inview='false'] {
+  &::before,
+  .message,
+  .question {
+    opacity: 0;
+  }
+
+  .message,
+  .question {
+    translate: 0 1rem;
+  }
+}
+
+// Gran Atractor y marcador: ocultos hasta que se ve el 75 % de la sección; entonces
+// la imagen se funde y el marcador aparece después. Sin el atributo (sin
+// IntersectionObserver) o con reduced-motion se ven siempre.
+.stage[data-inview='false'] {
+  .art {
+    opacity: 0;
+    scale: 0.96;
+  }
+
+  .marker {
+    opacity: 0;
+  }
+}
+
+// Fuera de vista (useInView) las animaciones de la sección se pausan.
+:global([data-inview='false']) {
+  .core,
+  .markerDot::after {
+    animation-play-state: paused;
+  }
+}
+
+// Con reduced-motion la escena queda compuesta y estática.
+@media (prefers-reduced-motion: reduce) {
+  .art,
+  .message,
+  .question,
+  .marker,
+  .content::before {
+    transition: none;
+  }
+
+  .content[data-inview='false'] {
+    &::before {
+      opacity: 1;
+    }
+
+    .message {
+      opacity: 0.75;
+    }
+
+    .question {
+      opacity: 1;
+    }
+
+    .message,
+    .question {
+      translate: none;
+    }
+  }
+
+  .stage[data-inview='false'] {
+    .art {
+      opacity: 1;
+      scale: none;
+    }
+
+    .marker {
+      opacity: 1;
+    }
+  }
+
+  .core {
+    animation: none;
+  }
+
+  .markerDot::after {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+// Poca altura (móvil apaisado): texto más compacto para no tapar la imagen.
+@media (max-height: $shortHeight) {
+  .content {
+    padding-bottom: 1rem;
+  }
+
+  .message {
+    margin-bottom: 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .question {
+    font-size: clamp(1.25rem, 3.6vw, 2rem);
+  }
+}
