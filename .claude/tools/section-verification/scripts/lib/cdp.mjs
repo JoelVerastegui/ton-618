@@ -40,15 +40,36 @@ export function findBrowser() {
   return found;
 }
 
-// Mata un proceso y sus hijos (en Windows `npx` y el navegador dejan procesos huérfanos).
-export function killTree(child) {
-  if (!child || child.killed || !child.pid) return;
-  try {
-    if (process.platform === 'win32') execSync(`taskkill /PID ${child.pid} /T /F`, { stdio: 'ignore' });
-    else process.kill(-child.pid, 'SIGKILL');
-  } catch {
-    /* ya terminado */
+// Pausa síncrona: la limpieza tiene que servir también dentro del evento `exit`.
+const sleepSync = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+
+// Borra el perfil temporal de un navegador. En Windows sus archivos tardan un momento en liberarse
+// tras cerrarlo, de ahí los reintentos (hasta unos 5 s; los de `rmSync` no bastan).
+function removeProfile(dir) {
+  for (let attempt = 1; attempt <= 20; attempt++) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      if (attempt === 20) console.warn(`No se pudo borrar el perfil temporal ${dir}: ${error.message}`);
+      else sleepSync(250);
+    }
   }
+}
+
+// Mata un proceso y sus hijos (en Windows `npx` y el navegador dejan procesos huérfanos).
+// Si es un navegador de `launchBrowser`, borra además su perfil temporal.
+export function killTree(child) {
+  if (!child) return;
+  if (!child.killed && child.pid) {
+    try {
+      if (process.platform === 'win32') execSync(`taskkill /PID ${child.pid} /T /F`, { stdio: 'ignore' });
+      else process.kill(-child.pid, 'SIGKILL');
+    } catch {
+      /* ya terminado */
+    }
+  }
+  if (child.profileDir) removeProfile(child.profileDir);
 }
 
 export async function waitForHttp(url, timeoutMs = 30000) {
@@ -82,6 +103,11 @@ export async function launchBrowser() {
     ],
     { stdio: 'ignore', detached: process.platform !== 'win32' }
   );
+  proc.profileDir = profileDir;
+  // Si el script termina sin llamar a `killTree` (p. ej. por un error), se limpia igualmente
+  process.once('exit', () => {
+    if (fs.existsSync(profileDir)) killTree(proc);
+  });
   await waitForHttp(`http://127.0.0.1:${port}/json/version`, 20000);
   return { port, proc, profileDir };
 }

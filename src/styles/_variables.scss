@@ -370,6 +370,20 @@ $sciCompact: '(max-width: 700px) and (orientation: landscape)';
 }
 
 // ---------------------------------------------------------------------------
+// Menú de secciones (SPEC 09)
+// ---------------------------------------------------------------------------
+// Caja del ícono: lado y distancia a los bordes superior y derecho (o el área segura, si es mayor)
+$menuButtonSize: 2.75rem; // 44 px
+$menuButtonInset: 0.75rem;
+// Ancho del panel lateral (desde `md`) y desenfoque fijo del fondo
+$menuWidth: 22rem;
+$menuBlur: 10px;
+// Entrada del panel (la salida usa `$motionFast`)
+$motionMenu: 320ms;
+// Por encima de todas las secciones (ver `$sectionLayers`)
+$zMenu: 100;
+
+// ---------------------------------------------------------------------------
 // Sobrescrituras de Bootstrap (redefinición de variables !default)
 // ---------------------------------------------------------------------------
 $enable-dark-mode: false;

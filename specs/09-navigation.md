@@ -155,6 +155,8 @@ Excepción: al abrir o recargar la ruta de inicio no se completan animaciones; e
 - El panel es un `<dialog>` modal que entra por la derecha, con botón de cierre y los 8 enlaces. La sección activa lleva `aria-current`.
 - Desde `md` es un panel lateral y el resto de la pantalla se ve desenfocado. Por debajo de `md` ocupa toda la pantalla, con fondo translúcido y desenfoque.
 - Se cierra con un enlace, el botón de cierre, `Escape` o clic fuera. El foco vuelve al ícono.
+- `Tab` desde el ícono lleva al primer control de la sección activa, no al principio de la página (decidido en el Paso 8).
+- Con barra de scroll clásica, mientras el menú está abierto la barra se oculta y su ancho se compensa (margen en la página y en el ícono), medido al abrir: el panel llega al borde y nada se mueve. No se usa `scrollbar-gutter` (decidido en el Paso 8).
 - Los enlaces son `<a>` con su ruta real: el clic con modificadores o con el botón central conserva el comportamiento del navegador.
 - El desenfoque usa `backdrop-filter` solo en el menú y sin animar su radio (excepción a la regla de las specs anteriores). Sin soporte, el fondo se oscurece.
 - La entrada y salida animan solo `transform` y `opacity`; con movimiento reducido no hay animación.
@@ -314,7 +316,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `web-motion-designer
 | Safari no ancla el scroll y una carga por encima mueve el contenido | Alturas exactas y carga anticipada de vecinas; probar en dispositivo real |
 | Llegar de golpe deja observadores, videos o el canvas del Experimento sin actualizar | Fase cubierta con espera de `data-arrival-pending`; probar cada origen y destino |
 | `finish()` altera una animación que debía continuar | Solo animaciones finitas basadas en tiempo y dentro del destino |
-| Bloquear el scroll cambia el ancho por la barra de desplazamiento | Reservar su espacio (`scrollbar-gutter`) y comprobar que nada se mueve |
+| Bloquear el scroll cambia el ancho por la barra de desplazamiento | Compensar su ancho mientras está oculta y comprobar que nada se mueve |
 | `backdrop-filter` sobre escenas animadas cuesta en móviles modestos | Radio fijo, sin animarlo; medir y reducirlo si hace falta |
 | GitHub Pages responde con estado 404 en rutas profundas, aunque la web cargue | Limitación aceptada del alojamiento |
 | La nueva `base` rompe rutas o las herramientas de `section-verifier` | Paso 1 aislado; pasar a las herramientas la URL con `/ton-618/` |
