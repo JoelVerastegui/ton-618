@@ -1,6 +1,9 @@
 export type SectionId =
   'hero' | 'exploration' | 'science' | 'scale' | 'time' | 'experiment' | 'evidence' | 'epilogue';
 
+// Dónde queda el destino de una navegación respecto a la posición actual.
+export type NavigationDirection = 'up' | 'down';
+
 export interface NavigationLink {
   id: SectionId; // id del <section>
   path: string; // relativo a la base: '' para el Hero, 'science', …

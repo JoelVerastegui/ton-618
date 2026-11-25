@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import navigationJson from '@/data/navigation.json';
 import type { NavigationData, SectionId } from '@/interfaces/navigation';
+import { isNavigating, subscribeNavigation } from '@/utils/navigationState';
 import { sectionFromPath, sectionPath } from '@/utils/routes';
 import { getSectionsVersion, subscribeSections } from '@/utils/sectionLoader';
 
@@ -13,14 +14,19 @@ const ABOVE_CENTER = '1000000px 0px -50% 0px';
 /**
  * Sección activa: la última, en orden de página, cuyo `[data-arrival]` ha quedado por encima del
  * centro del viewport (sin ninguna, el Hero). Al cambiar, escribe su ruta con `replaceState`, sin
- * añadir entradas al historial. Sin listeners de scroll; solo hay render cuando cambia.
+ * añadir entradas al historial. Sin listeners de scroll; solo hay render cuando cambia. Durante
+ * una navegación por menú no detecta nada.
  */
 export function useActiveSection(): SectionId {
   const [active, setActive] = useState<SectionId>('hero');
   // Al cargarse una sección su punto de llegada es un elemento nuevo: se vuelve a observar
   const version = useSyncExternalStore(subscribeSections, getSectionsVersion);
+  // Al terminar una navegación se observa de nuevo, desde la posición de llegada
+  const navigating = useSyncExternalStore(subscribeNavigation, isNavigating);
 
   useEffect(() => {
+    if (navigating) return;
+
     // Sección que dice la URL (`null` si la ruta es desconocida)
     let current = sectionFromPath(window.location.pathname);
 
@@ -31,6 +37,8 @@ export function useActiveSection(): SectionId {
       (entries) => {
         // Aviso con marcadores ya sustituidos: decide el observador siguiente, con los nuevos
         if (entries.some(({ target }) => !target.isConnected)) return;
+        // La navegación puede haber empezado antes de desconectar este observador
+        if (isNavigating()) return;
 
         for (const { target, isIntersecting } of entries) {
           const id = target.getAttribute('data-arrival');
@@ -51,7 +59,7 @@ export function useActiveSection(): SectionId {
 
     document.querySelectorAll('[data-arrival]').forEach((marker) => observer.observe(marker));
     return () => observer.disconnect();
-  }, [version]);
+  }, [version, navigating]);
 
   return active;
 }

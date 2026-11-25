@@ -1,3 +1,5 @@
+import { trackScrollAnimation } from '@/utils/scrollAnimations';
+
 const MIN_DURATION_MS = 1400;
 const MAX_DURATION_MS = 4000;
 // Velocidad de desplazamiento: ms por px de distancia (más lento que el scroll suave nativo)
@@ -30,6 +32,7 @@ export function scrollToElement(target: Element) {
   let frame = 0;
 
   const stop = () => {
+    untrack();
     cancelAnimationFrame(frame);
     window.removeEventListener('wheel', stop);
     window.removeEventListener('touchstart', stop);
@@ -48,5 +51,6 @@ export function scrollToElement(target: Element) {
   window.addEventListener('touchstart', stop, { passive: true });
   window.addEventListener('keydown', stop);
   cancelCurrent = stop;
+  const untrack = trackScrollAnimation(stop);
   frame = requestAnimationFrame(step);
 }
