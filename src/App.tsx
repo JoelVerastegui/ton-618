@@ -7,6 +7,7 @@ import { Scale } from '@/components/sections/Scale/Scale';
 import { Science } from '@/components/sections/Science/Science';
 import { Time } from '@/components/sections/Time/Time';
 import { useActiveSection } from '@/hooks/useActiveSection';
+import { useDirectAccess } from '@/hooks/useDirectAccess';
 
 // Elemento constante: cambiar la sección activa no vuelve a renderizar las secciones.
 const sections = (
@@ -23,6 +24,8 @@ const sections = (
 );
 
 function App() {
+  // Coloca la página según la ruta de entrada
+  useDirectAccess();
   // Mantiene la URL al día con la sección visible
   useActiveSection();
 

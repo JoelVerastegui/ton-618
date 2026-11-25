@@ -139,6 +139,8 @@ Las posiciones salen de los mismos tokens SCSS que animan cada sección y se cal
 
 Se aceptan rutas con y sin barra final.
 
+Excepción: al abrir o recargar la ruta de inicio no se completan animaciones; el Hero conserva su entrada de carga (decidido en el Paso 5).
+
 ### Carga bajo demanda
 
 - El Hero se carga con la página; las otras siete se importan con `React.lazy`.
