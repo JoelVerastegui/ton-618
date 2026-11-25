@@ -123,6 +123,7 @@ export function Science() {
 
         {/* Desde el final del track hacia abajo: el fundido terminó (ver `useSectionFaded`) */}
         <span ref={fadedRef} className={styles.fadedSentinel} aria-hidden='true' />
+        <span data-arrival='science' className={styles.arrival} aria-hidden='true' />
       </div>
     </section>
   );

@@ -37,6 +37,7 @@ export function Evidence() {
           <Questions items={evidence.questions} />
         </div>
       </section>
+      <span data-arrival='evidence' className={styles.arrival} aria-hidden='true' />
     </div>
   );
 }

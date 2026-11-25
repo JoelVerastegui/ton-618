@@ -1,5 +1,6 @@
 @import '@/styles/variables';
 @import '@/styles/distortion';
+@import '@/styles/sectionTracks';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -49,6 +50,11 @@
     height: 100vh;
     height: 100dvh;
   }
+}
+
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include timeArrival;
 }
 
 .stage {

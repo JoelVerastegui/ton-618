@@ -105,6 +105,7 @@ export function Exploration() {
             <span key={item.id} className={styles.anchor} />
           ))}
         </div>
+        <span data-arrival='exploration' className={styles.arrival} aria-hidden='true' />
       </div>
     </section>
   );

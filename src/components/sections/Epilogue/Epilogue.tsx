@@ -58,6 +58,8 @@ export function Epilogue() {
           {epilogue.question}
         </h2>
       </div>
+
+      <span data-arrival='epilogue' className={styles.arrival} aria-hidden='true' />
     </section>
   );
 }

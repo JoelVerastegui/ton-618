@@ -1,4 +1,5 @@
 @import '@/styles/variables';
+@import '@/styles/sectionTracks';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -11,6 +12,11 @@
   // `vh` de fallback.
   height: 200vh;
   height: 200dvh;
+}
+
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include arrivalMarker;
 }
 
 .stage {

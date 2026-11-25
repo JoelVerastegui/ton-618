@@ -1,4 +1,5 @@
 @import '@/styles/variables';
+@import '@/styles/sectionTracks';
 
 // Texto solo para lectores de pantalla
 %srOnly {
@@ -136,6 +137,11 @@
   height: calc(var(--scaleIntro) * 1svh);
   visibility: hidden;
   pointer-events: none;
+}
+
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include scaleArrival;
 }
 
 .stage {

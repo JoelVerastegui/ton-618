@@ -1,0 +1,33 @@
+// Puntos de llegada de las secciones (SPEC 09): dónde queda la página al ir directamente a una
+// sección, con su escena ya compuesta. Cada sección declara un elemento `[data-arrival='<id>']`, no
+// pegajoso, y fija su posición con estos mixins. Salen de los mismos tokens que animan la sección.
+// Solo mixins (sin salida CSS); se importa después de `variables`.
+
+// Marca invisible y fuera del flujo, a `$top` del borde superior de su contenedor posicionado.
+@mixin arrivalMarker($top: 0) {
+  position: absolute;
+  top: $top;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+// Ciencia: parada «lista». Sin movimiento no hay intro y la escena está completa arriba.
+@mixin scienceArrival {
+  @include arrivalMarker(explLen($scienceReady));
+
+  @media (prefers-reduced-motion: reduce) {
+    top: 0;
+  }
+}
+
+// Escala y Tiempo: fin de la intro. La variable vale 0 en los modos sin intro.
+@mixin scaleArrival {
+  @include arrivalMarker(calc(var(--scaleIntro, #{$scaleIntro}) * 1svh));
+}
+
+@mixin timeArrival {
+  @include arrivalMarker(calc(var(--timeIntro, #{$timeIntro}) * 1svh));
+}

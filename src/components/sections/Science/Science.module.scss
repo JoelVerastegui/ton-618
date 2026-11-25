@@ -1,5 +1,6 @@
 @import '@/styles/variables';
 @import '@/styles/eyelids';
+@import '@/styles/sectionTracks';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -47,6 +48,11 @@
   position: relative;
   @include scienceTrackHeight;
   view-timeline: --scienceTrack block;
+}
+
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include scienceArrival;
 }
 
 .stage {

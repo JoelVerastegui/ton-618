@@ -206,6 +206,7 @@ export function Experiment() {
 
         {/* Al final del track: cuando termina la cola el stage queda oculto (pausa del motor) */}
         <span ref={fadedSentinelRef} className={styles.fadedSentinel} aria-hidden='true' />
+        <span data-arrival='experiment' className={styles.arrival} aria-hidden='true' />
       </div>
     </section>
   );

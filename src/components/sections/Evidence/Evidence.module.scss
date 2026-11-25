@@ -1,5 +1,6 @@
 @import '@/styles/variables';
 @import '@/styles/deepSky';
+@import '@/styles/sectionTracks';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -46,6 +47,8 @@
 // toca el borde inferior de la pantalla y se queda ahí ese tramo de scroll antes de dar paso al
 // Epílogo (la sección, con `bottom: 0`, no puede subir más que el inicio del contenedor).
 .tail {
+  position: relative; // referencia de su punto de llegada
+
   @media (prefers-reduced-motion: no-preference) {
     margin-top: -100vh;
     margin-top: -100dvh;
@@ -58,6 +61,11 @@
       height: 60dvh;
     }
   }
+}
+
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include arrivalMarker;
 }
 
 // Fondo: negro con estrellas de tres profundidades y nebulosa en blanco y negro, igual que el telón
