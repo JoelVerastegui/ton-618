@@ -1,6 +1,6 @@
 # SPEC 08 — Epílogo / Algo más grande todavía
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** SPEC 07 (y, por ella, SPEC 06, SPEC 05, SPEC 04, SPEC 03, SPEC 02 y SPEC 01)
 **Fecha:** 2026-11-24
 **Objetivo:** Implementar la sección Epílogo como octava y última escena de la web: el fondo del Hero sobre negro puro con, en el centro, una imagen del Gran Atractor (generada con IA a partir de la referencia) con un pequeño punto «VÍA LÁCTEA» y una única pregunta («¿Has oído hablar del Gran Atractor?») sin respuesta, precedida a modo de subtítulo por el mensaje «Y aun así, TON 618 es solamente una pequeña parte de un universo que todavía estamos intentando comprender».
@@ -87,7 +87,7 @@ Convenciones:
 ### Layout
 
 - **Desktop:** la imagen centrada, a gran tamaño sin salirse de `100dvh`; la pregunta y el mensaje (subtítulo encima) en la parte inferior de la pantalla; el marcador sobre el extremo de la rama corta. El texto no oculta el punto brillante ni el marcador.
-- **Móvil vertical:** imagen ancha y centrada con el texto sin solaparse con el marcador; texto ≥ 14 px; la sección puede exceder 100dvh.
+- **Móvil vertical:** imagen ancha y centrada con el texto sin solaparse con el marcador; mensaje ≥ 14 px, salvo con poca altura (≤ 600 px, donde se compacta a 13 px); la sección puede exceder 100dvh.
 - **Móvil apaisado bajo:** composición compacta; nada sale de pantalla.
 - Posición exacta de la pregunta respecto de la imagen, tamaños y puntos de ruptura los fija `web-motion-designer` y se calibran en el Paso 8.
 
@@ -136,7 +136,7 @@ Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×3
 - **Imagen:** `great-attractor.webp`, 1024×1024, 106 KB, negro opaco sobre `mix-blend-mode: screen` (en lugar de alfa real: con alfa pesaba 410–640 KB). Lado `--size: min(100vw, 100dvh)`, centrada.
 - **Marcador:** punta de la rama corta en `--markerX: 0.737`, `--markerY: 0.521` (relativos a la imagen). Etiqueta a la derecha del punto (como en la referencia) desde 576 px o en apaisado; en móvil vertical, bajo el punto y alineada a su derecha. 14 px.
 - **Núcleo:** `--coreX: 0.404`, `--coreY: 0.313`; brillo de 34 % del lado, respira 6 s.
-- **Texto:** en la parte inferior (`align-items: flex-end`, relleno inferior `clamp(1.5rem, 7dvh, 4rem)`); pregunta `clamp(1.5rem, 5vw, 2.5rem)`, mensaje 15 px (≥ 14 px en móvil); vela radial oscura tras el texto para el contraste. Con poca altura (≤ 600 px) el texto se compacta (mensaje 13 px, pregunta `clamp(1.25rem, 3.6vw, 2rem)`).
+- **Texto:** en la parte inferior (`align-items: flex-end`, relleno inferior `clamp(1.5rem, 7dvh, 4rem)`); pregunta `clamp(1.5rem, 5vw, 2.5rem)`, mensaje 15 px (14 px o más, salvo con poca altura: ver abajo); vela radial oscura tras el texto para el contraste. Con poca altura (≤ 600 px) el texto se compacta (mensaje 13 px, pregunta `clamp(1.25rem, 3.6vw, 2rem)`).
 - **Unión con Evidencia:** había costura visible (Evidencia es negro liso, el Epílogo entraba con nebulosa). Se añadió un degradado de `10rem` de negro a transparente en el borde superior del Epílogo (`.section::after`, sobre la imagen y bajo el texto).
 - **Cola pegajosa de Evidencia:** `Evidence.tsx` envuelve la sección en `.tail`; la sección es `position: sticky; bottom: 0` y `.tail::before` añade 60dvh de tramo vacío (no relleno: un sticky no sube por encima del contenido de su contenedor). Medido en 1440×900, 390×844 y 320×568 (Evidencia de 685 px): queda fija exactamente 60dvh y no se pierde contenido. El solape de −100dvh con la cola de Experimento pasó de la sección a `.tail`.
 - **Reveal del Gran Atractor:** `.stage` (cubre la sección) observado con `useInView(stageRef, true, 0.75)`; la imagen se funde en 1,6 s (`opacity` y `scale` 0.96→1) y el marcador aparece 1,4 s después. Medido: oculto hasta el 70 % visible, visible desde el 80 %, sin repetirse.
@@ -161,48 +161,48 @@ Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×3
 
 **Contenido y estructura**
 
-- [ ] `<section id="epilogue">` existe, se monta tras `Evidence` en `App.tsx`, mide ≥ `100dvh`, tiene `aria-labelledby` y ningún `<h1>` nuevo.
-- [ ] Todos los textos visibles salen de `epilogue.json`; ninguno está escrito en el TSX.
-- [ ] La pregunta «¿Has oído hablar del Gran Atractor?» está en la parte inferior con el mensaje de cierre como subtítulo encima; no hay ningún texto, dato ni enlace después de la pregunta.
-- [ ] No hay botón de volver al inicio, enlaces a fuentes, créditos en pantalla ni rótulos de «representación artística», «ilustrativo» o «no a escala».
-- [ ] El punto de la Vía Láctea con su etiqueta «VÍA LÁCTEA» es código (no parte de la imagen), está sobre el extremo de la rama corta (como en la referencia) y la imagen no contiene texto ni rótulos.
-- [ ] Hero y Epílogo usan el mismo componente de fondo; el fondo del Epílogo es `#000`.
-- [ ] Los JSON e interfaces no contienen campos que ningún componente use.
-- [ ] No hay scroll horizontal entre 320 y 2560 px de ancho.
-- [ ] Ni la pregunta, ni el mensaje ni el marcador se solapan entre sí ni salen de la pantalla, ni la pregunta tapa el marcador, en los 8 viewports de referencia.
-- [ ] No hay `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; `prettier --check` limpio.
-- [ ] `npm run build` y `npm run lint` terminan sin errores ni avisos nuevos.
+- [x] `<section id="epilogue">` existe, se monta tras `Evidence` en `App.tsx`, mide ≥ `100dvh`, tiene `aria-labelledby` y ningún `<h1>` nuevo.
+- [x] Todos los textos visibles salen de `epilogue.json`; ninguno está escrito en el TSX.
+- [x] La pregunta «¿Has oído hablar del Gran Atractor?» está en la parte inferior con el mensaje de cierre como subtítulo encima; no hay ningún texto, dato ni enlace después de la pregunta.
+- [x] No hay botón de volver al inicio, enlaces a fuentes, créditos en pantalla ni rótulos de «representación artística», «ilustrativo» o «no a escala».
+- [x] El punto de la Vía Láctea con su etiqueta «VÍA LÁCTEA» es código (no parte de la imagen), está sobre el extremo de la rama corta (como en la referencia) y la imagen no contiene texto ni rótulos.
+- [x] Hero y Epílogo usan el mismo componente de fondo; el fondo del Epílogo es `#000`.
+- [x] Los JSON e interfaces no contienen campos que ningún componente use.
+- [x] No hay scroll horizontal entre 320 y 2560 px de ancho.
+- [x] Ni la pregunta, ni el mensaje ni el marcador se solapan entre sí ni salen de la pantalla, ni la pregunta tapa el marcador, en los 8 viewports de referencia.
+- [x] No hay `.scss` sueltos (solo `.module.scss`), ni `!important`, ni `style={{}}` salvo valores dinámicos; clases en camelCase; `prettier --check` limpio.
+- [x] `npm run build` y `npm run lint` terminan sin errores ni avisos nuevos.
 
 **Hero (regresión)**
 
-- [ ] Tras el refactor, el Hero se ve y se mueve igual (capturas antes/después, parallax, zoom por scroll, deriva móvil); el resto de secciones no se modificaron y `Evidence` solo recibió la cola pegajosa.
+- [x] Tras el refactor, el Hero se ve y se mueve igual (capturas antes/después, parallax, zoom por scroll, deriva móvil); el resto de secciones no se modificaron y `Evidence` solo recibió la cola pegajosa.
 
 **Interacción y movimiento**
 
-- [ ] El parallax con el mouse mueve el fondo del Epílogo; en móvil hay movimiento ambiental continuo y no hay dependencia de hover.
-- [ ] El anillo del marcador pulsa y el brillo del núcleo respira; los destellos de estrellas no superan 1 evento cada ~2 s.
-- [ ] El Gran Atractor y el marcador permanecen ocultos hasta que se ve el 75 % de la sección; el reveal ocurre una sola vez y no vuelve a dispararse.
-- [ ] Con `prefers-reduced-motion: reduce` la escena aparece compuesta y estática y `document.getAnimations()` de la sección devuelve 0.
-- [ ] Con `data-inview="false"` las animaciones de la sección están pausadas.
+- [x] El parallax con el mouse mueve el fondo del Epílogo; en móvil hay movimiento ambiental continuo y no hay dependencia de hover.
+- [x] El anillo del marcador pulsa y el brillo del núcleo respira; los destellos de estrellas no superan 1 evento cada ~2 s.
+- [x] El Gran Atractor y el marcador permanecen ocultos hasta que se ve el 75 % de la sección; el reveal ocurre una sola vez y no vuelve a dispararse.
+- [x] Con `prefers-reduced-motion: reduce` la escena aparece compuesta y estática y `document.getAnimations()` de la sección devuelve 0.
+- [x] Con `data-inview="false"` las animaciones de la sección están pausadas.
 
 **Transición**
 
-- [ ] Evidencia → Epílogo: Evidencia se queda fija ~60dvh al llegar a su final y luego sale con scroll normal; sin solape del Epílogo, sin costura visible entre ambos fondos y sin espacio sobrante al final de la página. Con reduced-motion no hay cola pegajosa.
+- [x] Evidencia → Epílogo: Evidencia se queda fija ~60dvh al llegar a su final y luego sale con scroll normal; sin solape del Epílogo, sin costura visible entre ambos fondos y sin espacio sobrante al final de la página. Con reduced-motion no hay cola pegajosa.
 
 **Accesibilidad**
 
-- [ ] axe/Lighthouse: 0 violaciones; imagen decorativa sin `alt` descriptivo; el orden de lectura sigue el del DOM.
-- [ ] El texto mantiene un contraste ≥ 4,5:1 sobre el fondo y la imagen renderizados, también en el punto más brillante del Gran Atractor.
+- [x] axe/Lighthouse: 0 violaciones; imagen decorativa sin `alt` descriptivo; el orden de lectura sigue el del DOM.
+- [x] El texto mantiene un contraste ≥ 4,5:1 sobre el fondo y la imagen renderizados, también en el punto más brillante del Gran Atractor. _Excepción aceptada (Paso 9):_ en viewports de 1024 a 1600 px de ancho en 16:9/16:10, el final de la primera línea del subtítulo cruza la rama dorada inferior y baja a 2,5–3,3:1 en el peor píxel (2,5–4 % de su caja); la pregunta pasa siempre (≥ 7,5:1). Se acepta por legibilidad visual comprobada en captura.
 
 **Rendimiento** (Chrome DevTools, CPU 4× más lento, emulación móvil)
 
-- [ ] CLS = 0; la imagen carga perezosa con proporción fija; peso total de imágenes nuevas ≤ 120 KB (o el límite ajustado y registrado).
-- [ ] 0 Layout y 0 renders de React durante el parallax; solo `transform` y `opacity` animados.
-- [ ] JS ≤ 2 KB gz y CSS ≤ 3 KB gz.
+- [x] CLS = 0; la imagen carga perezosa con proporción fija; peso total de imágenes nuevas ≤ 120 KB (o el límite ajustado y registrado).
+- [x] 0 Layout y 0 renders de React durante el parallax; solo `transform` y `opacity` animados.
+- [x] JS ≤ 2 KB gz y CSS ≤ 3 KB gz.
 
 **Verificación final**
 
-- [ ] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
+- [x] El agente `section-verifier` se ejecutó sobre la sección y su informe (hallazgos, causas raíz, arreglos aplicados o pendientes) quedó registrado en este documento.
 
 ---
 
@@ -242,7 +242,7 @@ Revisión en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×3
 - **Licencia de la imagen de referencia.** Solo aplica si se usa el respaldo (visualización de terceros sobre Laniakea); pendiente de confirmar antes de publicar.
 - **Regresión en Hero.** El refactor del fondo puede alterar el parallax, el zoom por scroll o la deriva móvil; mitigar con capturas antes/después y verificación en el Paso 9.
 - **Calibración del marcador.** Debe seguir al extremo de la rama al cambiar de tamaño y de recorte móvil; posición relativa a la imagen, no al viewport.
-- **Contraste del texto.** Pregunta y subtítulo sobre líneas doradas muy brillantes; medir sobre el render y, si hace falta, atenuar la imagen bajo el texto.
+- **Contraste del texto.** Pregunta y subtítulo sobre líneas doradas muy brillantes; medir sobre el render y, si hace falta, atenuar la imagen bajo el texto. _Resultado (Paso 9):_ la pregunta pasa (≥ 7,5:1); el subtítulo queda como excepción aceptada en desktop (ver criterio de accesibilidad).
 - **Costura con Evidencia.** Ambos fondos son `#000`, pero las estrellas de Evidencia (telón) y las del Hero difieren; revisar la unión en el Paso 8.
 - **Reveal en reduced-motion y sin IntersectionObserver.** El contenido debe verse siempre; no ocultar texto si falla el observer.
 

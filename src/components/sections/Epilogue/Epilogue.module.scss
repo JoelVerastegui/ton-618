@@ -115,7 +115,7 @@
 }
 
 // Indicador de la Vía Láctea: punto + anillo que pulsa + etiqueta, sobre la
-// punta de la rama larga. Posición relativa a la imagen, no al viewport.
+// punta de la rama corta. Posición relativa a la imagen, no al viewport.
 .marker {
   position: absolute;
   top: calc(50% + (var(--markerY) - 0.5) * var(--size));
