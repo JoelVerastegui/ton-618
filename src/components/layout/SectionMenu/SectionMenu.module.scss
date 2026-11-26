@@ -3,11 +3,10 @@
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
 
-// Distancia del ícono y del cierre al borde derecho. Al bloquear el scroll se suma el ancho de la
+// Distancia del ícono y del cierre al borde derecho. Con el scroll bloqueado se suma el ancho de la
 // barra que desaparece (ver `useScrollLock`): siguen en el mismo sitio.
-$controlRight: calc(
-  max(#{$menuButtonInset}, env(safe-area-inset-right)) + var(--scrollbarWidth, 0px)
-);
+$controlInset: max(#{$menuButtonInset}, env(safe-area-inset-right));
+$controlRight: calc(#{$controlInset} + var(--scrollbarWidth, 0px));
 
 // Botón redondo del ícono y del cierre. Fondo propio casi opaco: se lee sobre cualquier escena.
 .control {
@@ -40,11 +39,15 @@ $controlRight: calc(
 .toggle {
   position: fixed;
   top: max(#{$menuButtonInset}, env(safe-area-inset-top));
-  right: $controlRight;
+  right: $controlInset;
   z-index: $zMenu;
+
+  :global(html[data-scroll-lock]) & {
+    right: $controlRight;
+  }
 }
 
-// En el mismo sitio que el ícono
+// En el mismo sitio que el ícono, también durante la salida
 .close {
   margin-top: max(#{$menuButtonInset}, env(safe-area-inset-top));
   margin-right: $controlRight;
@@ -56,14 +59,20 @@ $controlRight: calc(
   position: fixed;
   inset: 0;
   z-index: $zMenu;
-  width: 100%;
+  // Fuera de `[open]`: durante la salida el diálogo sigue en pantalla y el panel no cambia de lado
+  justify-content: flex-end;
+  // Cuenta la barra de scroll: el panel no se corre cuando reaparece al cerrar
+  width: 100vw;
   max-width: none;
   height: 100%;
   height: 100dvh;
   max-height: none;
   margin: 0;
   padding: 0;
+  // `clip` y no solo `hidden`: al enfocar el cierre, aún fuera de pantalla, el navegador
+  // desplazaría el diálogo y anularía la entrada desde la derecha
   overflow: hidden;
+  overflow: clip;
   border: 0;
   background: transparent;
   color: $starlight;
@@ -75,7 +84,6 @@ $controlRight: calc(
 
   &[open] {
     display: flex;
-    justify-content: flex-end;
     pointer-events: auto;
     transition-duration: $motionMenu;
   }

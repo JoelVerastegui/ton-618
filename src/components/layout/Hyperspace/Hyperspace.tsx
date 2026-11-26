@@ -6,7 +6,7 @@ interface HyperspaceProps extends Transition {
   onPhaseEnd: () => void;
 }
 
-// Salto hiperespacial: un telón de estrellas estiradas que cubre la pantalla (`in`) y la descubre
+// Salto hiperespacial: un telón negro con estrellas estiradas que cubre la pantalla (`in`) y la descubre
 // (`out`) en la dirección del viaje. Avisa al terminar cada fase; las duraciones son del SCSS.
 export function Hyperspace({ direction, phase, onPhaseEnd }: HyperspaceProps) {
   const veilRef = useRef<HTMLDivElement>(null);
@@ -40,10 +40,8 @@ export function Hyperspace({ direction, phase, onPhaseEnd }: HyperspaceProps) {
       aria-hidden='true'
     >
       <div ref={veilRef} className={styles.veil}>
-        <div className={styles.streaks}>
-          <span className={styles.far} />
-          <span className={styles.near} />
-        </div>
+        <span className={styles.far} />
+        <span className={styles.near} />
       </div>
     </div>
   );

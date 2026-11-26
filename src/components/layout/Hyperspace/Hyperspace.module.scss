@@ -3,13 +3,6 @@
 @import '../../../styles/variables';
 @import '../../../styles/starfield';
 
-// Fundido de cada borde del telón, en % del viewport. Entre ambos, el telón es opaco.
-$feather: 40;
-// Parte del alto del telón que ocupa cada borde
-$edge: math.div($feather, 100 + 2 * $feather) * 100%;
-// Recorrido (% del alto del telón) entre cubrir la pantalla y quedar fuera de ella
-$travel: math.div(100 + $feather, 100 + 2 * $feather) * 100%;
-
 // Estelas verticales, una por franja del ancho, que se repiten cada `$tile` y avanzan justo una
 // repetición por ciclo. Cabeza arriba (hacia donde viajan) y cola que se apaga. Deterministas.
 @mixin streaks($count, $seed, $tile, $width, $alpha) {
@@ -62,34 +55,18 @@ $travel: math.div(100 + $feather, 100 + 2 * $feather) * 100%;
   }
 }
 
-// Sin animar, cubre la pantalla; lo que sobresale por arriba y por abajo son los bordes fundidos
+// Negro liso y de bordes rectos; sin animar, cubre la pantalla
 .veil {
   position: absolute;
-  inset: #{-$feather * 1%} 0;
-  background: linear-gradient(transparent, $spaceVoid $edge, $spaceVoid 100% - $edge, transparent);
+  inset: 0;
+  overflow: hidden;
+  background-color: $spaceBlack;
   will-change: transform;
   animation: warpIn $motionWarpIn $easeWarp both;
-
-  // Nebulosa, solo en la parte opaca
-  &::before {
-    content: '';
-    position: absolute;
-    inset: $edge 0;
-    background:
-      radial-gradient(closest-side, rgba($nebulaPurple, 0.8), transparent),
-      radial-gradient(60% 35% at 25% 65%, $cosmicBlue, transparent);
-  }
 }
 
 [data-phase='out'] .veil {
   animation: warpOut $motionWarpOut $easeWarp both;
-}
-
-.streaks {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  mask-image: linear-gradient(transparent, #000 $edge, #000 100% - $edge, transparent);
 }
 
 .far,
@@ -114,13 +91,13 @@ $travel: math.div(100 + $feather, 100 + 2 * $feather) * 100%;
 
 @keyframes warpIn {
   from {
-    transform: translateY($travel);
+    transform: translateY(100%);
   }
 }
 
 @keyframes warpOut {
   to {
-    transform: translateY(-$travel);
+    transform: translateY(-100%);
   }
 }
 

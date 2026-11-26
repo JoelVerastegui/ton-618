@@ -11,8 +11,11 @@ import { settleSection } from '@/utils/settleSection';
 
 // Tope de espera del destino: pasado, se muestra como esté.
 const TIMEOUT_MS = 8000;
-// Tiempo mínimo con la pantalla cubierta.
+// Tiempo mínimo con la pantalla cubierta. Inicio y Exploración son escenas pesadas: en móvil
+// necesitan más para estar dibujadas antes de descubrirse.
 const MIN_COVER_MS = 300;
+const HEAVY_COVER_MS = 600;
+const HEAVY_SECTIONS: SectionId[] = ['hero', 'exploration'];
 // Un destino a esta distancia o menos ya está en pantalla.
 const SAME_PLACE_PX = 2;
 
@@ -79,7 +82,8 @@ export function useSectionNavigation() {
 
       // Nada se mueve hasta que la pantalla está cubierta
       await play('in');
-      const minCover = delay(reducedMotion ? 0 : MIN_COVER_MS);
+      const coverMs = HEAVY_SECTIONS.includes(id) ? HEAVY_COVER_MS : MIN_COVER_MS;
+      const minCover = delay(reducedMotion ? 0 : coverMs);
 
       try {
         await Promise.race([arrive(id, url, expired.signal), delay(TIMEOUT_MS)]);

@@ -86,7 +86,7 @@ Tras el salto se debe ver **el inicio de la sección al 100%**, desde cualquier 
 
 ## Transición
 
-Salto hiperespacial en CSS: un fondo oscuro con estelas de estrellas estiradas en la dirección del viaje. Es un único componente (`Hyperspace`) con dos orientaciones, según dónde esté el destino respecto a la posición actual:
+Salto hiperespacial en CSS: un fondo negro (`#000`) liso, sin degradados, con estelas de estrellas estiradas en la dirección del viaje. Es un único componente (`Hyperspace`) con dos orientaciones, según dónde esté el destino respecto a la posición actual:
 
 | Destino     | Orientación de la animación |
 | ----------- | --------------------------- |
@@ -98,7 +98,7 @@ Ambas son la misma transición (forma, duración y curva); una es el espejo de l
 | Fase     | Duración | Qué ocurre                                                                                    |
 | -------- | -------- | --------------------------------------------------------------------------------------------- |
 | Entrada  | 500 ms   | Se cierra el menú, se cancela cualquier scroll animado y la transición cubre la pantalla       |
-| Cubierta | ≥ 300 ms | Carga del destino y vecinas, salto instantáneo, URL, y destino listo con sus entradas completas |
+| Cubierta | ≥ 300 ms; ≥ 600 ms hacia Inicio o Exploración | Carga del destino y vecinas, salto instantáneo, URL, y destino listo con sus entradas completas |
 | Salida   | 600 ms   | La transición sale en la misma orientación                                                    |
 
 - La pantalla sigue cubierta hasta que el destino está cargado, sin `data-arrival-pending` y con sus imágenes visibles decodificadas. Tope de 8 s desde que está cubierta; pasado, se descubre igualmente.

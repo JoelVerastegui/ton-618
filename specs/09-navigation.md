@@ -168,10 +168,10 @@ Dirección: se compara el punto de llegada del destino con el scroll actual (tol
 | Fase | Duración orientativa | Qué ocurre |
 | --- | --- | --- |
 | Entrada | 500 ms | Se cierra el menú, se cancela cualquier scroll animado en curso y la transición cubre la pantalla |
-| Cubierta | ≥ 300 ms | Carga del destino y vecinas, salto instantáneo, URL, destino listo y animaciones de entrada completadas |
+| Cubierta | ≥ 300 ms (≥ 600 ms hacia Inicio o Exploración) | Carga del destino y vecinas, salto instantáneo, URL, destino listo y animaciones de entrada completadas |
 | Salida | 600 ms | La transición sale en la misma orientación |
 
-- **Aspecto:** fondo oscuro opaco con estelas de estrellas estiradas en la dirección del viaje, en CSS/SVG, animando solo `transform` y `opacity`. Es un único componente; la orientación contraria es su espejo.
+- **Aspecto:** fondo negro `#000` liso, sin degradados y de bordes rectos (decidido tras el Paso 11), con estelas de estrellas estiradas en la dirección del viaje, en CSS/SVG, animando solo `transform` y `opacity`. Es un único componente; la orientación contraria es su espejo.
 - **Espera:** la pantalla sigue cubierta hasta que el destino esté cargado, sin `data-arrival-pending` y con sus imágenes visibles decodificadas. Tope de 8 s; pasado el tope se descubre igualmente.
 - **Animaciones de entrada:** se completan (`finish()`) las animaciones y transiciones finitas del destino basadas en tiempo. No se tocan las guiadas por scroll ni las infinitas.
 - Mientras dura, no se admite otra navegación ni scroll de la persona (rueda, táctil o teclado).
@@ -200,7 +200,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `web-motion-designer
 8. **Menú.** `Icon`, symbols de menú y cierre, `SectionMenu`, `useScrollLock.ts`; los enlaces saltan sin transición.
 9. **Solapes del ícono.** `section-verifier` mide los choques en las 8 secciones; `web-motion-designer` mueve el contenido afectado reservando el hueco con un token en `_variables.scss`.
 10. **Transición.** `Hyperspace` en sus dos orientaciones, integrada en la secuencia, con reduced-motion.
-11. **Documentación y limpieza.** Actualizar `docs/navigation.md`, `docs/architecture.md` y `README.md` (base y publicación manual); quitar los symbols sin uso de `icons.svg`; Prettier y lint; JSON e interfaces sin campos sin uso.
+11. **Documentación y limpieza.** Actualizar `docs/navigation.md`, `docs/architecture.md` y `README.md` (la base; el despliegue no se documenta, lo hace el autor: decidido tras el Paso 11); quitar los symbols sin uso de `icons.svg`; Prettier y lint; JSON e interfaces sin campos sin uso.
 12. **Calibración visual.** Capturas en los 8 viewports de referencia (320×568, 360×640, 390×844, 640×360, 568×320, 1024×600, 1440×900, 1920×1080) y en 768×1024: menú, ícono, transición y llegadas; registrar valores finales aquí.
 13. **Verificación con `section-verifier`.** Criterios de aceptación, rendimiento, accesibilidad y robustez; registrar resultados y pendientes en este documento.
 
@@ -252,7 +252,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `web-motion-designer
 - [ ] Al descubrirse la pantalla no hay restos de otra sección, fundidos a medias ni elementos apareciendo.
 - [ ] Destino abajo: la transición va hacia arriba; destino arriba: hacia abajo; misma forma, duración y curva.
 - [ ] Elegir la sección actual en su punto de llegada solo cierra el menú; elegirla desde más abajo usa la orientación «arriba».
-- [ ] Con las secciones ya cargadas, la secuencia dura 1,4 s ± 0,2 s.
+- [ ] Con las secciones ya cargadas, la secuencia dura 1,4 s ± 0,2 s (1,7 s ± 0,2 s hacia Inicio o Exploración, decidido tras el Paso 11 por tirones en móvil al descubrirse).
 - [ ] Mientras la pantalla está cubierta no se ven secciones intermedias y la URL solo cambia una vez.
 - [ ] Durante la transición, los clics, la rueda, el táctil y el teclado no mueven la página ni inician otra navegación.
 - [ ] Con la red limitada, la pantalla sigue cubierta hasta que el destino está listo (tope 8 s).
@@ -293,7 +293,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `web-motion-designer
 - `<dialog>` modal: da `Escape`, foco contenido y fondo inerte sin librerías.
 - Sección activa por el punto de llegada y el centro del viewport: las secciones se solapan y observar sus cajas sería ambiguo.
 - `[data-arrival]` por sección: la posición vive junto a los tokens que la definen, sin constantes duplicadas en TypeScript.
-- Carga a dos viewports de distancia, fases de 500 / 300 / 600 ms y tope de espera de 8 s.
+- Carga a dos viewports de distancia, fases de 500 / 300 / 600 ms (pausa de 600 ms hacia Inicio y Exploración) y tope de espera de 8 s.
 - Recarga completa si falla la carga de un destino.
 - `base` también en desarrollo, para que las rutas se prueben igual que en producción.
 

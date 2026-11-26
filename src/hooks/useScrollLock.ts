@@ -19,9 +19,7 @@ export function useScrollLock(locked: boolean) {
     const width = Math.max(0, window.innerWidth - root.clientWidth);
     root.style.setProperty(WIDTH_PROPERTY, `${width}px`);
     root.setAttribute(ATTRIBUTE, '');
-    return () => {
-      root.removeAttribute(ATTRIBUTE);
-      root.style.removeProperty(WIDTH_PROPERTY);
-    };
+    // El ancho se queda: el menú aún lo usa mientras sale
+    return () => root.removeAttribute(ATTRIBUTE);
   }, [locked]);
 }
