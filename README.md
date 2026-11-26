@@ -1,6 +1,6 @@
 # TON 618
 
-Experiencia espacial interactiva e informativa sobre el agujero negro TON 618. SPA separado en varias secciones (no features), cada una con un contenido específico, incluyen animaciones avanzadas, transiciones dinámicas y una cohesión del diseño artístico. La navegación entre las secciones se hará mediante scroll, debe adaptarse a dispositivos desktop y móviles.
+Experiencia espacial interactiva e informativa sobre el agujero negro TON 618. SPA separado en varias secciones (no features), cada una con un contenido específico, incluyen animaciones avanzadas, transiciones dinámicas y una cohesión del diseño artístico. La navegación entre las secciones es por scroll o desde un menú lateral que salta a cada una (detalle en [docs/navigation.md](docs/navigation.md)), y se adapta a dispositivos desktop y móviles.
 
 ## Tecnologías
 
@@ -42,7 +42,7 @@ Todos los créditos de los recursos del proyecto se declaran aquí, no en pantal
 | Observación de TON 618 | Evidencia (`src/assets/images/evidence/`) | Legacy Surveys (DR9), crédito: «Legacy Surveys / D. Lang (Perimeter Institute)». Licencia CC BY 4.0 (https://www.legacysurvey.org/acknowledgment/). Recortada, con reducción de ruido y reescalada a WebP. |
 | Space Grotesk | Tipografía (`src/assets/fonts/`) | SIL Open Font License 1.1 (`src/assets/fonts/SpaceGrotesk-OFL.txt`). |
 
-Las estrellas, el disco de gas, el cielo del agujero negro interactivo y la distorsión de transición se generan en código: no hay recursos adicionales.
+Las estrellas, el disco de gas, el cielo del agujero negro interactivo, la distorsión entre secciones y el salto hiperespacial del menú se generan en código: no hay recursos adicionales.
 
 ### Fuentes científicas
 
