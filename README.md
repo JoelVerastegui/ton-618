@@ -1,4 +1,4 @@
-# TON 618
+# TON 618 
 
 Experiencia espacial interactiva e informativa sobre el agujero negro TON 618. SPA separado en varias secciones (no features), cada una con un contenido específico, incluyen animaciones avanzadas, transiciones dinámicas y una cohesión del diseño artístico. La navegación entre las secciones es por scroll o desde un menú lateral que salta a cada una (detalle en [docs/navigation.md](docs/navigation.md)), y se adapta a dispositivos desktop y móviles.
 
