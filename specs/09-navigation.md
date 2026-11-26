@@ -256,6 +256,85 @@ Con más de 420 px de alto, abrir una pregunta metía una cabecera bajo el ícon
 
 ---
 
+## Verificación (Paso 13)
+
+Sobre `8f19b3f`, sin cambios en el código. Línea base «antes»: `57ae406`.
+
+**Entorno:** Windows 10, 7,4 GB de RAM, Edge 158 headless, `vite preview` (rutas también en `dev`). Sin GPU salvo rendimiento, que usa la GPU integrada (AMD Radeon, D3D11). Móvil y CPU 4× son emulados. Resultado: 28 de 32 criterios cumplidos; los 4 sin marcar fallan en un caso concreto.
+
+### Criterios
+
+| Criterio | Resultado y valor medido |
+| --- | --- |
+| URL durante el scroll | Cumple. 8 rutas en orden en ambos sentidos y 0 discrepancias en 5 configuraciones (320 a 1920 px, una con movimiento reducido) |
+| Historial | Cumple. `history.length` no cambia con el scroll ni tras 4 navegaciones por configuración |
+| Acceso directo con y sin barra | **No cumple** solo en la raíz: 60 de 60 cargas correctas (0 px, sin transición, `dev` y `preview`), pero `/ton-618` sin barra responde 404 con el aviso de Vite en ambos |
+| Recarga | Cumple. 24 de 24 (3 viewports) |
+| Ruta desconocida | Cumple. 7 de 7 pasan a `/ton-618/`, conservando parámetros; también con un servidor que imita Pages |
+| `404.html` | Cumple. Idéntico a `index.html` |
+| Chunks iniciales | Cumple. En los 9 viewports solo Exploración y sus dos dependencias |
+| Una descarga y sin desmontar | Cumple. 23 recursos JS/CSS, 0 repetidos; las 8 secciones siguen montadas tras 4 recorridos y 12 navegaciones |
+| Sin saltos de contenido | **No cumple** sin anclaje de scroll y con movimiento reducido: entrando en `/epilogue` y subiendo salta 141,5 px (390×844) y 877 px (1440×900). Con anclaje, máximo 0,5 px; modo normal y sin `animation-timeline`, 0 px. El anclaje se anuló por CSS: no se probó en Safari |
+| Botón del Hero | Cumple. Con el chunk retenido 3 s llega a 0 px de su destino con scroll animado |
+| Ícono, 8 nombres y sección activa | **No cumple** de 768 px de ancho en adelante con 420 px de alto o menos: la segunda columna queda cortada (44 a 51 px) y aparece scroll horizontal (768×390 a 932×420 y 1280×400). En los 9 viewports de referencia, 72 de 72 correctos |
+| Panel lateral o pantalla completa | Cumple. 352 px desde 768 px y ancho completo por debajo; `blur(10px)` |
+| Cierres y foco | Cumple. Enlace, botón, `Escape` y clic fuera; el foco vuelve al ícono |
+| Fondo bloqueado | Cumple. 0 px de scroll y de desplazamiento con rueda, táctil y teclado, con barra clásica y sin ella; 24 `Tab` sin llegar a la página |
+| Solapes del ícono | Cumple. 0 en llegadas, estados abiertos y reposo en 18 combinaciones (9 viewports, normal y reducido) y en 844×390. Control negativo (ícono sobre el título): 20 solapes en llegada o estado. El contenido en movimiento cruza por debajo, más veces con movimiento reducido |
+| Llegadas | Cumple. 28 primeras visitas y 112 pares encadenados (390×844 y 1440×900), y, sin `animation-timeline`, 24 accesos directos y 42 idas y vueltas, todas a 1 px o menos |
+| Pantalla al descubrirse | **No cumple** si un fondo CSS aún no ha llegado: con la nebulosa retenida 6 s, Tiempo se descubre sin ella y aparece después. En condiciones normales y en Slow 4G no hay animaciones finitas a medias, imágenes visibles sin cargar ni fuentes pendientes |
+| Orientación | Cumple. `up` y `down` según el destino; mismas animaciones, 500 y 600 ms, `cubic-bezier(0.65, 0, 0.35, 1)` |
+| Sección actual | Cumple. A 2 px o menos solo cierra el menú; desde 3 px más abajo, orientación `up` |
+| Duración | Cumple con GPU y CPU 1×: 160 navegaciones en 390, 768, 1440 y 1920 px dentro del margen (medianas 1451–1557 ms; Inicio y Exploración 1759–1783 ms). Con CPU 4× solo se pasan Experimento (390×844, 4 de 5, hasta 1622 ms) y Ciencia (1 de 5, 1617 ms). Sin GPU llega a 2584 ms en 1920×1080 |
+| Cubierta y URL | Cumple. Todos los saltos con la pantalla cubierta y una sola escritura de la URL |
+| Entradas bloqueadas | Cumple. Rueda, táctil, teclado, clic y arrastre sobre controles: un único salto, sin otra navegación |
+| Red limitada | Cumple. Slow 4G: cubierta de 1,0 a 5,4 s; con el chunk retenido 20 s descubre a los 8,06 s de estar cubierta |
+| Movimiento reducido | Cumple. 24 de 24 sin transición ni animación del menú, 42–378 ms |
+| Regresión | Cumple. 5 configuraciones: 3155 valores de animaciones por scroll sin diferencias, mismos niveles, alto de página y botón del Hero. Las diferencias de píxeles son los ajustes por el ícono, las estrellas aleatorias de cada compilación, el canvas y un artefacto del script (ocultaba el `<header>` del título de Ciencia en la base) |
+| Textos del menú | Cumple. Todos en `navigation.json` |
+| axe y Lighthouse | Cumple. axe: 0 violaciones en 48 análisis (3 viewports, 8 secciones, menú cerrado y abierto). Lighthouse accesibilidad 100. Contraste mínimo: enlaces 7,5:1, ícono 15,6:1 |
+| `transform` y `opacity`, 50 fps | Cumple. Solo `transform`. CPU 4× en 390×844 y 360×640: salida 58–62 fps; en 112 tramos con la sección cargada, 1 bajo 50 (48 fps, entrada hacia Inicio). La primera visita a Ciencia en un navegador recién abierto bajó a 44–47 fps (2 de 2), con huecos de hasta 140 ms; las siguientes, 60 |
+| Estilos y archivos | Cumple. Sin `.scss` sueltos, `!important` ni `style={{}}`; los 23 `style={…}` son valores calculados y anteriores a esta spec; lógica `.ts` solo en `utils/` y `hooks/` |
+| Build y lint | Cumple. Sin errores; el aviso `PLUGIN_TIMINGS` también sale en la línea base |
+| Presupuesto | Cumple. Ver tabla siguiente |
+
+### Presupuesto
+
+| Concepto | Medido |
+| --- | --- |
+| Recursos y dependencias nuevos | 0 |
+| JS propio de la navegación | 4090 B gz |
+| CSS del menú y la transición | 2026 B gz |
+| JS inicial (con los chunks perezosos de la carga) | 94 708 → 81 723 B gz; CSS 41 528 → 33 221 B gz |
+| Renders de React durante el scroll | Con todo cargado, solo 14 renders del menú (cambios de sección); los de las secciones son los mismos que antes |
+| Lighthouse móvil, mediana de 5 | Performance 90 → 90, CLS 0, LCP 3621 → 3546 ms, TBT 26 → 0 ms, peso 722 → 649 KB |
+| CLS en acceso directo | 0 en las 8 rutas (390×844 y 1440×900) |
+
+### Fallos y pendientes
+
+Sin corregir; por orden de gravedad.
+
+1. **Menú cortado en móvil apaisado** (≥ 768 px de ancho, ≤ 420 px de alto, p. ej. 844×390). Las dos columnas de `.list` necesitan 395–402 px y el panel mide 352 px. Opciones: ensanchar el panel en ese caso (unas 26 rem) o limitar las dos columnas a menos de `md`, con scroll vertical.
+2. **Salto de contenido sin anclaje de scroll y con movimiento reducido.** El marcador de Exploración mide 3000 px fijos y la sección, más. Opciones: cargar Exploración en todo acceso directo con movimiento reducido, o compensar el scroll al montar una sección por encima cuando no haya anclaje.
+3. **Chunk que tarda más de 8 s y falla:** no se recarga la página; queda la sección en blanco y elegirla en su llegada no hace nada (se recupera al navegar a ella desde otra posición). Propuesta: seguir observando el fallo tras el tope y recargar si la persona sigue en el destino.
+4. **Sin conexión,** navegar a una sección sin cargar sustituye la web por la página de error del navegador (es la recarga completa prevista). Decidir si sin conexión conviene quedarse en el marcador de posición.
+5. **Movimiento reducido y red lenta:** hasta 8 s sin respuesta visual y con la entrada bloqueada. Decidir si se muestra un indicador estático.
+6. **`/ton-618` sin barra** en `dev` y `preview`: redirigir desde un plugin en `vite.config.ts` o acotar el criterio. En GitHub Pages no se ha comprobado.
+7. **Falla una vecina en el acceso directo** (`useDirectAccess`, `Promise.all`): no se completa el destino ni se vuelve a colocar la página (entrada visible; −142 px con movimiento reducido y sin anclaje). Propuesta: como en `arrive`, `allSettled` para las vecinas y exigir solo el destino.
+8. **Fondos CSS** (`settleSection`): no se esperan. Incluirlos en la espera o precargar la nebulosa; en uso normal ya está pedida desde la carga inicial.
+9. **Tarjeta de Exploración a 568×320:** al estrecharse por el ícono crece en alto y en el nivel 3 pisa más «Canes Venatici» y «Observas desde la Tierra».
+10. **Menores:** girar durante la salida deja la página en otra sección (igual que al girar sin navegar; en entrada y cubierta, 0 px); `Tab` desde el ícono en Tiempo, llegando por scroll, sale de la página porque Experimento aún no ha cargado; con texto al 200 % a 320 px, cuatro nombres necesitan scroll horizontal; en Ciencia compacta el orden de `Tab` (tarjeta y luego navegación) no es el visual.
+11. **Anterior a esta spec, sin corregir:** solape de las etiquetas del nivel 1 de Exploración.
+
+### No verificado
+
+- **Dispositivo real:** los tirones que el autor vio en su móvil al descubrirse Inicio y Exploración no se reproducen aquí (con GPU y CPU 4×, tarea más larga 64 ms y salida a 58–60 fps; con 6×, 112 ms). Tampoco el coste en un móvil modesto, las áreas seguras, las barras dinámicas, el gesto táctil con inercia ni un lector de pantalla.
+- **Safari y Firefox:** anclaje de scroll, `<dialog>` con `@starting-style` y `allow-discrete`, `backdrop-filter` y su alternativa, `animation-timeline` (solo simulado en Edge).
+- **GitHub Pages real** y la redirección de la raíz sin barra.
+- El desenfoque del menú no cambia los fps medidos con GPU y CPU 4× (frente al mismo menú sin él); Experimento a 1440×900 baja a 9 fps con o sin menú, por su canvas.
+
+---
+
 ## Presupuesto
 
 | Concepto | Límite |
@@ -274,53 +353,53 @@ Con más de 420 px de alto, abrir una pregunta metía una cabecera bajo el ícon
 
 **Rutas y acceso directo**
 
-- [ ] Al hacer scroll de principio a fin y de vuelta, la URL toma las 8 rutas en orden y coincide con la sección visible.
-- [ ] La longitud del historial no aumenta al hacer scroll ni al usar el menú.
-- [ ] Abrir cada una de las 8 rutas, con y sin barra final, muestra su punto de llegada sin animación de scroll ni transición, en `dev` y en `preview`.
-- [ ] Recargar en cualquier ruta vuelve al punto de llegada de esa sección.
-- [ ] Una ruta desconocida muestra el Hero y la URL pasa a `/ton-618/`.
-- [ ] `dist/404.html` existe tras el build y es idéntico a `dist/index.html`.
+- [x] Al hacer scroll de principio a fin y de vuelta, la URL toma las 8 rutas en orden y coincide con la sección visible.
+- [x] La longitud del historial no aumenta al hacer scroll ni al usar el menú.
+- [ ] Abrir cada una de las 8 rutas, con y sin barra final, muestra su punto de llegada sin animación de scroll ni transición, en `dev` y en `preview`. _Sin marcar (Paso 13): falla solo `/ton-618` sin barra en `dev` y `preview`._
+- [x] Recargar en cualquier ruta vuelve al punto de llegada de esa sección.
+- [x] Una ruta desconocida muestra el Hero y la URL pasa a `/ton-618/`.
+- [x] `dist/404.html` existe tras el build y es idéntico a `dist/index.html`.
 
 **Carga bajo demanda**
 
-- [ ] Al abrir `/ton-618/` solo se descargan los chunks del Hero y de las secciones a menos de dos viewports.
-- [ ] Cada sección se descarga una sola vez y no se desmonta.
-- [ ] Al recorrer la página en ambos sentidos, también tras entrar directo en `/ton-618/epilogue`, no hay saltos de contenido (desplazamiento ≤ 1 px).
-- [ ] El botón del Hero lleva a Exploración con su scroll animado aunque la sección aún no haya cargado.
+- [x] Al abrir `/ton-618/` solo se descargan los chunks del Hero y de las secciones a menos de dos viewports.
+- [x] Cada sección se descarga una sola vez y no se desmonta.
+- [ ] Al recorrer la página en ambos sentidos, también tras entrar directo en `/ton-618/epilogue`, no hay saltos de contenido (desplazamiento ≤ 1 px). _Sin marcar (Paso 13): falla sin anclaje de scroll y con movimiento reducido._
+- [x] El botón del Hero lleva a Exploración con su scroll animado aunque la sección aún no haya cargado.
 
 **Menú e ícono**
 
-- [ ] El ícono se ve en las 8 secciones y abre el menú, que muestra los 8 nombres y marca la sección activa.
-- [ ] Desde 768 px es un panel lateral con el fondo desenfocado; por debajo ocupa toda la pantalla.
-- [ ] Se cierra con enlace, botón de cierre, `Escape` y clic fuera (donde hay fuera); el foco vuelve al ícono.
-- [ ] Con el menú abierto el fondo no hace scroll, no se desplaza el layout y el foco no sale del menú a la página.
-- [ ] El ícono no se solapa con texto, controles, tarjetas ni marcadores en reposo (stage pegado, elementos fijos, punto de llegada y estados interactivos abiertos: nivel, punto, parada, tarjeta, pregunta), en las 8 secciones y en los 9 viewports del Paso 12. Se admite que el contenido en movimiento cruce por debajo al hacer scroll (decidido en el Paso 9).
+- [ ] El ícono se ve en las 8 secciones y abre el menú, que muestra los 8 nombres y marca la sección activa. _Sin marcar (Paso 13): falla de 768 px de ancho en adelante con 420 px de alto o menos._
+- [x] Desde 768 px es un panel lateral con el fondo desenfocado; por debajo ocupa toda la pantalla.
+- [x] Se cierra con enlace, botón de cierre, `Escape` y clic fuera (donde hay fuera); el foco vuelve al ícono.
+- [x] Con el menú abierto el fondo no hace scroll, no se desplaza el layout y el foco no sale del menú a la página.
+- [x] El ícono no se solapa con texto, controles, tarjetas ni marcadores en reposo (stage pegado, elementos fijos, punto de llegada y estados interactivos abiertos: nivel, punto, parada, tarjeta, pregunta), en las 8 secciones y en los 9 viewports del Paso 12. Se admite que el contenido en movimiento cruce por debajo al hacer scroll (decidido en el Paso 9).
 
 **Navegación y transición**
 
-- [ ] Cada enlace llega al punto de llegada de su sección, desde arriba y desde abajo, también en la primera visita.
-- [ ] Al descubrirse la pantalla no hay restos de otra sección, fundidos a medias ni elementos apareciendo.
-- [ ] Destino abajo: la transición va hacia arriba; destino arriba: hacia abajo; misma forma, duración y curva.
-- [ ] Elegir la sección actual en su punto de llegada solo cierra el menú; elegirla desde más abajo usa la orientación «arriba».
-- [ ] Con las secciones ya cargadas, la secuencia dura 1,4 s ± 0,2 s (1,7 s ± 0,2 s hacia Inicio o Exploración, decidido tras el Paso 11 por tirones en móvil al descubrirse).
-- [ ] Mientras la pantalla está cubierta no se ven secciones intermedias y la URL solo cambia una vez.
-- [ ] Durante la transición, los clics, la rueda, el táctil y el teclado no mueven la página ni inician otra navegación.
-- [ ] Con la red limitada, la pantalla sigue cubierta hasta que el destino está listo (tope 8 s).
-- [ ] Con `prefers-reduced-motion: reduce` el salto es directo, sin transición ni animación del menú.
+- [x] Cada enlace llega al punto de llegada de su sección, desde arriba y desde abajo, también en la primera visita.
+- [ ] Al descubrirse la pantalla no hay restos de otra sección, fundidos a medias ni elementos apareciendo. _Sin marcar (Paso 13): falla si un fondo CSS aún no ha llegado._
+- [x] Destino abajo: la transición va hacia arriba; destino arriba: hacia abajo; misma forma, duración y curva.
+- [x] Elegir la sección actual en su punto de llegada solo cierra el menú; elegirla desde más abajo usa la orientación «arriba».
+- [x] Con las secciones ya cargadas, la secuencia dura 1,4 s ± 0,2 s (1,7 s ± 0,2 s hacia Inicio o Exploración, decidido tras el Paso 11 por tirones en móvil al descubrirse).
+- [x] Mientras la pantalla está cubierta no se ven secciones intermedias y la URL solo cambia una vez.
+- [x] Durante la transición, los clics, la rueda, el táctil y el teclado no mueven la página ni inician otra navegación.
+- [x] Con la red limitada, la pantalla sigue cubierta hasta que el destino está listo (tope 8 s).
+- [x] Con `prefers-reduced-motion: reduce` el salto es directo, sin transición ni animación del menú.
 
 **Regresión**
 
-- [ ] Las animaciones por scroll de las secciones, el botón del Hero y los niveles de Exploración se comportan igual que antes (capturas antes y después en las mismas posiciones), salvo los ajustes por el ícono.
+- [x] Las animaciones por scroll de las secciones, el botón del Hero y los niveles de Exploración se comportan igual que antes (capturas antes y después en las mismas posiciones), salvo los ajustes por el ícono.
 
 **Calidad**
 
-- [ ] Todos los textos del menú salen de `navigation.json`.
-- [ ] axe/Lighthouse: 0 violaciones, también con el menú abierto.
-- [ ] La transición anima solo `transform` y `opacity` y se mantiene a ≥ 50 fps con CPU 4× más lenta en emulación móvil.
-- [ ] No hay `.scss` sueltos fuera de `src/styles/`, ni `!important`, ni `style={{}}` salvo valores dinámicos; `.ts` de lógica solo en `utils/` y `hooks/`; `prettier --check` limpio.
-- [ ] `npm run build` y `npm run lint` terminan sin errores ni avisos nuevos.
-- [ ] Se cumple el presupuesto.
-- [ ] El informe de `section-verifier` queda registrado en este documento.
+- [x] Todos los textos del menú salen de `navigation.json`.
+- [x] axe/Lighthouse: 0 violaciones, también con el menú abierto.
+- [x] La transición anima solo `transform` y `opacity` y se mantiene a ≥ 50 fps con CPU 4× más lenta en emulación móvil.
+- [x] No hay `.scss` sueltos fuera de `src/styles/`, ni `!important`, ni `style={{}}` salvo valores dinámicos; `.ts` de lógica solo en `utils/` y `hooks/`; `prettier --check` limpio.
+- [x] `npm run build` y `npm run lint` terminan sin errores ni avisos nuevos.
+- [x] Se cumple el presupuesto.
+- [x] El informe de `section-verifier` queda registrado en este documento.
 
 ---
 
