@@ -212,6 +212,26 @@
   }
 }
 
+// Apaisado bajo: la columna de la tarjeta llega a la altura del ícono de menú. Con sitio de sobra
+// se aparta a la izquierda; en `$sciCompact` no cabe (taparía el disco), así que la navegación pasa
+// arriba, junto al ícono, y la tarjeta queda debajo de él con el mismo ancho.
+@media (max-height: $shortHeight) and (min-width: 701px) and (orientation: landscape) {
+  .panel {
+    right: $menuClearRight;
+    width: min(
+      $cardWidth,
+      calc(66vw - #{$menuClearRight} - #{$mapSizeDesktop} * #{sciClear()} - 0.5rem)
+    );
+  }
+}
+
+@media #{$sciCompact} and (max-height: $shortHeight) {
+  // La navegación, después de la tarjeta en el DOM, se ve encima (su margen, en `PointNav`)
+  .panel {
+    flex-direction: column-reverse;
+  }
+}
+
 // --- Intro con el scroll (parpadeo) --------------------------------------------
 // Exploración cierra los párpados al final de su recorrido (ver `Exploration.module.scss`)
 // y esta sección empieza con ellos cerrados: justo en x = 0 el stage pasa a ser visible

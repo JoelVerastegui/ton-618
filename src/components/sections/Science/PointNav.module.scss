@@ -8,6 +8,12 @@
   align-items: center;
   justify-content: center;
   pointer-events: auto;
+
+  // Apaisado bajo y estrecho: va arriba de la tarjeta (ver `.panel` en `Science`) y deja sitio al
+  // ícono de menú; el panel ya está a `max(4vw, 3rem)` del borde
+  @media #{$sciCompact} and (max-height: $shortHeight) {
+    margin-right: max(0px, calc(#{$menuClearRight} - max(4vw, 3rem)));
+  }
 }
 
 .button {

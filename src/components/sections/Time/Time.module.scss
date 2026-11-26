@@ -179,6 +179,11 @@
     // En la escena base ya está el mensaje: el título deja sitio a las etiquetas
     opacity: 0;
   }
+
+  // Vertical estrecho: el texto llegaría bajo el ícono de menú, así que se centra en el hueco libre
+  @media (max-width: 389.98px) and (orientation: portrait) {
+    right: $menuClearRight;
+  }
 }
 
 .title {

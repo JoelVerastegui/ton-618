@@ -124,6 +124,23 @@
   position: relative;
 }
 
+// Ícono de menú en vertical: la sección queda quieta (`sticky`) con el título o el comparador en lo
+// alto de la pantalla, así que le dejan sitio a la derecha. Móvil estrecho: solo por ese lado, para
+// no perder más ancho (los 1,25 rem son el padding de la sección).
+@media (max-width: 389.98px) and (orientation: portrait) {
+  .header,
+  .compare {
+    margin-right: calc(#{$menuClearRight} - 1.25rem);
+  }
+}
+
+// Tablet vertical: el comparador (cuadrado y casi tan ancho como la pantalla) se estrecha centrado.
+@media (min-width: 768px) and (max-width: 991.98px) and (orientation: portrait) {
+  .compare {
+    margin-inline: calc(#{$menuClearRight} - 1.25rem);
+  }
+}
+
 // Escritorio y móvil apaisado: título arriba a la izquierda, comparador en la mayor parte de la
 // altura y preguntas en una columna a la derecha. Todo cabe en 100dvh: `--compareMaxH` es el alto
 // que queda para el comparador (pantalla menos paddings, título y huecos).
@@ -171,5 +188,14 @@
   // Si una respuesta abierta hace crecer la sección, el comparador no se desplaza.
   .compare {
     align-items: flex-start;
+  }
+}
+
+// Apaisado muy bajo: las preguntas ocupan la columna derecha hasta arriba, así que la sección deja
+// sitio al ícono de menú. La columna se queda en su mínimo para no encoger el comparador.
+@media (max-height: $tinyHeight) and (orientation: landscape) {
+  .section {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    padding-right: $menuClearRight;
   }
 }

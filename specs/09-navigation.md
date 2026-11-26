@@ -20,7 +20,7 @@ Origen: `docs/navigation.md`. Esta spec fija lo que ese documento dejaba abierto
 - **Ícono de menú** fijo arriba a la derecha y **menú lateral** con fondo desenfocado, a pantalla completa por debajo de `md`, con el nombre de cada sección.
 - **Salto instantáneo** desde los enlaces del menú.
 - **Transición de salto hiperespacial** en CSS/SVG, ≈ 1,4 s, con orientación según el destino.
-- **Ajustes de layout** en las secciones para que el ícono no se solape con ningún contenido.
+- **Ajustes de layout** en las secciones para que el ícono no se solape con el contenido en reposo.
 - **Preparación para GitHub Pages:** `base` de Vite y `404.html` como respaldo.
 - Componente `Icon` basado en los symbols de `public/icons.svg` (como pide `docs/architecture.md`).
 
@@ -244,7 +244,7 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `web-motion-designer
 - [ ] Desde 768 px es un panel lateral con el fondo desenfocado; por debajo ocupa toda la pantalla.
 - [ ] Se cierra con enlace, botón de cierre, `Escape` y clic fuera (donde hay fuera); el foco vuelve al ícono.
 - [ ] Con el menú abierto el fondo no hace scroll, no se desplaza el layout y el foco no sale del menú a la página.
-- [ ] El ícono no se solapa con texto, controles, tarjetas ni marcadores: en las 8 secciones, al inicio, en puntos intermedios y al final de cada una, con sus estados interactivos abiertos (nivel, punto, parada, tarjeta, pregunta), en los 9 viewports del Paso 12.
+- [ ] El ícono no se solapa con texto, controles, tarjetas ni marcadores en reposo (stage pegado, elementos fijos, punto de llegada y estados interactivos abiertos: nivel, punto, parada, tarjeta, pregunta), en las 8 secciones y en los 9 viewports del Paso 12. Se admite que el contenido en movimiento cruce por debajo al hacer scroll (decidido en el Paso 9).
 
 **Navegación y transición**
 

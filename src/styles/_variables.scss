@@ -375,6 +375,12 @@ $sciCompact: '(max-width: 700px) and (orientation: landscape)';
 // Caja del ícono: lado y distancia a los bordes superior y derecho (o el área segura, si es mayor)
 $menuButtonSize: 2.75rem; // 44 px
 $menuButtonInset: 0.75rem;
+// Hueco que el contenido en reposo deja libre al ícono, medido desde el borde derecho: caja del
+// ícono, su distancia al borde (o el área segura, que arriba solo lo baja) y 8 px de aire
+$menuButtonAir: 0.5rem;
+$menuClearRight: calc(
+  max(#{$menuButtonInset}, env(safe-area-inset-right)) + #{$menuButtonSize + $menuButtonAir}
+);
 // Ancho del panel lateral (desde `md`) y desenfoque fijo del fondo
 $menuWidth: 22rem;
 $menuBlur: 10px;

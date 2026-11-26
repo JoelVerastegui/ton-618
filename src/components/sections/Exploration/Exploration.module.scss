@@ -158,6 +158,15 @@
   }
 }
 
+// Apaisado muy bajo (p. ej. 568×320): la tarjeta llega a la altura del ícono de menú y le deja
+// sitio a la derecha. Su borde izquierdo no se mueve: solo se estrecha.
+@media (max-height: 340px) and (orientation: landscape) {
+  .card {
+    right: $menuClearRight;
+    width: min($cardWidth, calc(66vw - #{$menuClearRight} - 2rem));
+  }
+}
+
 // --- Continuidad -----------------------------------------------------------
 // Scrim inferior que enlaza con la línea temporal.
 .scrim {

@@ -8,6 +8,8 @@
 $thumb: 1.25rem;
 $trackHeight: 4px;
 $buttonSize: 2.75rem; // 44 px: área táctil mínima
+// Apaisado bajo: ancho que la tarjeta se ahorra al esquivar su botón solo en el encabezado
+$cardTrim: 1.75rem;
 
 // Texto solo para lectores de pantalla
 %srOnly {
@@ -180,6 +182,11 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
   @media (max-height: $shortHeight) and (orientation: landscape) {
     opacity: 0;
   }
+
+  // Vertical estrecho: el texto llegaría bajo el ícono de menú, así que se centra en el hueco libre
+  @media (max-width: 389.98px) and (orientation: portrait) {
+    right: $menuClearRight;
+  }
 }
 
 .title {
@@ -199,6 +206,12 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
   color: $amberText;
   font-size: 0.875rem;
   letter-spacing: 0.04em;
+
+  // Vertical estrecho: sin espaciado extra cabe en una línea en el hueco libre y no baja hasta la
+  // tarjeta
+  @media (max-width: 389.98px) and (orientation: portrait) {
+    letter-spacing: normal;
+  }
 }
 
 // --- Zoom ----------------------------------------------------------------------------
@@ -459,7 +472,8 @@ $controlShadow:
 
   .info {
     top: 0.5rem;
-    width: min(16rem, 38vw);
+    right: $menuClearRight; // a la izquierda del ícono de menú
+    width: calc(min(16rem, 38vw) - #{$cardTrim});
     translate: 0 0;
 
     &[data-open='false'] {
@@ -467,8 +481,15 @@ $controlShadow:
     }
   }
 
+  // Solo el antetítulo y el título esquivan el botón: la tarjeta, más estrecha y con la misma
+  // columna de texto, tapa menos disco
   .card {
-    padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .tidalKicker,
+  .tidalTitle {
+    padding-right: $cardTrim;
   }
 
   .tidalTitle {
@@ -479,7 +500,7 @@ $controlShadow:
 // Pantallas muy bajas (p. ej. 568×320): la tarjeta algo más ancha (menos líneas)
 @media (max-height: 400px) and (orientation: landscape) {
   .info {
-    width: min(20rem, 46vw);
+    width: calc(min(20rem, 46vw) - #{$cardTrim});
 
     &[data-open='false'] {
       width: auto;
