@@ -206,6 +206,56 @@ Cada paso deja el proyecto compilando y funcional. Agentes: `web-motion-designer
 
 ---
 
+## Calibración visual (Paso 12)
+
+Capturas en Edge headless sin GPU sobre `preview`, en los 8 viewports de referencia y en 768×1024: las 8 llegadas desde el menú, el menú abierto y la transición (entrada, cubierta y salida, en ambas orientaciones). Sin errores de consola.
+
+### Puntos de llegada
+
+Sin cambios. En los 9 viewports, hacia abajo y hacia arriba, el scroll coincide con su `[data-arrival]` (0 px de diferencia) y no queda ninguna sección pendiente.
+
+| Sección | Distancia desde el borde superior de su track o sección |
+| --- | --- |
+| Hero, Exploración, Experimento, Evidencia (`.tail`) y Epílogo | 0 |
+| Ciencia | `$scienceReady` (110) × `--explUnit` (0,6 svh en móvil vertical; 1 svh lado a lado) |
+| Escala | `$scaleIntro`, 120 svh |
+| Tiempo | `$timeIntro`, 100 svh |
+
+- La tarjeta de Exploración llega al 98 % de opacidad (0,36 px por debajo de su sitio): su entrada por scroll termina 0,66 unidades más abajo.
+- En 320×568, Evidencia mide más que la pantalla: la cuarta pregunta queda cortada en la llegada y se alcanza con el scroll.
+
+### Ícono y menú
+
+- **Ícono:** 44×44 px a 12 px de los bordes (o el área segura); hueco reservado `$menuClearRight` (64 px sin área segura). En la llegada no se solapa con nada en ninguno de los 9 viewports.
+- **Panel:** pantalla completa por debajo de 768 px y 352 px (`$menuWidth`) desde ahí. Enlaces de 48 px de alto (texto de 20 a 26 px), dos columnas en apaisado de hasta 420 px de alto y sin scroll interno en ningún viewport. El cierre ocupa el sitio del ícono.
+- **Movimiento:** entrada de 320 ms (`$easeOutExpo`), salida de 200 ms (`$easeCinematic`) y desenfoque fijo de 10 px.
+- El anillo de foco del ícono tras navegar solo se ve con teclado (comprobado con ratón, táctil y teclado).
+
+### Transición
+
+- Entrada de 500 ms y salida de 600 ms con `cubic-bezier(0.65, 0, 0.35, 1)`; pausa cubierta mínima de 600 ms hacia Inicio y Exploración y de 300 ms hacia el resto.
+- Fondo `#000` de bordes rectos. Estelas: 22 lejanas (1 px, alfa 0,45, ciclo de 36 vh en 600 ms) y 14 cercanas (2 px, alfa 0,9, ciclo de 64 vh en 450 ms).
+- Cubre todo el ancho útil y el alto en los 9 viewports y en ambas orientaciones.
+- Al cerrarse, el menú sigue hasta 200 ms por encima: se desvanece mientras la transición apenas asoma por el borde de entrada (opacidad 0,1 a los 195 ms). No se aprecia como defecto y no se cambia.
+
+### Ajustes
+
+| Archivo | Antes | Después |
+| --- | --- | --- |
+| `Evidence.module.scss`, hueco derecho para el ícono en apaisado | Hasta 420 px de alto | Hasta 520 px de alto (la columna de 15 rem sigue limitada a 420 px) |
+
+Con más de 420 px de alto, abrir una pregunta metía una cabecera bajo el ícono (a 740×421, 900×450 y 932×430) o la dejaba a menos de 8 px (a 900×500 y 1280×500). Con el ajuste no hay solapes con ninguna pregunta abierta en 568×320, 640×360, 740×421, 844×390, 900×450, 900×500, 932×430, 960×520 y 1280×500; en 960×540, 1000×600, 1024×600, 1280×620 y 1366×650 ya no los había.
+
+### Pendientes
+
+- **Tarjeta de Exploración al 98 %** (aceptado por el autor tras el Paso 12): no se percibe y su punto de llegada sigue en el borde superior del track.
+- **Barra de scroll clásica** (aceptado por el autor tras el Paso 12): sigue visible a la derecha durante la transición, como parte del navegador, y su tirador cambia de sitio con la pantalla cubierta.
+- **Etiquetas del nivel 1 de Exploración** (anterior a esta spec, sin corregir): «Estás aquí» y la leyenda de los anillos se pisan en 320×568 y 568×320 (56×15 px), 360×640 y 640×360 (46×8 px) y 390×844 (38×3 px). En apaisado bajo, la tarjeta tapa además parte de «TON 618».
+- **Experimento a 568×320 y 640×360:** la tarjeta arranca cerrada; abierta queda a 8 px del ícono y, a 568×320, a 2 px del joystick. Sin solapes y sin cambios.
+- **Duración (Paso 13):** sin GPU, con las secciones cargadas, la secuencia cumple el margen hasta 640 px de ancho y lo supera en algunos destinos desde 768 px (hasta 2,8 s en 1920×1080). Medir con GPU.
+
+---
+
 ## Presupuesto
 
 | Concepto | Límite |

@@ -191,11 +191,17 @@
   }
 }
 
-// Apaisado muy bajo: las preguntas ocupan la columna derecha hasta arriba, así que la sección deja
-// sitio al ícono de menú. La columna se queda en su mínimo para no encoger el comparador.
+// Apaisado con poca altura: con una respuesta abierta, la columna de preguntas llega a la altura del
+// ícono de menú, así que la sección le deja sitio.
+@media (max-height: 520px) and (orientation: landscape) {
+  .section {
+    padding-right: $menuClearRight;
+  }
+}
+
+// Apaisado muy bajo: la columna se queda en su mínimo para no encoger el comparador.
 @media (max-height: $tinyHeight) and (orientation: landscape) {
   .section {
     grid-template-columns: minmax(0, 1fr) 15rem;
-    padding-right: $menuClearRight;
   }
 }
