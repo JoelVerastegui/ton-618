@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type MouseEvent, type SyntheticEvent } from 'react';
 import { flushSync } from 'react-dom';
 import clsx from 'clsx';
+import { Hyperspace } from '@/components/layout/Hyperspace/Hyperspace';
 import styles from '@/components/layout/SectionMenu/SectionMenu.module.scss';
 import { Icon } from '@/components/ui/Icon/Icon';
 import navigationJson from '@/data/navigation.json';
@@ -14,14 +15,15 @@ import { cancelScrollAnimations } from '@/utils/scrollAnimations';
 
 const { menuLabel, openLabel, closeLabel, links } = navigationJson as NavigationData;
 
-// Ícono fijo y menú lateral. Aquí vive la sección activa: al cambiar solo se renderiza el menú.
+// Ícono fijo, menú lateral y transición de sus enlaces. Aquí vive la sección activa: al cambiar solo
+// se renderiza el menú.
 export function SectionMenu() {
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   // Además de marcar su enlace, mantiene la URL al día con la sección visible
   const active = useActiveSection();
-  const { navigate } = useSectionNavigation();
+  const { transition, endPhase, navigate } = useSectionNavigation();
   useScrollLock(open);
 
   useLayoutEffect(() => {
@@ -125,6 +127,8 @@ export function SectionMenu() {
           </nav>
         </div>
       </dialog>
+
+      {transition && <Hyperspace {...transition} onPhaseEnd={endPhase} />}
     </header>
   );
 }

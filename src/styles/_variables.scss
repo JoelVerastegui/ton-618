@@ -390,6 +390,20 @@ $motionMenu: 320ms;
 $zMenu: 100;
 
 // ---------------------------------------------------------------------------
+// Transición entre secciones (SPEC 09)
+// ---------------------------------------------------------------------------
+// Entrada (cubre la pantalla) y salida (la descubre), con la misma curva. La pausa cubierta y el
+// tope de espera están en `useSectionNavigation`.
+$motionWarpIn: 500ms;
+$motionWarpOut: 600ms;
+$easeWarp: cubic-bezier(0.65, 0, 0.35, 1);
+// Ciclo de las estelas lejanas y cercanas (las rápidas dan la profundidad)
+$motionStreakFar: 600ms;
+$motionStreakNear: 450ms;
+// Por encima del ícono y del menú
+$zTransition: 110;
+
+// ---------------------------------------------------------------------------
 // Sobrescrituras de Bootstrap (redefinición de variables !default)
 // ---------------------------------------------------------------------------
 $enable-dark-mode: false;

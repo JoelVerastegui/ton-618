@@ -4,6 +4,12 @@ export type SectionId =
 // Dónde queda el destino de una navegación respecto a la posición actual.
 export type NavigationDirection = 'up' | 'down';
 
+// Estado de la transición: `in` cubre la pantalla (y la mantiene cubierta); `out` la descubre.
+export interface Transition {
+  direction: NavigationDirection;
+  phase: 'in' | 'out';
+}
+
 export interface NavigationLink {
   id: SectionId; // id del <section>
   path: string; // relativo a la base: '' para el Hero, 'science', …

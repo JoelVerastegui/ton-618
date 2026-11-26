@@ -1,4 +1,5 @@
-// Impide que la persona mueva la página o active controles (rueda, táctil, teclado y clic).
+// Impide que la persona mueva la página, active controles o cambie el foco (rueda, táctil, teclado y
+// clic).
 // Los atajos del navegador (con Ctrl, Alt o Meta, y las teclas de función) siguen funcionando.
 // Devuelve cómo quitar el bloqueo.
 export function blockInput() {
@@ -14,7 +15,7 @@ export function blockInput() {
     if (!shortcut) block(event);
   };
 
-  for (const type of ['wheel', 'touchmove', 'click']) {
+  for (const type of ['wheel', 'touchmove', 'mousedown', 'click']) {
     window.addEventListener(type, block, options);
   }
   window.addEventListener('keydown', blockKey, options);
