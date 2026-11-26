@@ -41,9 +41,15 @@ export function useDirectAccess() {
       if (!input.signal.aborted && !touched) jumpToArrival(id);
     };
 
+    // Con movimiento reducido, Exploración mide según su contenido y su marcador solo lo estima. Sin
+    // anclaje de scroll (Safari), montarla después movería la página: se carga ya.
+    const needed = neighborhood(id);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion && !CSS.supports('overflow-anchor', 'auto')) needed.push('exploration');
+
     // Primer salto sobre los marcadores de posición; el definitivo, con las secciones montadas
     reposition();
-    loadSections(neighborhood(id))
+    loadSections(needed)
       .then(() => {
         reposition();
         return settleSection(id);

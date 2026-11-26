@@ -1,6 +1,6 @@
 # SPEC 09 — Navegación entre secciones
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** SPEC 08 (y, por ella, SPEC 07, SPEC 06, SPEC 05, SPEC 04, SPEC 03, SPEC 02 y SPEC 01)
 **Fecha:** 2026-11-25
 **Objetivo:** Implementar la navegación de `docs/navigation.md`: una ruta por sección con carga bajo demanda y un menú lateral cuyos enlaces saltan al inicio de la sección elegida, cubiertos por una transición de salto hiperespacial.
@@ -137,7 +137,9 @@ Las posiciones salen de los mismos tokens SCSS que animan cada sección y se cal
 2. Se cargan la sección destino y sus vecinas.
 3. Se coloca la página en el punto de llegada y se completan las animaciones de entrada.
 
-Se aceptan rutas con y sin barra final.
+Se aceptan rutas con y sin barra final. La raíz sin barra (`/ton-618`) queda fuera (decidido tras el Paso 13).
+
+Con `prefers-reduced-motion: reduce` y sin anclaje de scroll (`overflow-anchor`), el acceso directo carga además Exploración, cuya altura el marcador de posición solo estima (decidido tras el Paso 13).
 
 Excepción: al abrir o recargar la ruta de inicio no se completan animaciones; el Hero conserva su entrada de carga (decidido en el Paso 5).
 
@@ -147,13 +149,13 @@ Excepción: al abrir o recargar la ruta de inicio no se completan animaciones; e
 - Cada una se carga cuando su marcador de posición está a menos de dos alturas de viewport, o cuando una navegación la pide.
 - El marcador de posición tiene el `id` de la sección, su altura, su margen de solape y su `[data-arrival]`, de modo que el botón del Hero sigue encontrando su destino.
 - Evidencia y Epílogo miden según su contenido: su marcador reserva al menos su altura mínima, y toda navegación carga el destino y sus vecinas antes de medir.
-- Si la carga de un destino falla durante una navegación, se carga la página completa en su ruta. Si falla en la carga inicial, queda el marcador de posición, sin reintentos en bucle.
+- Si la carga de un destino falla durante una navegación, se carga la página completa en su ruta. Si falla en la carga inicial, queda el marcador de posición, sin reintentos en bucle. Si falla pasado el tope de 8 s no hay recarga automática: recargar lo decide la persona (decidido tras el Paso 13).
 
 ### Menú
 
 - El ícono es un botón fijo arriba a la derecha, de al menos 44×44 px, respetando las áreas seguras, con contraste suficiente sobre cualquier sección y por encima de todas ellas.
 - El panel es un `<dialog>` modal que entra por la derecha, con botón de cierre y los 8 enlaces. La sección activa lleva `aria-current`.
-- Desde `md` es un panel lateral y el resto de la pantalla se ve desenfocado. Por debajo de `md` ocupa toda la pantalla, con fondo translúcido y desenfoque.
+- Desde `md` es un panel lateral (más ancho con 420 px de alto o menos, donde los enlaces van en dos columnas) y el resto de la pantalla se ve desenfocado. Por debajo de `md` ocupa toda la pantalla, con fondo translúcido y desenfoque.
 - Se cierra con un enlace, el botón de cierre, `Escape` o clic fuera. El foco vuelve al ícono.
 - `Tab` desde el ícono lleva al primer control de la sección activa, no al principio de la página (decidido en el Paso 8).
 - Con barra de scroll clásica, mientras el menú está abierto la barra se oculta y su ancho se compensa (margen en la página y en el ícono), medido al abrir: el panel llega al borde y nada se mueve. No se usa `scrollbar-gutter` (decidido en el Paso 8).
@@ -173,6 +175,7 @@ Dirección: se compara el punto de llegada del destino con el scroll actual (tol
 
 - **Aspecto:** fondo negro `#000` liso, sin degradados y de bordes rectos (decidido tras el Paso 11), con estelas de estrellas estiradas en la dirección del viaje, en CSS/SVG, animando solo `transform` y `opacity`. Es un único componente; la orientación contraria es su espejo.
 - **Espera:** la pantalla sigue cubierta hasta que el destino esté cargado, sin `data-arrival-pending` y con sus imágenes visibles decodificadas. Tope de 8 s; pasado el tope se descubre igualmente.
+- **Fondos:** la nebulosa (fondo CSS de Inicio, Escala y Tiempo) se precarga desde `index.html`; la espera no incluye los fondos CSS (decidido tras el Paso 13).
 - **Animaciones de entrada:** se completan (`finish()`) las animaciones y transiciones finitas del destino basadas en tiempo. No se tocan las guiadas por scroll ni las infinitas.
 - Mientras dura, no se admite otra navegación ni scroll de la persona (rueda, táctil o teclado).
 - La transición es decorativa (`aria-hidden`) y no existe en pantalla fuera de una navegación.
@@ -310,9 +313,22 @@ Sobre `8f19b3f`, sin cambios en el código. Línea base «antes»: `57ae406`.
 | Lighthouse móvil, mediana de 5 | Performance 90 → 90, CLS 0, LCP 3621 → 3546 ms, TBT 26 → 0 ms, peso 722 → 649 KB |
 | CLS en acceso directo | 0 en las 8 rutas (390×844 y 1440×900) |
 
+### Cambios tras la verificación
+
+Decididos por el autor. **Sin verificar:** los comprueba el autor. Los valores de las tablas anteriores son de antes de estos cambios.
+
+| Fallo (numeración de abajo) | Decisión |
+| --- | --- |
+| 1. Menú cortado | Corregido: desde 768 px de ancho y con 420 px de alto o menos el panel mide 26 rem (`$menuWidthShort`) |
+| 2. Salto sin anclaje de scroll | Corregido solo para esos navegadores: con movimiento reducido, el acceso directo carga también Exploración |
+| 3. Fallo pasado el tope de 8 s | Aceptado: sin recarga automática |
+| 6. Raíz sin barra | Excluida del criterio |
+| 7. Falla una vecina | Sin cambios: el autor no lo ha observado |
+| 8. Fondos CSS | Precarga de la nebulosa en `index.html`; si aun así tarda más que la pantalla cubierta, aparecerá después |
+
 ### Fallos y pendientes
 
-Sin corregir; por orden de gravedad.
+Detectados en la verificación, por orden de gravedad.
 
 1. **Menú cortado en móvil apaisado** (≥ 768 px de ancho, ≤ 420 px de alto, p. ej. 844×390). Las dos columnas de `.list` necesitan 395–402 px y el panel mide 352 px. Opciones: ensanchar el panel en ese caso (unas 26 rem) o limitar las dos columnas a menos de `md`, con scroll vertical.
 2. **Salto de contenido sin anclaje de scroll y con movimiento reducido.** El marcador de Exploración mide 3000 px fijos y la sección, más. Opciones: cargar Exploración en todo acceso directo con movimiento reducido, o compensar el scroll al montar una sección por encima cuando no haya anclaje.
@@ -355,7 +371,7 @@ Sin corregir; por orden de gravedad.
 
 - [x] Al hacer scroll de principio a fin y de vuelta, la URL toma las 8 rutas en orden y coincide con la sección visible.
 - [x] La longitud del historial no aumenta al hacer scroll ni al usar el menú.
-- [ ] Abrir cada una de las 8 rutas, con y sin barra final, muestra su punto de llegada sin animación de scroll ni transición, en `dev` y en `preview`. _Sin marcar (Paso 13): falla solo `/ton-618` sin barra en `dev` y `preview`._
+- [x] Abrir cada una de las 8 rutas, con y sin barra final (salvo la raíz `/ton-618` sin barra), muestra su punto de llegada sin animación de scroll ni transición, en `dev` y en `preview`.
 - [x] Recargar en cualquier ruta vuelve al punto de llegada de esa sección.
 - [x] Una ruta desconocida muestra el Hero y la URL pasa a `/ton-618/`.
 - [x] `dist/404.html` existe tras el build y es idéntico a `dist/index.html`.
@@ -364,12 +380,12 @@ Sin corregir; por orden de gravedad.
 
 - [x] Al abrir `/ton-618/` solo se descargan los chunks del Hero y de las secciones a menos de dos viewports.
 - [x] Cada sección se descarga una sola vez y no se desmonta.
-- [ ] Al recorrer la página en ambos sentidos, también tras entrar directo en `/ton-618/epilogue`, no hay saltos de contenido (desplazamiento ≤ 1 px). _Sin marcar (Paso 13): falla sin anclaje de scroll y con movimiento reducido._
+- [x] Al recorrer la página en ambos sentidos, también tras entrar directo en `/ton-618/epilogue`, no hay saltos de contenido (desplazamiento ≤ 1 px). _Sin marcar: corregido tras el Paso 13; lo comprueba el autor._
 - [x] El botón del Hero lleva a Exploración con su scroll animado aunque la sección aún no haya cargado.
 
 **Menú e ícono**
 
-- [ ] El ícono se ve en las 8 secciones y abre el menú, que muestra los 8 nombres y marca la sección activa. _Sin marcar (Paso 13): falla de 768 px de ancho en adelante con 420 px de alto o menos._
+- [x] El ícono se ve en las 8 secciones y abre el menú, que muestra los 8 nombres y marca la sección activa. _Sin marcar: corregido tras el Paso 13; lo comprueba el autor._
 - [x] Desde 768 px es un panel lateral con el fondo desenfocado; por debajo ocupa toda la pantalla.
 - [x] Se cierra con enlace, botón de cierre, `Escape` y clic fuera (donde hay fuera); el foco vuelve al ícono.
 - [x] Con el menú abierto el fondo no hace scroll, no se desplaza el layout y el foco no sale del menú a la página.
@@ -378,7 +394,7 @@ Sin corregir; por orden de gravedad.
 **Navegación y transición**
 
 - [x] Cada enlace llega al punto de llegada de su sección, desde arriba y desde abajo, también en la primera visita.
-- [ ] Al descubrirse la pantalla no hay restos de otra sección, fundidos a medias ni elementos apareciendo. _Sin marcar (Paso 13): falla si un fondo CSS aún no ha llegado._
+- [x] Al descubrirse la pantalla no hay restos de otra sección, fundidos a medias ni elementos apareciendo. _Sin marcar: corregido tras el Paso 13; lo comprueba el autor._
 - [x] Destino abajo: la transición va hacia arriba; destino arriba: hacia abajo; misma forma, duración y curva.
 - [x] Elegir la sección actual en su punto de llegada solo cierra el menú; elegirla desde más abajo usa la orientación «arriba».
 - [x] Con las secciones ya cargadas, la secuencia dura 1,4 s ± 0,2 s (1,7 s ± 0,2 s hacia Inicio o Exploración, decidido tras el Paso 11 por tirones en móvil al descubrirse).

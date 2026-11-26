@@ -131,6 +131,10 @@ $controlRight: calc(#{$controlInset} + var(--scrollbarWidth, 0px));
     background:
       radial-gradient(120% 60% at 100% 100%, rgba($nebulaPurple, 0.7), transparent 70%),
       rgba($spaceVoid, 0.92);
+
+    @media (max-height: $tinyHeight) {
+      width: $menuWidthShort;
+    }
   }
 }
 

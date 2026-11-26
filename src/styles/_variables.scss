@@ -383,6 +383,8 @@ $menuClearRight: calc(
 );
 // Ancho del panel lateral (desde `md`) y desenfoque fijo del fondo
 $menuWidth: 22rem;
+// Con poca altura (`$tinyHeight`) los enlaces van en dos columnas y el panel se ensancha
+$menuWidthShort: 26rem;
 $menuBlur: 10px;
 // Entrada del panel (la salida usa `$motionFast`)
 $motionMenu: 320ms;

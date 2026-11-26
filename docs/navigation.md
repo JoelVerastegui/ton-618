@@ -39,8 +39,9 @@ Las rutas y los textos del menú viven en `src/data/navigation.json`.
 - La restauración de scroll del navegador está desactivada: manda la ruta.
 - Al abrir o recargar la ruta de una sección se cargan ella y sus vecinas, la página se coloca en su punto de llegada, sin animación de scroll ni transición, y sus animaciones de entrada aparecen completas. Si la persona toma el control durante la carga, la página no se vuelve a mover.
 - Recargar no conserva la posición dentro de la sección: vuelve a su punto de llegada.
+- Con movimiento reducido y sin anclaje de scroll (`overflow-anchor`) se carga además Exploración, para que montarla después no mueva la página.
 - La ruta de inicio no se toca: el Hero conserva su animación de carga.
-- Se aceptan rutas con y sin barra final. Una ruta desconocida se reemplaza por la de inicio.
+- Se aceptan rutas con y sin barra final (salvo la raíz `/ton-618` sin barra). Una ruta desconocida se reemplaza por la de inicio.
 
 ## Carga bajo demanda
 
@@ -48,7 +49,7 @@ Las rutas y los textos del menú viven en `src/data/navigation.json`.
 - Cada una se carga cuando su marcador de posición está a menos de dos alturas de viewport, o cuando una navegación la pide. Una navegación carga el destino y sus vecinas antes de medir.
 - Una sección cargada queda montada: conserva su estado.
 - El marcador de posición tiene el `id` de la sección, su altura, su margen de solape y su punto de llegada: la carga no desplaza el contenido ni hace que un salto caiga en otra posición. Las medidas se comparten en `src/styles/_sectionTracks.scss`. Evidencia y Epílogo miden según su contenido, así que su marcador reserva su altura mínima.
-- Si falla la descarga del destino de una navegación, se carga la página completa en su ruta. En los demás casos queda el marcador de posición, sin reintentos.
+- Si falla la descarga del destino de una navegación, se carga la página completa en su ruta. En los demás casos, incluido un fallo pasado el tope de 8 s, queda el marcador de posición, sin reintentos ni recarga automática.
 
 ## Punto de llegada
 
@@ -77,7 +78,7 @@ Tras el salto se debe ver **el inicio de la sección al 100%**, desde cualquier 
 
 - Se abre con un botón fijo arriba a la derecha, visible en todas las secciones, de al menos 44×44 px y dentro de las áreas seguras.
 - Es un `<dialog>` modal con un botón de cierre y un enlace por sección. La sección activa lleva `aria-current`.
-- Desde el breakpoint `md` de Bootstrap es un panel lateral y el resto de la pantalla se ve desenfocado (`backdrop-filter` de radio fijo; sin soporte, se oscurece). Por debajo ocupa toda la pantalla.
+- Desde el breakpoint `md` de Bootstrap es un panel lateral y el resto de la pantalla se ve desenfocado (`backdrop-filter` de radio fijo; sin soporte, se oscurece). Con 420 px de alto o menos, el panel es más ancho para sus dos columnas de enlaces. Por debajo de `md` ocupa toda la pantalla.
 - Se cierra al elegir un enlace, con el botón de cierre, con `Escape` o con un clic fuera del panel. El foco vuelve al ícono.
 - `Tab` desde el ícono sigue en el primer control de la sección activa, no al principio de la página.
 - Mientras está abierto, la página de fondo no hace scroll. Con barra de scroll clásica, la barra se oculta y su ancho se compensa para que nada se mueva.
@@ -102,6 +103,7 @@ Ambas son la misma transición (forma, duración y curva); una es el espejo de l
 | Salida   | 600 ms   | La transición sale en la misma orientación                                                    |
 
 - La pantalla sigue cubierta hasta que el destino está cargado, sin `data-arrival-pending` y con sus imágenes visibles decodificadas. Tope de 8 s desde que está cubierta; pasado, se descubre igualmente.
+- La nebulosa de fondo se precarga desde `index.html`; la espera no incluye los fondos CSS.
 - Mientras dura no se admite otra navegación ni entradas de la persona (rueda, táctil, teclado y clic). Los atajos del navegador siguen funcionando.
 - Las secciones intermedias no cambian la URL ni se muestran.
 - Si la sección elegida es la actual y la página está en su punto de llegada, solo se cierra el menú. Si la página está más abajo dentro de ella, el destino se considera arriba.
