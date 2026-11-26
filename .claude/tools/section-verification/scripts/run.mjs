@@ -93,11 +93,7 @@ async function serve() {
 async function cleanup() {
   page?.close();
   children.forEach(killTree);
-  if (browser) {
-    killTree(browser.proc);
-    await new Promise((r) => setTimeout(r, 500));
-    fs.rmSync(browser.profileDir, { recursive: true, force: true });
-  }
+  if (browser) killTree(browser.proc); // también borra su perfil temporal
 }
 
 const ICON = { pass: '✓', fail: '✗', warn: '⚠', info: '·' };

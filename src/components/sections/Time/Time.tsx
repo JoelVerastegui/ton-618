@@ -112,6 +112,7 @@ export function Time() {
           {/* Salida hacia Experimento: transición de estrellas de abajo hacia arriba (solo anima en la cola final) */}
           <Distortion />
         </div>
+        <span data-arrival='time' className={styles.arrival} aria-hidden='true' />
       </div>
     </section>
   );

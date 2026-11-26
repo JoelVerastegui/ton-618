@@ -1,0 +1,97 @@
+@import '@/styles/variables';
+@import '@/styles/sectionTracks';
+
+// Marcadores de posición de las secciones sin cargar. Miden lo mismo que cada sección en cada modo
+// (movimiento reducido, sin `animation-timeline`) con los mixins que usa la propia sección.
+
+// Altura estimada de Exploración con movimiento reducido, donde mide según su contenido (entre
+// ≈ 3 000 y 3 900 px en los viewports de referencia).
+$explorationReducedMinHeight: 3000px;
+
+// Transparente y sin puntero: los solapados quedan sobre la sección anterior.
+.placeholder {
+  position: relative;
+  pointer-events: none;
+}
+
+.body {
+  display: block;
+}
+
+.arrival {
+  @include arrivalMarker;
+}
+
+.exploration {
+  @include explorationUnit;
+
+  .body {
+    @include explorationTrackHeight;
+
+    @media (prefers-reduced-motion: reduce) {
+      height: $explorationReducedMinHeight;
+    }
+  }
+}
+
+.science {
+  @include explorationUnit;
+  @include scienceOverlap;
+
+  .body {
+    @include scienceTrackSize;
+  }
+
+  .arrival {
+    @include scienceArrival;
+  }
+}
+
+.scale {
+  @include scaleSpans;
+  @include scaleOverlap;
+
+  .body {
+    @include scaleTrackHeight;
+  }
+
+  .arrival {
+    @include scaleArrival;
+  }
+}
+
+.time {
+  @include timeSpans;
+  @include timeOverlap;
+
+  .body {
+    @include timeTrackSize;
+  }
+
+  .arrival {
+    @include timeArrival;
+  }
+}
+
+.experiment {
+  @include experimentSpans;
+  @include experimentOverlap;
+
+  .body {
+    @include experimentTrackSize;
+  }
+}
+
+.evidence {
+  @include evidenceTail;
+
+  .body {
+    @include evidenceMinHeight;
+  }
+}
+
+.epilogue {
+  .body {
+    @include epilogueMinHeight;
+  }
+}

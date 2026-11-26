@@ -5,17 +5,17 @@
 
 $touch: 2.75rem; // 44 px: área táctil mínima
 $barSize: 2px;
+// Ancho de la fila: deja 1 rem a la izquierda y, a la derecha, el hueco del ícono de menú
+$rowWidth: min(22rem, calc(100% - 1rem - #{$menuClearRight}));
 
-// Móvil y tablet: fila horizontal arriba con 4 segmentos de 44 px de alto.
-// Side-by-side: rail vertical en el borde izquierdo.
+// Móvil y tablet: fila horizontal arriba con 4 segmentos de 44 px de alto, centrada mientras quepa
+// junto al ícono de menú. Side-by-side: rail vertical en el borde izquierdo.
 .nav {
   position: absolute;
   top: max(0.5rem, env(safe-area-inset-top));
-  right: 0;
-  left: 0;
+  left: min(calc(50% - #{$rowWidth} / 2), calc(100% - #{$menuClearRight} - #{$rowWidth}));
   z-index: 4;
-  width: min(22rem, calc(100% - 2rem));
-  margin-inline: auto;
+  width: $rowWidth;
   overflow: hidden;
   background-color: rgba($cosmicBlue, 0.82);
   border: 1px solid rgba($starlight, 0.14);
@@ -23,7 +23,6 @@ $barSize: 2px;
 
   @media #{$sideBySide} {
     top: 0;
-    right: auto;
     bottom: 0;
     left: max(0.5rem, env(safe-area-inset-left));
     width: calc(#{$touch} + #{$barSize});

@@ -1,4 +1,5 @@
 @import '@/styles/variables';
+@import '@/styles/sectionTracks';
 
 // Texto solo para lectores de pantalla
 %srOnly {
@@ -35,10 +36,8 @@
       var(--viewportExtra, 0px)
   );
   --panelRight: 1rem;
-  // Scroll de la intro (svh) antes del valor 0; sin movimiento no hay intro
-  --scaleIntro: #{$scaleIntro};
-  // Scroll del fundido final (svh) tras el último estado; sin movimiento o sin timeline no hay
-  --scaleFade: #{$scaleFade};
+  @include scaleSpans;
+  @include scaleOverlap;
   position: relative;
   // Por debajo de Ciencia, que sigue encima durante su fundido, y por encima de Tiempo, que solapa
   // su intro con el fundido final de Escala (ver `$sectionLayers`).
@@ -46,23 +45,6 @@
 
   @supports (height: 100dvh) {
     --viewportExtra: calc((100dvh - 100svh) / 2);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    --scaleIntro: 0;
-    --scaleFade: 0;
-  }
-
-  @supports not (animation-timeline: view()) {
-    --scaleFade: 0;
-  }
-
-  // El track solapa el fundido final de Ciencia (`$scienceFade`): su stage se pega mientras el
-  // de Ciencia sigue pegado encima, que se desvanece sobre el cielo de la intro. Sin esto, Ciencia
-  // se soltaría y subiría antes de empezar. Con reduced-motion no hay solape: corte directo.
-  @media (prefers-reduced-motion: no-preference) {
-    margin-top: calc(-100vh - #{$scienceFade}svh);
-    margin-top: calc(-100dvh - #{$scienceFade}svh);
   }
 
   @media (min-width: 360px) {
@@ -136,6 +118,11 @@
   height: calc(var(--scaleIntro) * 1svh);
   visibility: hidden;
   pointer-events: none;
+}
+
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include scaleArrival;
 }
 
 .stage {

@@ -1,5 +1,6 @@
 @import '@/styles/variables';
 @import '@/styles/deepSky';
+@import '@/styles/sectionTracks';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -22,8 +23,7 @@
 .section {
   position: relative;
   z-index: sectionLayer('evidence');
-  min-height: 100vh;
-  min-height: 100dvh;
+  @include evidenceMinHeight;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -46,18 +46,12 @@
 // toca el borde inferior de la pantalla y se queda ahí ese tramo de scroll antes de dar paso al
 // Epílogo (la sección, con `bottom: 0`, no puede subir más que el inicio del contenedor).
 .tail {
-  @media (prefers-reduced-motion: no-preference) {
-    margin-top: -100vh;
-    margin-top: -100dvh;
+  @include evidenceTail;
+}
 
-    // Tramo vacío (no relleno: un sticky no sube por encima del contenido de su contenedor)
-    &::before {
-      content: '';
-      display: block;
-      height: 60vh;
-      height: 60dvh;
-    }
-  }
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include arrivalMarker;
 }
 
 // Fondo: negro con estrellas de tres profundidades y nebulosa en blanco y negro, igual que el telón
@@ -130,6 +124,23 @@
   position: relative;
 }
 
+// Ícono de menú en vertical: la sección queda quieta (`sticky`) con el título o el comparador en lo
+// alto de la pantalla, así que le dejan sitio a la derecha. Móvil estrecho: solo por ese lado, para
+// no perder más ancho (los 1,25 rem son el padding de la sección).
+@media (max-width: 389.98px) and (orientation: portrait) {
+  .header,
+  .compare {
+    margin-right: calc(#{$menuClearRight} - 1.25rem);
+  }
+}
+
+// Tablet vertical: el comparador (cuadrado y casi tan ancho como la pantalla) se estrecha centrado.
+@media (min-width: 768px) and (max-width: 991.98px) and (orientation: portrait) {
+  .compare {
+    margin-inline: calc(#{$menuClearRight} - 1.25rem);
+  }
+}
+
 // Escritorio y móvil apaisado: título arriba a la izquierda, comparador en la mayor parte de la
 // altura y preguntas en una columna a la derecha. Todo cabe en 100dvh: `--compareMaxH` es el alto
 // que queda para el comparador (pantalla menos paddings, título y huecos).
@@ -177,5 +188,20 @@
   // Si una respuesta abierta hace crecer la sección, el comparador no se desplaza.
   .compare {
     align-items: flex-start;
+  }
+}
+
+// Apaisado con poca altura: con una respuesta abierta, la columna de preguntas llega a la altura del
+// ícono de menú, así que la sección le deja sitio.
+@media (max-height: 520px) and (orientation: landscape) {
+  .section {
+    padding-right: $menuClearRight;
+  }
+}
+
+// Apaisado muy bajo: la columna se queda en su mínimo para no encoger el comparador.
+@media (max-height: $tinyHeight) and (orientation: landscape) {
+  .section {
+    grid-template-columns: minmax(0, 1fr) 15rem;
   }
 }

@@ -82,6 +82,7 @@ export function Scale() {
 
         {/* Desde el final del track hacia abajo: el fundido terminó (ver `useSectionFaded`) */}
         <span ref={fadedRef} className={styles.fadedSentinel} aria-hidden='true' />
+        <span data-arrival='scale' className={styles.arrival} aria-hidden='true' />
       </div>
     </section>
   );

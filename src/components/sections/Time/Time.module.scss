@@ -1,5 +1,6 @@
 @import '@/styles/variables';
 @import '@/styles/distortion';
+@import '@/styles/sectionTracks';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -26,29 +27,21 @@
 .section {
   // Progreso total del track (0-1); el fallback sin timeline lo reescribe al hacer scroll
   --progress: 1;
-  // Cola pegajosa de la transición con Experimento (svh): el stage queda pegado mientras la
-  // transición de estrellas de abajo hacia arriba lo desvanece (ver `styles/_distortion.scss`). Sin movimiento no hay.
-  --timeFade: #{$timeFade};
+  @include timeSpans;
   position: relative;
   // Por debajo de Escala, que sigue encima durante su fundido, y por encima de Experimento, que
   // solapa su cola de salida (ver `$sectionLayers`).
   z-index: sectionLayer('time');
-
-  @media (prefers-reduced-motion: reduce) {
-    --timeIntro: 0;
-    --timeHold: 0;
-    --timeFade: 0;
-  }
 }
 
 .track {
   position: relative;
-  @include timeTrackHeight;
+  @include timeTrackSize;
+}
 
-  @media (prefers-reduced-motion: reduce) {
-    height: 100vh;
-    height: 100dvh;
-  }
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include timeArrival;
 }
 
 .stage {
@@ -185,6 +178,11 @@
     max-width: 14rem;
     // En la escena base ya está el mensaje: el título deja sitio a las etiquetas
     opacity: 0;
+  }
+
+  // Vertical estrecho: el texto llegaría bajo el ícono de menú, así que se centra en el hueco libre
+  @media (max-width: 389.98px) and (orientation: portrait) {
+    right: $menuClearRight;
   }
 }
 
@@ -681,8 +679,7 @@
   @supports (animation-timeline: view()) {
     .section {
       // Escala queda por encima durante el solape (ver `$sectionLayers`).
-      margin-top: calc(-100vh - #{$scaleFade}svh);
-      margin-top: calc(-100dvh - #{$scaleFade}svh);
+      @include timeOverlap;
       // El ancla `#time` aterriza al terminar la intro (cielo ya presente, partícula en el origen);
       // sin esto caería en el inicio del fundido de Escala, que aún se ve entera
       scroll-margin-top: -#{$timeIntro}svh;
@@ -837,7 +834,6 @@
 @media (prefers-reduced-motion: no-preference) {
   @supports not (animation-timeline: view()) {
     .section {
-      --timeIntro: 0;
       --progress: 0; // antes de la primera medición
       --run: calc(var(--progress) * #{$timeTravel + $timeHold + $timeFade});
       --travel: clamp(0, calc(var(--run) / #{$timeTravel}), 1);

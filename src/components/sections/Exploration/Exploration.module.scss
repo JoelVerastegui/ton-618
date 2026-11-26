@@ -1,5 +1,6 @@
 @import '@/styles/variables';
 @import '@/styles/eyelids';
+@import '@/styles/sectionTracks';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -29,7 +30,7 @@
 
 // Borde superior liso en $scene2Bg: sin costura con el overlay final del Hero.
 .section {
-  --explUnit: #{$explUnitMobile};
+  @include explorationUnit;
   position: relative;
   background-color: $scene2Bg;
 
@@ -43,7 +44,6 @@
   }
 
   @media #{$sideBySide} {
-    --explUnit: 1svh;
     --viewportExtra: 0px;
   }
 }
@@ -55,6 +55,11 @@
   position: relative;
   @include explorationTrackHeight;
   view-timeline: --explorationTrack block;
+}
+
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include arrivalMarker;
 }
 
 .stage {
@@ -150,6 +155,15 @@
   .cardAnswer {
     font-size: min(1rem, 5svh);
     line-height: 1.45;
+  }
+}
+
+// Apaisado muy bajo (p. ej. 568×320): la tarjeta llega a la altura del ícono de menú y le deja
+// sitio a la derecha. Su borde izquierdo no se mueve: solo se estrecha.
+@media (max-height: 340px) and (orientation: landscape) {
+  .card {
+    right: $menuClearRight;
+    width: min($cardWidth, calc(66vw - #{$menuClearRight} - 2rem));
   }
 }
 

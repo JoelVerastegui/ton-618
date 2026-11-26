@@ -1,0 +1,108 @@
+@use 'sass:list';
+@use 'sass:math';
+@import '../../../styles/variables';
+@import '../../../styles/starfield';
+
+// Estelas verticales, una por franja del ancho, que se repiten cada `$tile` y avanzan justo una
+// repetición por ciclo. Cabeza arriba (hacia donde viajan) y cola que se apaga. Deterministas.
+@mixin streaks($count, $seed, $tile, $width, $alpha) {
+  $images: ();
+  $positions: ();
+  $state: $seed;
+
+  @for $i from 0 to $count {
+    $state: starNext($state);
+    $x: math.div($i * 100 + starInt($state, 90), $count) * 1%;
+    $state: starNext($state);
+    $head: starInt($state, 50) * 1%;
+    $state: starNext($state);
+    $tail: $head + (15% + starInt($state, 30) * 1%);
+    // Una de cada cinco, ámbar
+    $color: rgba(if($i % 5 == 2, $solarAmber, $starlight), $alpha);
+
+    $images: list.append(
+      $images,
+      linear-gradient(transparent $head, $color 0, transparent $tail),
+      comma
+    );
+    $positions: list.append($positions, $x 0, comma);
+  }
+
+  --tile: #{$tile};
+
+  bottom: -$tile;
+  background-image: $images;
+  background-position: $positions;
+  background-size: $width $tile;
+  background-repeat: repeat-y;
+}
+
+// Todo el viewport, también con las barras del móvil ocultas; recibe los punteros. El destino
+// arriba usa el espejo vertical: misma forma, duración y curva.
+.hyperspace {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: $zTransition;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+  touch-action: none;
+
+  &[data-direction='up'] {
+    scale: 1 -1;
+  }
+}
+
+// Negro liso y de bordes rectos; sin animar, cubre la pantalla
+.veil {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: $spaceBlack;
+  will-change: transform;
+  animation: warpIn $motionWarpIn $easeWarp both;
+}
+
+[data-phase='out'] .veil {
+  animation: warpOut $motionWarpOut $easeWarp both;
+}
+
+.far,
+.near {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  will-change: transform;
+  animation: stream $motionStreakFar linear infinite;
+}
+
+.far {
+  @include streaks(22, 618, 36vh, 1px, 0.45);
+}
+
+.near {
+  @include streaks(14, 1618, 64vh, 2px, 0.9);
+
+  animation-duration: $motionStreakNear;
+}
+
+@keyframes warpIn {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes warpOut {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes stream {
+  to {
+    transform: translateY(calc(-1 * var(--tile)));
+  }
+}

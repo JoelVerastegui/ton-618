@@ -100,6 +100,7 @@ export function Experiment() {
     onReady: (engine) => {
       engine.distance = distanceRef.current;
       stageRef.current?.setAttribute('data-ready', 'true');
+      sectionRef.current?.removeAttribute('data-arrival-pending');
     },
     // `+`/`-` sobre el canvas: el motor ya cambió la distancia; el deslizante la sigue.
     onDistanceChange: (distance) => {
@@ -129,7 +130,14 @@ export function Experiment() {
   const orbit = (azimuth: number, tilt: number) => engineRef.current?.orbitBy(azimuth, tilt);
 
   return (
-    <section id='experiment' ref={sectionRef} aria-labelledby={TITLE_ID} className={styles.section}>
+    <section
+      id='experiment'
+      ref={sectionRef}
+      aria-labelledby={TITLE_ID}
+      className={styles.section}
+      // Hasta que el motor dibuja, la escena no está completa (ver `settleSection`)
+      data-arrival-pending
+    >
       <div ref={trackRef} className={styles.track}>
         <div ref={stageRef} className={styles.stage}>
           {/* Equivalente textual de la escena */}
@@ -206,6 +214,7 @@ export function Experiment() {
 
         {/* Al final del track: cuando termina la cola el stage queda oculto (pausa del motor) */}
         <span ref={fadedSentinelRef} className={styles.fadedSentinel} aria-hidden='true' />
+        <span data-arrival='experiment' className={styles.arrival} aria-hidden='true' />
       </div>
     </section>
   );

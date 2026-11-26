@@ -1,5 +1,6 @@
 @import '@/styles/variables';
 @import '@/styles/distortion';
+@import '@/styles/sectionTracks';
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
@@ -7,6 +8,8 @@
 $thumb: 1.25rem;
 $trackHeight: 4px;
 $buttonSize: 2.75rem; // 44 px: área táctil mínima
+// Apaisado bajo: ancho que la tarjeta se ahorra al esquivar su botón solo en el encabezado
+$cardTrim: 1.75rem;
 
 // Texto solo para lectores de pantalla
 %srOnly {
@@ -30,26 +33,19 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
 // El stage se queda pegado `$experimentHold` svh antes de su cola de salida, para poder usarlo sin
 // pasar de golpe a la transición.
 .section {
-  // Pausa pegada y cola de salida (svh): durante la cola el stage se desvanece bajo el telón
-  // de estrellas que sube (ver `styles/_distortion.scss`). Sin movimiento no hay pausa, cola ni solape.
-  --experimentHold: #{$experimentHold};
-  --experimentFade: #{$experimentFade};
+  // Durante la cola el stage se desvanece bajo el telón de estrellas que sube (ver
+  // `styles/_distortion.scss`).
+  @include experimentSpans;
+  @include experimentOverlap;
   position: relative;
   // Solapa el final de Tiempo (cuyo stage sigue pegado y se desvanece encima): se pinta por debajo
   // de él (ver `$sectionLayers`) y no recibe el puntero hasta que Tiempo queda oculto.
   z-index: sectionLayer('experiment');
 
   @media (prefers-reduced-motion: no-preference) {
-    margin-top: -100vh;
-    margin-top: -100dvh;
     // Evidencia queda bajo la cola (ver `$sectionLayers`): el track, sin controles, no captura el
     // puntero mientras se solapan. El stage (`.stage`) sí, hasta quedar `visibility: hidden`.
     pointer-events: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    --experimentHold: 0;
-    --experimentFade: 0;
   }
 }
 
@@ -57,8 +53,12 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
 // superior.
 .track {
   position: relative;
-  height: calc(100vh + (var(--experimentHold) + var(--experimentFade)) * 1svh);
-  height: calc(100dvh + (var(--experimentHold) + var(--experimentFade)) * 1svh);
+  @include experimentTrackSize;
+}
+
+// Punto de llegada de la navegación (ver `styles/_sectionTracks.scss`)
+.arrival {
+  @include arrivalMarker;
 }
 
 .stage {
@@ -182,6 +182,11 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
   @media (max-height: $shortHeight) and (orientation: landscape) {
     opacity: 0;
   }
+
+  // Vertical estrecho: el texto llegaría bajo el ícono de menú, así que se centra en el hueco libre
+  @media (max-width: 389.98px) and (orientation: portrait) {
+    right: $menuClearRight;
+  }
 }
 
 .title {
@@ -201,6 +206,12 @@ $buttonSize: 2.75rem; // 44 px: área táctil mínima
   color: $amberText;
   font-size: 0.875rem;
   letter-spacing: 0.04em;
+
+  // Vertical estrecho: sin espaciado extra cabe en una línea en el hueco libre y no baja hasta la
+  // tarjeta
+  @media (max-width: 389.98px) and (orientation: portrait) {
+    letter-spacing: normal;
+  }
 }
 
 // --- Zoom ----------------------------------------------------------------------------
@@ -461,7 +472,8 @@ $controlShadow:
 
   .info {
     top: 0.5rem;
-    width: min(16rem, 38vw);
+    right: $menuClearRight; // a la izquierda del ícono de menú
+    width: calc(min(16rem, 38vw) - #{$cardTrim});
     translate: 0 0;
 
     &[data-open='false'] {
@@ -469,8 +481,15 @@ $controlShadow:
     }
   }
 
+  // Solo el antetítulo y el título esquivan el botón: la tarjeta, más estrecha y con la misma
+  // columna de texto, tapa menos disco
   .card {
-    padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .tidalKicker,
+  .tidalTitle {
+    padding-right: $cardTrim;
   }
 
   .tidalTitle {
@@ -481,7 +500,7 @@ $controlShadow:
 // Pantallas muy bajas (p. ej. 568×320): la tarjeta algo más ancha (menos líneas)
 @media (max-height: 400px) and (orientation: landscape) {
   .info {
-    width: min(20rem, 46vw);
+    width: calc(min(20rem, 46vw) - #{$cardTrim});
 
     &[data-open='false'] {
       width: auto;

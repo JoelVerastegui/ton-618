@@ -8,6 +8,7 @@ import {
   sunVisible,
   zoomAt,
 } from '@/utils/scaleGeometry';
+import { trackScrollAnimation } from '@/utils/scrollAnimations';
 
 // Tiempo sin escrituras tras el que se considera que el zoom dejó de moverse.
 const IDLE_MS = 160;
@@ -78,6 +79,7 @@ export function useScaleZoom(
       const start = performance.now();
       let frame = 0;
       const stop = () => {
+        untrack();
         cancelAnimationFrame(frame);
         window.removeEventListener('wheel', stop);
         window.removeEventListener('touchstart', stop);
@@ -95,6 +97,7 @@ export function useScaleZoom(
       window.addEventListener('touchstart', stop, { passive: true });
       window.addEventListener('keydown', stop);
       animationRef.current = stop;
+      const untrack = trackScrollAnimation(stop);
       frame = requestAnimationFrame(step);
     },
     [cancelAnimation, scrollTop]

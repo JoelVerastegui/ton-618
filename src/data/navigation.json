@@ -1,0 +1,15 @@
+{
+  "menuLabel": "Secciones",
+  "openLabel": "Abrir menú",
+  "closeLabel": "Cerrar menú",
+  "links": [
+    { "id": "hero", "path": "", "label": "Inicio" },
+    { "id": "exploration", "path": "exploration", "label": "Exploración" },
+    { "id": "science", "path": "science", "label": "Ciencia" },
+    { "id": "scale", "path": "scale", "label": "Escala" },
+    { "id": "time", "path": "time", "label": "Tiempo" },
+    { "id": "experiment", "path": "experiment", "label": "Experimento" },
+    { "id": "evidence", "path": "evidence", "label": "Evidencia" },
+    { "id": "epilogue", "path": "epilogue", "label": "Epílogo" }
+  ]
+}

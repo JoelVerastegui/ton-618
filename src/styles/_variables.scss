@@ -370,6 +370,42 @@ $sciCompact: '(max-width: 700px) and (orientation: landscape)';
 }
 
 // ---------------------------------------------------------------------------
+// Menú de secciones (SPEC 09)
+// ---------------------------------------------------------------------------
+// Caja del ícono: lado y distancia a los bordes superior y derecho (o el área segura, si es mayor)
+$menuButtonSize: 2.75rem; // 44 px
+$menuButtonInset: 0.75rem;
+// Hueco que el contenido en reposo deja libre al ícono, medido desde el borde derecho: caja del
+// ícono, su distancia al borde (o el área segura, que arriba solo lo baja) y 8 px de aire
+$menuButtonAir: 0.5rem;
+$menuClearRight: calc(
+  max(#{$menuButtonInset}, env(safe-area-inset-right)) + #{$menuButtonSize + $menuButtonAir}
+);
+// Ancho del panel lateral (desde `md`) y desenfoque fijo del fondo
+$menuWidth: 22rem;
+// Con poca altura (`$tinyHeight`) los enlaces van en dos columnas y el panel se ensancha
+$menuWidthShort: 26rem;
+$menuBlur: 10px;
+// Entrada del panel (la salida usa `$motionFast`)
+$motionMenu: 320ms;
+// Por encima de todas las secciones (ver `$sectionLayers`)
+$zMenu: 100;
+
+// ---------------------------------------------------------------------------
+// Transición entre secciones (SPEC 09)
+// ---------------------------------------------------------------------------
+// Entrada (cubre la pantalla) y salida (la descubre), con la misma curva. La pausa cubierta y el
+// tope de espera están en `useSectionNavigation`.
+$motionWarpIn: 500ms;
+$motionWarpOut: 600ms;
+$easeWarp: cubic-bezier(0.65, 0, 0.35, 1);
+// Ciclo de las estelas lejanas y cercanas (las rápidas dan la profundidad)
+$motionStreakFar: 600ms;
+$motionStreakNear: 450ms;
+// Por encima del ícono y del menú
+$zTransition: 110;
+
+// ---------------------------------------------------------------------------
 // Sobrescrituras de Bootstrap (redefinición de variables !default)
 // ---------------------------------------------------------------------------
 $enable-dark-mode: false;

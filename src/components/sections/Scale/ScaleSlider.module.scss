@@ -125,7 +125,28 @@ $trackHeight: 4px;
   }
 
   .stop {
+    min-width: 2.75rem;
     padding: 0.125rem;
     font-size: 0.875rem;
+  }
+}
+
+// Apaisado bajo con el panel a la derecha del visor: el control va arriba, junto al ícono de menú,
+// y la tarjeta debajo, ya por debajo de él y con todo el ancho (ver `.panel` en `Scale`).
+@media (max-width: 991px) and (max-height: $shortHeight) and (orientation: landscape) {
+  .control {
+    order: -1;
+    // El panel ya deja 0,5 rem a la derecha
+    margin: 0 calc(#{$menuClearRight} - 0.5rem) 0 0;
+    padding-inline: 0.25rem;
+  }
+
+  // Columnas según su texto: «Sistema solar» necesita más ancho que «Sol»; «TON 618», en una línea
+  .stops {
+    grid-template-columns: repeat(3, auto) max-content;
+  }
+
+  .stop {
+    padding-inline: 0;
   }
 }

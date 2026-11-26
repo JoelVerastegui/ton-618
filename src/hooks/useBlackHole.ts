@@ -136,9 +136,10 @@ export function useBlackHole(
 
         // --- Tamaño y DPR ---
         const measure = () => {
-          const rect = canvas.getBoundingClientRect();
-          const width = Math.max(1, Math.round(rect.width));
-          const height = Math.max(1, Math.round(rect.height));
+          // Tamaño de layout: no cambia si el escenario está escalado (a 0 sin `animation-timeline`
+          // tras la cola), y `ResizeObserver` no avisa de las transformaciones
+          const width = Math.max(1, canvas.offsetWidth);
+          const height = Math.max(1, canvas.offsetHeight);
           const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
           engine.resize(width, height, dpr);
         };

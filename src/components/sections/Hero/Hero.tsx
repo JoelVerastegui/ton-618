@@ -55,6 +55,7 @@ export function Hero() {
           </div>
           <div className={styles.overlay} aria-hidden='true' />
         </div>
+        <span data-arrival='hero' className={styles.arrival} aria-hidden='true' />
       </div>
     </section>
   );

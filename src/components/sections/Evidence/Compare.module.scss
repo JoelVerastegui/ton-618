@@ -84,6 +84,23 @@ $knob: 2.75rem; // 44 px: área táctil mínima
   text-align: right;
 }
 
+// Caja estrecha (junto al ícono de menú): cada rótulo debe caber en su mitad; si pasa del centro se
+// corta o `Compare` lo oculta con el tirador en la posición inicial
+@container (max-width: 16rem) {
+  .label {
+    max-width: calc(50% - 0.25rem);
+    padding-inline: 0.1875rem;
+  }
+
+  .labelObservation {
+    left: 0.25rem;
+  }
+
+  .labelRepresentation {
+    right: 0.25rem;
+  }
+}
+
 // Control real: cubre toda la escena, invisible; el tirador visible se dibuja aparte. Pulgar de
 // 2 px para que la posición del puntero coincida con el valor.
 @mixin thumb {

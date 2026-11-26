@@ -1,0 +1,236 @@
+@import '../../../styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Distancia del ícono y del cierre al borde derecho. Con el scroll bloqueado se suma el ancho de la
+// barra que desaparece (ver `useScrollLock`): siguen en el mismo sitio.
+$controlInset: max(#{$menuButtonInset}, env(safe-area-inset-right));
+$controlRight: calc(#{$controlInset} + var(--scrollbarWidth, 0px));
+
+// Botón redondo del ícono y del cierre. Fondo propio casi opaco: se lee sobre cualquier escena.
+.control {
+  display: grid;
+  place-items: center;
+  width: $menuButtonSize;
+  height: $menuButtonSize;
+  padding: 0;
+  border: 1px solid rgba($starlight, 0.5);
+  border-radius: 50%;
+  background-color: rgba($spaceVoid, 0.8);
+  box-shadow: 0 0 0 1px rgba($spaceBlack, 0.6);
+  color: $starlight;
+  transition: border-color $motionFast ease;
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: $solarAmber;
+    }
+  }
+
+  // Doble anillo, claro y oscuro: visible sobre fondos de cualquier tono
+  &:focus-visible {
+    outline: 2px solid $starlight;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px rgba($spaceBlack, 0.75);
+  }
+}
+
+.toggle {
+  position: fixed;
+  top: max(#{$menuButtonInset}, env(safe-area-inset-top));
+  right: $controlInset;
+  z-index: $zMenu;
+
+  :global(html[data-scroll-lock]) & {
+    right: $controlRight;
+  }
+}
+
+// En el mismo sitio que el ícono, también durante la salida
+.close {
+  margin-top: max(#{$menuButtonInset}, env(safe-area-inset-top));
+  margin-right: $controlRight;
+}
+
+// Ocupa el viewport: lo que queda a la izquierda del panel es el «fuera». `display` y `overlay`
+// se retrasan para que se vea la salida; sin soporte, el menú se cierra al instante.
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: $zMenu;
+  // Fuera de `[open]`: durante la salida el diálogo sigue en pantalla y el panel no cambia de lado
+  justify-content: flex-end;
+  // Cuenta la barra de scroll: el panel no se corre cuando reaparece al cerrar
+  width: 100vw;
+  max-width: none;
+  height: 100%;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  // `clip` y no solo `hidden`: al enfocar el cierre, aún fuera de pantalla, el navegador
+  // desplazaría el diálogo y anularía la entrada desde la derecha
+  overflow: hidden;
+  overflow: clip;
+  border: 0;
+  background: transparent;
+  color: $starlight;
+  pointer-events: none;
+  touch-action: pinch-zoom;
+  transition:
+    display $motionFast allow-discrete,
+    overlay $motionFast allow-discrete;
+
+  &[open] {
+    display: flex;
+    pointer-events: auto;
+    transition-duration: $motionMenu;
+  }
+
+  // Sin `backdrop-filter`, solo oscurece. El radio es fijo: se anima la opacidad.
+  &::backdrop {
+    background: rgba($spaceBlack, 0.85);
+    opacity: 0;
+    transition:
+      opacity $motionFast ease,
+      display $motionFast allow-discrete,
+      overlay $motionFast allow-discrete;
+
+    @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+      background: rgba($spaceBlack, 0.4);
+      -webkit-backdrop-filter: blur($menuBlur);
+      backdrop-filter: blur($menuBlur);
+    }
+  }
+
+  &[open]::backdrop {
+    opacity: 1;
+    transition-duration: $motionMenu;
+  }
+}
+
+// Pantalla completa y translúcido; panel lateral desde `md`
+.panel {
+  width: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  background:
+    radial-gradient(120% 60% at 100% 100%, rgba($nebulaPurple, 0.55), transparent 70%),
+    rgba($spaceVoid, 0.6);
+  translate: 100% 0;
+  opacity: 0;
+  transition:
+    translate $motionFast $easeCinematic,
+    opacity $motionFast $easeCinematic;
+
+  @include media-breakpoint-up(md) {
+    width: $menuWidth;
+    padding-left: 0;
+    border-left: 1px solid rgba($starlight, 0.16);
+    background:
+      radial-gradient(120% 60% at 100% 100%, rgba($nebulaPurple, 0.7), transparent 70%),
+      rgba($spaceVoid, 0.92);
+
+    @media (max-height: $tinyHeight) {
+      width: $menuWidthShort;
+    }
+  }
+}
+
+.dialog[open] .panel {
+  translate: 0 0;
+  opacity: 1;
+  transition-duration: $motionMenu;
+  transition-timing-function: $easeOutExpo;
+}
+
+@starting-style {
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+
+  .dialog[open] .panel {
+    translate: 100% 0;
+    opacity: 0;
+  }
+}
+
+// Si los enlaces no caben (viewport muy bajo o texto ampliado), se desplazan ellos
+.nav {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.list {
+  padding: 0.5rem 1.5rem;
+
+  // Móvil apaisado: dos columnas, en el mismo orden (de arriba abajo)
+  @media (max-height: $tinyHeight) and (orientation: landscape) {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(4, auto);
+    column-gap: 1rem;
+  }
+}
+
+.link {
+  min-height: 3rem;
+  padding: 0 0.75rem;
+  border-radius: 0.5rem;
+  color: rgba($starlight, 0.85);
+  font-size: clamp(1.25rem, 1rem + 1.2vmin, 1.625rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition:
+    background-color $motionFast ease,
+    color $motionFast ease;
+
+  // Punto de órbita, relleno en la sección activa
+  &::before {
+    content: '';
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px solid rgba($starlight, 0.45);
+    border-radius: 50%;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: rgba($starlight, 0.08);
+      color: $starlight;
+    }
+  }
+
+  &:focus-visible {
+    background-color: rgba($starlight, 0.08);
+    color: $starlight;
+    outline: 2px solid $starlight;
+    outline-offset: -2px;
+  }
+
+  &[aria-current] {
+    color: $starlight;
+    font-weight: 500;
+
+    &::before {
+      border-color: $amberText;
+      background-color: $amberText;
+      box-shadow: 0 0 0.75rem $solarAmber;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .dialog[open],
+  .dialog::backdrop,
+  .dialog[open]::backdrop,
+  .panel,
+  .dialog[open] .panel {
+    transition: none;
+  }
+}
