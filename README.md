@@ -1,6 +1,8 @@
 # TON 618 
 
-Experiencia espacial interactiva e informativa sobre el agujero negro TON 618. SPA separado en varias secciones (no features), cada una con un contenido específico, incluyen animaciones avanzadas, transiciones dinámicas y una cohesión del diseño artístico. La navegación entre las secciones es por scroll o desde un menú lateral que salta a cada una (detalle en [docs/navigation.md](docs/navigation.md)), y se adapta a dispositivos desktop y móviles.
+Experiencia espacial interactiva e informativa sobre el agujero negro TON 618. SPA separado en varias secciones (no features), cada una con un contenido específico, incluyen animaciones avanzadas, transiciones dinámicas y una cohesión del diseño artístico. La navegación entre las secciones es por scroll o desde un menú lateral que salta a cada una (detalle en [docs/navigation.md](docs/navigation.md)), y se adapta a dispositivos desktop y móviles. 
+
+Sitio web: https://joelverastegui.github.io/ton-618/
 
 ## Tecnologías
 
@@ -29,16 +31,16 @@ La estructura del file system y la ubicación de los datos de proyectos están e
 
 ## Créditos y licencias
 
-Todos los créditos de los recursos del proyecto se declaran aquí, no en pantalla. Los recursos marcados como **pendiente** deben resolverse antes de publicar.
+Todos los créditos de los recursos del proyecto se declaran aquí.
 
-| Recurso | Dónde se usa | Origen y estado |
+| Recurso | Dónde se usa | Origen |
 | --- | --- | --- |
-| Demo «Black Hole» de Emergent Mind | Motor del agujero negro de la sección Experimento (`src/utils/blackHole/`, `src/hooks/useBlackHole.ts`): port a TypeScript del demo, con sus constantes y fórmulas | https://www.emergentmind.com/visualizations/black-hole. **Pendiente (bloqueante de publicación):** confirmar la licencia con el autor. |
-| Imagen de la Tierra | Escala y Tiempo (`src/assets/images/scale/earth.webp`) | NASA Science, «As the World Turns» (cámara EPIC de DSCOVR). **Pendiente:** confirmar la nota de crédito de la página original. |
-| Vídeo del cuásar | Ciencia (`src/assets/videos/science/`) | Simulación de un disco de acreción en GIF, tomada de una nota de prensa de lopezdoriga.com («NASA muestra simulación de cómo un agujero negro deforma el espacio»). **Pendiente:** confirmar autoría y licencia en la fuente original. |
-| Vídeo del Sol | Escala (`src/assets/videos/scale/`) | GIF de Pinterest sin autor ni licencia verificables; provisional. **Pendiente:** sustituir o licenciar. |
-| Sprites de los 8 planetas | Escala (`src/assets/images/scale/planets/`) | Imagen de Pinterest sin autor ni licencia verificables; provisional. **Pendiente:** sustituir por sprites con licencia clara. |
-| Agujero negro, nebulosa, campo profundo y Vía Láctea | Hero, Exploración, Escala y Tiempo (`src/assets/images/hero/`, `src/assets/images/exploration/`) | Imágenes generadas con IA a partir de los prompts de los specs 01 y 02. **Pendiente:** anotar herramienta y fecha de generación; los términos dependen del generador. |
+| Demo «Black Hole» de Emergent Mind | Motor del agujero negro de la sección Experimento (`src/utils/blackHole/`, `src/hooks/useBlackHole.ts`): port a TypeScript del demo, con sus constantes y fórmulas | https://www.emergentmind.com/visualizations/black-hole |
+| Imagen de la Tierra | Escala y Tiempo (`src/assets/images/scale/earth.webp`) | https://science.nasa.gov/resource/as-the-world-turns/ |
+| Vídeo del cuásar | Ciencia (`src/assets/videos/science/`) | https://lopezdoriga.com/ciencia-tecnologia/nasa-muestra-simulacion-de-como-un-agujero-negro-deforma-el-espacio/ |
+| Vídeo del Sol | Escala (`src/assets/videos/scale/`) | https://mx.pinterest.com/pin/1041809326326132142/ |
+| Sprites de los 8 planetas | Escala (`src/assets/images/scale/planets/`) | https://no.pinterest.com/pin/317011261296178357/ |
+| Agujero negro, nebulosa, campo profundo y Vía Láctea | Hero, Exploración, Escala y Tiempo (`src/assets/images/hero/`, `src/assets/images/exploration/`) | Google Gemini |
 | Observación de TON 618 | Evidencia (`src/assets/images/evidence/`) | Legacy Surveys (DR9), crédito: «Legacy Surveys / D. Lang (Perimeter Institute)». Licencia CC BY 4.0 (https://www.legacysurvey.org/acknowledgment/). Recortada, con reducción de ruido y reescalada a WebP. |
 | Space Grotesk | Tipografía (`src/assets/fonts/`) | SIL Open Font License 1.1 (`src/assets/fonts/SpaceGrotesk-OFL.txt`). |
 
